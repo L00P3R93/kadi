@@ -1,6 +1,12 @@
 <x-layouts::auth :title="__('Register')">
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Create an account')" :description="__('Enter your details below to create your account')" />
+        <div class="text-center">
+            <span class="inline-block rounded-full border border-[#f5c542]/40 bg-[#f5c542]/10 px-3 py-1 text-xs tracking-widest text-[#f5c542]">
+                🎁 +$500 Welcome Bonus
+            </span>
+        </div>
+
+        <x-auth-header :title="__('Join KADI KINGS')" :description="__('Create your account and claim your welcome bonus.')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -30,6 +36,16 @@
                 placeholder="email@example.com"
             />
 
+            <!-- Phone -->
+            <flux:input
+                name="phone"
+                :label="__('Phone Number')"
+                :value="old('phone')"
+                type="tel"
+                required
+                placeholder="+254 7XX XXX XXX"
+            />
+
             <!-- Password -->
             <flux:input
                 name="password"
@@ -54,14 +70,14 @@
 
             <div class="flex items-center justify-end">
                 <flux:button type="submit" variant="primary" class="w-full" data-test="register-user-button">
-                    {{ __('Create account') }}
+                    {{ __('Join & Play Now 🃏') }}
                 </flux:button>
             </div>
         </form>
 
         <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Already have an account?') }}</span>
-            <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+            <span>{{ __('Already a member?') }}</span>
+            <flux:link :href="route('login')" wire:navigate class="text-[#f5c542] hover:text-[#f5c542]">{{ __('Sign in →') }}</flux:link>
         </div>
     </div>
 </x-layouts::auth>

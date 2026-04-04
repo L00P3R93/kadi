@@ -21,7 +21,7 @@
             />
 
             <flux:button variant="primary" type="submit" class="w-full" data-test="confirm-password-button">
-                {{ __('Confirm') }}
+                {{ __('Confirm & Continue →') }}
             </flux:button>
         </form>
     </div>

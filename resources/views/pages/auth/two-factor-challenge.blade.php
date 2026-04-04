@@ -78,7 +78,7 @@
                         type="submit"
                         class="w-full"
                     >
-                        {{ __('Continue') }}
+                        {{ __('Verify & Enter 🎰') }}
                     </flux:button>
                 </div>
 

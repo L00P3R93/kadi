@@ -19,7 +19,7 @@
             />
 
             <flux:button variant="primary" type="submit" class="w-full" data-test="email-password-reset-link-button">
-                {{ __('Email password reset link') }}
+                {{ __('Send Reset Link 🔑') }}
             </flux:button>
         </form>
 

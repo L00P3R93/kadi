@@ -3,17 +3,18 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
-        <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-            <div class="flex w-full max-w-sm flex-col gap-2">
-                <a href="{{ route('home') }}" class="flex flex-col items-center gap-2 font-medium" wire:navigate>
-                    <span class="flex h-9 w-9 mb-1 items-center justify-center rounded-md">
-                        <x-app-logo-icon class="size-9 fill-current text-black dark:text-white" />
-                    </span>
-                    <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
+    <body class="min-h-screen bg-[#0a0a0a] antialiased">
+        <div class="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10"
+             style="background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);">
+            <div class="flex w-full max-w-md flex-col gap-6">
+                <a href="{{ route('home') }}" class="flex flex-col items-center gap-2" wire:navigate>
+                    <span class="text-2xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ KADI KINGS</span>
                 </a>
+
                 <div class="flex flex-col gap-6">
-                    {{ $slot }}
+                    <div class="rounded-2xl border border-yellow-800/40 bg-[#1a1a1a] px-10 py-8 shadow-2xl">
+                        {{ $slot }}
+                    </div>
                 </div>
             </div>
         </div>

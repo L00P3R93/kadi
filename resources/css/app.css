@@ -8,8 +8,25 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ─── Casino CSS variables ─────────────────────────────── */
+:root {
+  --casino-black: #0a0a0a;
+  --casino-dark: #111111;
+  --casino-card: #1a1a1a;
+  --gold: #f5c542;
+  --gold-2: #ffde74;
+  --gold-dim: #c9a84c;
+  --gold-shine: #fff0b0;
+  --gold-glow: rgba(245, 197, 66, 0.35);
+  --gold-gradient: linear-gradient(135deg, #f5c542 0%, #ffde74 50%, #f5c542 100%);
+  --casino-white: #f5f5f0;
+  --casino-muted: #6b6b6b;
+}
+
+/* ─── Tailwind theme ───────────────────────────────────── */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Outfit', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Cinzel', serif;
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -23,21 +40,269 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
-    --color-accent-foreground: var(--color-white);
+    --color-accent: #f5c542;
+    --color-accent-content: #f5c542;
+    --color-accent-foreground: #0a0a0a;
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        --color-accent: #f5c542;
+        --color-accent-content: #f5c542;
+        --color-accent-foreground: #0a0a0a;
     }
 }
 
-@layer base {
+/* ─── Keyframes ────────────────────────────────────────── */
+@keyframes goldShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
 
+@keyframes floatSymbol {
+  0%,  100% { transform: translateY(0px)   rotate(0deg)  scale(1);    opacity: 0.18; }
+  33%        { transform: translateY(-22px) rotate(6deg)  scale(1.05); opacity: 0.28; }
+  66%        { transform: translateY(-12px) rotate(-4deg) scale(0.97); opacity: 0.22; }
+}
+
+@keyframes float {
+  0%,  100% { transform: translateY(0px)   rotate(0deg); opacity: 0.15; }
+  50%        { transform: translateY(-30px) rotate(8deg); opacity: 0.35; }
+}
+
+@keyframes pulseRing {
+  0%   { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0;   }
+}
+
+@keyframes scanLine {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(400%)  skewX(-15deg); }
+}
+
+@keyframes meshShift {
+  0%,  100% { background-position: 0%   50%; }
+  50%        { background-position: 100% 50%; }
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0);    }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── Shimmer text ─────────────────────────────────────── */
+.shimmer-text {
+  background: linear-gradient(90deg, #f5c542 0%, #ffde74 30%, #fff0b0 50%, #ffde74 70%, #f5c542 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: goldShimmer 3s linear infinite;
+}
+
+/* ─── Primary gradient button ──────────────────────────── */
+.btn-casino-primary {
+  background: linear-gradient(135deg, #f5c542 0%, #ffde74 45%, #f5c542 100%);
+  color: #0a0a0a;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.btn-casino-primary:hover {
+  background: linear-gradient(135deg, #ffde74 0%, #ffe999 45%, #ffde74 100%);
+  box-shadow: 0 0 20px rgba(245, 197, 66, 0.45), 0 4px 15px rgba(245, 197, 66, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ─── Ghost gradient button ────────────────────────────── */
+.btn-casino-ghost {
+  background: transparent;
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+  color: #f5c542;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.btn-casino-ghost::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, #f5c542, #ffde74, #f5c542);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.btn-casino-ghost:hover {
+  color: #ffde74;
+  background: rgba(245, 197, 66, 0.08);
+}
+
+/* ─── Sports section button ────────────────────────────── */
+.btn-casino-sports {
+  background: linear-gradient(135deg, #1a7a1a 0%, #32c850 50%, #1a7a1a 100%);
+  color: #fff;
+  border: none;
+  transition: all 0.3s ease;
+}
+.btn-casino-sports:hover {
+  background: linear-gradient(135deg, #32c850 0%, #50e870 50%, #32c850 100%);
+  box-shadow: 0 0 20px rgba(50, 200, 80, 0.4);
+}
+
+/* ─── Glassmorphism cards ──────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(245, 197, 66, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.glass-card-hover:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(245, 197, 66, 0.35);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 197, 66, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-4px);
+}
+
+/* ─── PNG floating casino symbols ──────────────────────── */
+.casino-floater {
+  position: absolute;
+  animation-name: floatSymbol;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(245, 197, 66, 0.3));
+  user-select: none;
+}
+
+/* ─── Stat badges ───────────────────────────────────────── */
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(245, 197, 66, 0.1);
+  border: 1px solid rgba(245, 197, 66, 0.25);
+  color: #f5c542;
+  font-size: 0.72rem;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+/* ─── Sports: countdown box ─────────────────────────────── */
+.countdown-box {
+  background: rgba(50, 200, 80, 0.08);
+  border: 1px solid rgba(50, 200, 80, 0.25);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-family: 'Cinzel', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #32c850;
+  min-width: 64px;
+  text-align: center;
+}
+
+/* ─── Sports: sport pill ────────────────────────────────── */
+.sport-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 8px;
+  background: rgba(50, 200, 80, 0.05);
+  border: 1px solid rgba(50, 200, 80, 0.15);
+  border-radius: 12px;
+  animation: floatSymbol 6s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+.sport-pill:hover {
+  background: rgba(50, 200, 80, 0.12);
+  border-color: rgba(50, 200, 80, 0.4);
+  transform: translateY(-4px);
+}
+
+/* ─── Marquee ticker ─────────────────────────────────────── */
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+/* ─── Game card shimmer sweep ───────────────────────────── */
+.game-card {
+  position: relative;
+  overflow: hidden;
+}
+.game-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -75%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(to right, transparent, rgba(245, 197, 66, 0.08), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s;
+  pointer-events: none;
+}
+.game-card:hover::after {
+  left: 125%;
+}
+
+/* ─── Hero animated gradient mesh ──────────────────────── */
+.hero-mesh {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(245, 197, 66, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(245, 100,   0, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(100,  50, 200, 0.03) 0%, transparent 50%),
+    #0a0a0a;
+  background-size: 400% 400%;
+  animation: meshShift 15s ease infinite;
+}
+
+/* ─── Sports section background ─────────────────────────── */
+.sports-section {
+  background: linear-gradient(160deg, #0a0a0a 0%, #0f1a0f 40%, #0a1200 70%, #0a0a0a 100%);
+  position: relative;
+  overflow: hidden;
+}
+.sports-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(50, 200, 50, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(50, 200, 50, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.scan-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(50, 200, 80, 0.05), transparent);
+  animation: scanLine 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ─── Flux base overrides ───────────────────────────────── */
+@layer base {
     *,
     ::after,
     ::before,
@@ -52,7 +317,7 @@
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight;
 }
 
 input:focus[data-flux-control],
@@ -60,7 +325,3 @@ textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
-
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */
