@@ -21,7 +21,7 @@
                 {{-- Nav links --}}
                 <div class="hidden items-center gap-8 md:flex">
                     <a href="{{ route('home') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Home</a>
-                    <a href="#games" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Games</a>
+                    <a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Games</a>
                     <a href="#about" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
                     <a href="#promotions" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
                 </div>

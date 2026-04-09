@@ -193,7 +193,7 @@
         <h3 class="mb-6 text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Quick Play</h3>
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             @php
-                $games = [
+                $quickPlayGames = [
                     ['img'=>'/casino/kadi.png',          'name'=>'Kadi'],
                     ['img'=>'/casino/slot-machine-2.png','name'=>'Golden Slots'],
                     ['img'=>'/casino/roulette.png',      'name'=>'Roulette'],
@@ -202,7 +202,7 @@
                     ['img'=>'/casino/dice.png',          'name'=>'Royal Dice'],
                 ];
             @endphp
-            @foreach ($games as $game)
+            @foreach ($quickPlayGames as $game)
                 <a wire:click="$set('showComingSoonModal', true)" class="group flex flex-col items-center gap-3 rounded-xl border border-yellow-900/30 bg-[#1a1a1a] p-5 text-center transition hover:-translate-y-1 hover:border-[#f5c542]/50">
                     <img src="{{ $game['img'] }}" class="w-10 h-10 object-contain" alt="{{ $game['name'] }}" />
                     <span class="text-xs font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $game['name'] }}</span>
@@ -268,10 +268,19 @@
         @endif
     </div>
 
-    {{-- Coming Soon Modal (UI placeholder) --}}
+    {{-- Games Grid --}}
+    <section class="dashboard-games mt-8">
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-lg font-bold text-[#f5f5f0]" style="font-family:'Cinzel',serif;">Games</h2>
+            <a href="{{ route('guest.games') }}" class="text-xs text-[#f5c542] transition hover:text-[#ffde74]" wire:navigate>View all →</a>
+        </div>
+        @include('partials.games-grid', ['games' => $games])
+    </section>
+
+    {{-- Coming Soon Modal --}}
     <flux:modal wire:model="showComingSoonModal" class="max-w-sm">
         <div class="p-6 space-y-5">
-            <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Play Game</h3>
+            <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 {{ $selectedGame ?: 'Play Game' }}</h3>
             <p class="text-sm text-[#6b6b6b]">Coming Soon. Please contact support to add funds to your account.</p>
             <flux:button wire:click="$set('showComingSoonModal', false)" variant="ghost" class="w-full">Close</flux:button>
         </div>

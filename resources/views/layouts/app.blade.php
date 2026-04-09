@@ -38,7 +38,7 @@
                     @php
                         $navItems = [
                             ['icon' => '🏠', 'label' => 'Dashboard', 'route' => 'dashboard'],
-                            ['icon' => '🎮', 'label' => 'Games',     'route' => null],
+                            ['icon' => '🎮', 'label' => 'Games',     'route' => 'games'],
                             ['icon' => '👤', 'label' => 'Profile',   'route' => 'profile'],
                             ['icon' => '💰', 'label' => 'Wallet',    'route' => 'wallet'],
                         ];
