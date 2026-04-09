@@ -45,9 +45,9 @@
             <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <a href="{{ route('register') }}" wire:navigate
                    class="btn-casino-primary inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg no-underline transition-all hover:-translate-y-1">
-                    🎰 Create Free Account
+                    🎰 JOIN US
                 </a>
-                <a href="#games"
+                <a href="{{ route('guest.games') }}"
                    class="btn-casino-ghost inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg no-underline">
                     Browse Games
                 </a>

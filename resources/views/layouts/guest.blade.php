@@ -7,18 +7,19 @@
 
         {{-- Navbar --}}
         <nav
-            x-data="{ scrolled: false }"
+            x-data="{ scrolled: false, menuOpen: false }"
             x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 60 })"
-            :class="scrolled ? 'bg-black/60 backdrop-blur-xl border-b border-[#f5c542]/10 shadow-lg' : 'bg-transparent border-b border-transparent'"
-            class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out px-6 py-4"
+            :class="scrolled || menuOpen ? 'bg-black/80 backdrop-blur-xl border-b border-[#f5c542]/10 shadow-lg' : 'bg-transparent border-b border-transparent'"
+            class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out"
         >
-            <div class="mx-auto flex max-w-7xl items-center justify-between">
+            {{-- Top bar --}}
+            <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;" wire:navigate>
                     ♠ KADI KINGS
                 </a>
 
-                {{-- Nav links --}}
+                {{-- Desktop nav links --}}
                 <div class="hidden items-center gap-8 md:flex">
                     <a href="{{ route('home') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Home</a>
                     <a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Games</a>
@@ -26,23 +27,79 @@
                     <a href="#promotions" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
                 </div>
 
-                {{-- Auth buttons --}}
+                {{-- Right side: auth button + hamburger --}}
                 <div class="flex items-center gap-3">
                     @auth
                         <a href="{{ route('dashboard') }}" wire:navigate
-                           class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
+                           class="btn-casino-primary hidden md:inline-block rounded-full px-5 py-2 text-sm no-underline">
                             Dashboard
                         </a>
                     @else
                         <a href="{{ route('login') }}" wire:navigate
-                           class="btn-casino-ghost inline-block rounded-full px-5 py-2 text-sm no-underline">
+                           class="btn-casino-ghost hidden md:inline-block rounded-full px-5 py-2 text-sm no-underline">
                             Login
                         </a>
-                        <!--<a href="{{ route('register') }}" wire:navigate
-                           class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
-                            Sign Up
-                        </a> -->
                     @endauth
+
+                    {{-- Hamburger (mobile only) --}}
+                    <button
+                        @click="menuOpen = !menuOpen"
+                        class="flex h-9 w-9 items-center justify-center rounded-lg border border-[#f5c542]/20 text-[#f5f5f0]/70 transition hover:border-[#f5c542]/50 hover:text-[#f5c542] md:hidden"
+                        aria-label="Toggle menu"
+                    >
+                        <svg x-show="!menuOpen" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg x-show="menuOpen" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" x-cloak>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Mobile dropdown menu --}}
+            <div
+                x-show="menuOpen"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 -translate-y-2"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 -translate-y-2"
+                @click.away="menuOpen = false"
+                class="border-t border-[#f5c542]/10 bg-black/90 backdrop-blur-xl md:hidden"
+                x-cloak
+            >
+                <div class="flex flex-col divide-y divide-[#f5c542]/10 px-6 py-2">
+                    <a href="{{ route('home') }}" @click="menuOpen = false" wire:navigate
+                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Home</a>
+                    <a href="{{ route('guest.games') }}" @click="menuOpen = false" wire:navigate
+                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Games</a>
+                    <a href="#about" @click="menuOpen = false"
+                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
+                    <a href="#promotions" @click="menuOpen = false"
+                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
+
+                    {{-- Auth CTA — mobile only --}}
+                    <div class="py-4">
+                        @auth
+                            <a href="{{ route('dashboard') }}" @click="menuOpen = false" wire:navigate
+                               class="btn-casino-primary block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
+                                🎮 Go to Dashboard
+                            </a>
+                        @else
+                            <div class="flex flex-col gap-3">
+                                <a href="{{ route('login') }}" @click="menuOpen = false" wire:navigate
+                                   class="btn-casino-primary block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
+                                    Enter the Casino 🎰
+                                </a>
+                                <a href="{{ route('register') }}" @click="menuOpen = false" wire:navigate
+                                   class="btn-casino-ghost block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
+                                    Create Account →
+                                </a>
+                            </div>
+                        @endauth
+                    </div>
                 </div>
             </div>
         </nav>
