@@ -29,17 +29,19 @@
 
                 {{-- Right side: auth button + hamburger --}}
                 <div class="flex items-center gap-3">
-                    @auth
-                        <a href="{{ route('dashboard') }}" wire:navigate
-                           class="btn-casino-primary hidden md:inline-block rounded-full px-5 py-2 text-sm no-underline">
-                            Dashboard
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" wire:navigate
-                           class="btn-casino-ghost hidden md:inline-block rounded-full px-5 py-2 text-sm no-underline">
-                            Login
-                        </a>
-                    @endauth
+                    <div class="hidden md:block">
+                        @auth
+                            <a href="{{ route('dashboard') }}" wire:navigate
+                               class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
+                                Dashboard
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" wire:navigate
+                               class="btn-casino-ghost inline-block rounded-full px-5 py-2 text-sm no-underline">
+                                Login
+                            </a>
+                        @endauth
+                    </div>
 
                     {{-- Hamburger (mobile only) --}}
                     <button

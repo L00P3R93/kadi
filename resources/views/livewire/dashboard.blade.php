@@ -268,15 +268,6 @@
         @endif
     </div>
 
-    {{-- Games Grid --}}
-    <section class="dashboard-games mt-8">
-        <div class="mb-4 flex items-center justify-between">
-            <h2 class="text-lg font-bold text-[#f5f5f0]" style="font-family:'Cinzel',serif;">Games</h2>
-            <a href="{{ route('guest.games') }}" class="text-xs text-[#f5c542] transition hover:text-[#ffde74]" wire:navigate>View all →</a>
-        </div>
-        @include('partials.games-grid', ['games' => $games])
-    </section>
-
     {{-- Coming Soon Modal --}}
     <flux:modal wire:model="showComingSoonModal" class="max-w-sm">
         <div class="p-6 space-y-5">

@@ -324,7 +324,7 @@
                 </div>
                 <a href="{{ route('register') }}" wire:navigate
                    class="btn-casino-primary shrink-0 inline-block rounded-full px-8 py-4 no-underline">
-                    Claim Your Bonus →
+                    Claim Bonus →
                 </a>
             </div>
         </div>

@@ -16,7 +16,7 @@
                     loading="lazy"
                 />
             </div>
-            <div class="game-card__label">{{ $game['name'] }}</div>
+            <!--<div class="game-card__label">{{ $game['name'] }}</div>-->
         </div>
     @endforeach
 </div>
