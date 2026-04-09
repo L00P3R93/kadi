@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
+        @php
+            $noindex     = true;
+            $description = 'Sign in or create your Kadi Kings account to play casino games and claim your welcome bonus.';
+            $page        = 'auth';
+        @endphp
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-[#0a0a0a] antialiased">

@@ -4,8 +4,10 @@ namespace App\Livewire;
 
 use App\Services\GamesService;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Play Games | Kadi Kings')]
 class Games extends Component
 {
     public Collection $games;
@@ -26,6 +28,10 @@ class Games extends Component
     public function render()
     {
         return view('livewire.games')
-            ->layout('layouts.app');
+            ->layout('layouts.app')
+            ->layoutData([
+                'noindex' => true,
+                'page'    => 'dashboard',
+            ]);
     }
 }

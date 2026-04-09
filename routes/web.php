@@ -19,3 +19,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+Route::get('/sitemap.xml', function () {
+    $path = public_path('sitemap.xml');
+    abort_unless(file_exists($path), 404);
+    return response()->file($path, ['Content-Type' => 'application/xml']);
+});

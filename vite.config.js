@@ -12,6 +12,10 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    build: {
+        cssCodeSplit: true,
+        assetsInlineLimit: 4096,
+    },
     server: {
         cors: true,
         watch: {

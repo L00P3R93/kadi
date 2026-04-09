@@ -1,2 +1,11 @@
 User-agent: *
-Disallow:
+Allow: /
+
+Disallow: /dashboard
+Disallow: /play
+Disallow: /profile
+Disallow: /wallet
+Disallow: /settings/
+Disallow: /api/
+
+Sitemap: https://kadikings.co.ke/sitemap.xml

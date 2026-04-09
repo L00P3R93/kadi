@@ -10,10 +10,12 @@
             <div class="game-card__image-wrap">
                 <img
                     src="{{ asset($game['path']) }}"
+                    srcset="{{ asset($game['thumb']) }} 1x, {{ asset($game['path']) }} 2x"
                     alt="{{ $game['name'] }}"
                     width="{{ $game['width'] }}"
                     height="{{ $game['height'] }}"
                     loading="lazy"
+                    decoding="async"
                 />
             </div>
             <!--<div class="game-card__label">{{ $game['name'] }}</div>-->

@@ -152,6 +152,7 @@
             </div>
         </footer>
 
+        <x-structured-data :page="$page ?? 'home'" />
         @fluxScripts
     </body>
 </html>

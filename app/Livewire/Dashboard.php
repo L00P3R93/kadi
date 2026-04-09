@@ -6,8 +6,10 @@ use App\Services\GamesService;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Dashboard | Kadi Kings')]
 class Dashboard extends Component
 {
     public bool $showComingSoonModal = false;
@@ -49,6 +51,10 @@ class Dashboard extends Component
             'kadiBalance' => $kadiCustomer['balance'] ?? 0,
             'games' => app(GamesService::class)->all(),
         ])
-            ->layout('layouts.app');
+            ->layout('layouts.app')
+            ->layoutData([
+                'noindex' => true,
+                'page'    => 'dashboard',
+            ]);
     }
 }

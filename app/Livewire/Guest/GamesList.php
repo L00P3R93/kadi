@@ -4,8 +4,10 @@ namespace App\Livewire\Guest;
 
 use App\Services\GamesService;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Casino Games — Slots & Table Games | Kadi Kings')]
 class GamesList extends Component
 {
     public Collection $games;
@@ -28,6 +30,10 @@ class GamesList extends Component
     public function render()
     {
         return view('livewire.guest.games-list')
-            ->layout('layouts.guest');
+            ->layout('layouts.guest')
+            ->layoutData([
+                'description' => 'Browse all casino games at Kadi Kings — slots, blackjack, roulette, poker, and live dealer games available in Kenya.',
+                'page'        => 'games',
+            ]);
     }
 }

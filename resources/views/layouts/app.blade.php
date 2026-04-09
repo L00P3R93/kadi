@@ -120,6 +120,7 @@
             </div>
         </div>
 
+        <x-structured-data :page="$page ?? 'dashboard'" :noindex="true" />
         @fluxScripts
     </body>
 </html>

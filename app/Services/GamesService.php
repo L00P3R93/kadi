@@ -26,12 +26,13 @@ class GamesService
                 [, $slug, $width, $height, $ext] = $m;
 
                 return [
-                    'slug' => $slug,
-                    'name' => Str::title(str_replace(['-', '_'], ' ', $slug)),
-                    'file' => $filename,
-                    'path' => '/games/'.$filename,
-                    'width' => (int) $width,
-                    'height' => (int) $height,
+                    'slug'      => $slug,
+                    'name'      => Str::title(str_replace(['-', '_'], ' ', $slug)),
+                    'file'      => $filename,
+                    'path'      => '/games/'.$filename,
+                    'thumb'     => '/games/'.$filename,
+                    'width'     => (int) $width,
+                    'height'    => (int) $height,
                     'extension' => strtolower($ext),
                 ];
             })
