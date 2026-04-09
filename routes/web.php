@@ -9,7 +9,7 @@ use App\Livewire\Welcome;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', Welcome::class)->name('home');
-Route::get('/games', GamesList::class)->name('guest.games');
+Route::get('/lobby', GamesList::class)->name('guest.games');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
