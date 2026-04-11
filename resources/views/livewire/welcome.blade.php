@@ -43,10 +43,10 @@
 
             {{-- CTA buttons --}}
             <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <a href="{{ route('register') }}" wire:navigate
+                <!--<a href="{{ route('register') }}" wire:navigate
                    class="btn-casino-primary inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg no-underline transition-all hover:-translate-y-1">
                     🎰 JOIN US
-                </a>
+                </a>-->
                 <a href="{{ route('guest.games') }}"
                    class="btn-casino-ghost inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg no-underline">
                     Browse Games
@@ -193,91 +193,115 @@
         </div>
     </section>
 
-    {{-- ===================== SPORTS BETTING — COMING SOON ===================== --}}
-    <section class="sports-section py-20">
-        <div class="scan-sweep"></div>
-        <div class="mx-auto max-w-7xl px-6 relative z-10">
-            <div class="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
-
-                {{-- Left column --}}
+    {{-- ===================== SPORTS BETTING ===================== --}}
+    <section class="px-4 md:px-6 py-10 bg-[#0d0d0d]">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center justify-between mb-6">
                 <div>
-                    <span class="inline-flex items-center rounded-full border border-green-500/40 px-4 py-1 text-xs uppercase tracking-widest text-green-400 mb-6">
-                        COMING SOON
-                    </span>
-                    <h2 class="mb-2 text-4xl font-black text-white md:text-5xl" style="font-family: 'Cinzel', serif;">SPORTS BETTING</h2>
-
-                    {{-- Cycling sub-headline --}}
-                    <div x-data="{
-                        phrases: ['Premier League · La Liga · Serie A', 'NBA · NFL · Champions League', 'Cricket · Rugby · Formula 1', 'KPL · NSL · Harambee Stars'],
-                        current: 0,
-                        init() { setInterval(() => { this.current = (this.current + 1) % this.phrases.length }, 2500) }
-                    }" class="mb-4 h-7">
-                        <p x-text="phrases[current]" class="text-green-400 text-lg transition-all duration-500" style="font-family: 'Outfit', sans-serif;"></p>
-                    </div>
-
-                    <p class="mb-6 text-[#6b6b6b] leading-relaxed" style="font-family: 'Outfit', sans-serif;">
-                        The stadium is almost ready. KADI KINGS is launching the most electrifying sportsbook in East Africa — live odds, instant cashout, and premium markets across 40+ global sports.
-                    </p>
-
-                    {{-- Notify me form --}}
-                    <div class="flex gap-2 mb-6">
-                        <input type="email" placeholder="Enter your email for early access"
-                            class="flex-1 bg-white/5 border border-green-800/40 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-green-500/60" style="font-family: 'Outfit', sans-serif;" />
-                        <button class="btn-casino-sports px-6 py-3 rounded-lg text-sm font-semibold uppercase tracking-wider" style="font-family: 'Cinzel', serif;">
-                            Notify Me
-                        </button>
-                    </div>
-
-                    {{-- Countdown --}}
-                    <div x-data="{
-                        target: new Date(Date.now() + 90*24*60*60*1000),
-                        days: 0, hours: 0, mins: 0, secs: 0,
-                        init() {
-                            setInterval(() => {
-                                const diff = this.target - new Date();
-                                this.days  = Math.floor(diff / 86400000);
-                                this.hours = Math.floor((diff % 86400000) / 3600000);
-                                this.mins  = Math.floor((diff % 3600000) / 60000);
-                                this.secs  = Math.floor((diff % 60000) / 1000);
-                            }, 1000)
-                        }
-                    }">
-                        <div class="flex gap-4 mt-4">
-                            <div class="countdown-box" x-text="String(days).padStart(2,'0')">00</div>
-                            <span class="text-green-400 text-2xl self-center">:</span>
-                            <div class="countdown-box" x-text="String(hours).padStart(2,'0')">00</div>
-                            <span class="text-green-400 text-2xl self-center">:</span>
-                            <div class="countdown-box" x-text="String(mins).padStart(2,'0')">00</div>
-                            <span class="text-green-400 text-2xl self-center">:</span>
-                            <div class="countdown-box" x-text="String(secs).padStart(2,'0')">00</div>
-                        </div>
-                        <p class="text-xs text-gray-600 mt-2 tracking-widest uppercase" style="font-family: 'Outfit', sans-serif;">Days · Hours · Minutes · Seconds</p>
-                    </div>
+                    <h2 class="text-2xl font-bold text-white">⚽ Sports Betting</h2>
+                    <p class="text-gray-400 text-sm mt-1">Live odds on football, basketball, tennis and more</p>
                 </div>
+                <a href="{{ route('sportsbook') }}" wire:navigate
+                   class="text-[#f5c542] text-sm hover:underline font-semibold">
+                    View All →
+                </a>
+            </div>
 
-                {{-- Right column --}}
-                <div>
-                    <div class="grid grid-cols-3 gap-3 mb-6">
-                        @foreach([['⚽','Football'],['🏀','Basketball'],['🎾','Tennis'],['🏏','Cricket'],['🏉','Rugby'],['🏎️','Formula 1']] as $i => $sport)
-                            <div class="sport-pill" style="animation-delay: {{ $i * 0.15 }}s">
-                                <span class="text-2xl">{{ $sport[0] }}</span>
-                                <span class="text-xs text-gray-400 mt-1" style="font-family: 'Outfit', sans-serif;">{{ $sport[1] }}</span>
-                            </div>
-                        @endforeach
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                {{-- Card 1: EPL --}}
+                <div class="bg-[#111] border border-[#222] rounded-xl p-4 hover:border-[#f5c542] transition-all duration-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs text-[#f5c542] font-semibold uppercase tracking-wide">Premier League</span>
+                        <span class="text-xs text-gray-500">Today 20:00</span>
                     </div>
-
-                    {{-- Sports ticker --}}
-                    <div class="overflow-hidden border-t border-b border-green-900/30 py-2">
-                        <div class="flex gap-8 animate-marquee whitespace-nowrap">
-                            @foreach(['MAN UTD vs ARSENAL','CHELSEA vs LIVERPOOL','REAL MADRID vs BARCA','INTER vs JUVENTUS','PSG vs LYON','REDS vs BULLS','WARRIORS vs LAKERS'] as $match)
-                                <span class="text-green-400/60 text-xs tracking-wider" style="font-family: 'Outfit', sans-serif;">⚡ {{ $match }}</span>
-                            @endforeach
-                            @foreach(['MAN UTD vs ARSENAL','CHELSEA vs LIVERPOOL','REAL MADRID vs BARCA','INTER vs JUVENTUS','PSG vs LYON','REDS vs BULLS','WARRIORS vs LAKERS'] as $match)
-                                <span class="text-green-400/60 text-xs tracking-wider" style="font-family: 'Outfit', sans-serif;">⚡ {{ $match }}</span>
-                            @endforeach
+                    <div class="text-white font-semibold text-sm mb-4 text-center">
+                        <div>Manchester City</div>
+                        <div class="text-gray-500 text-xs my-1.5">vs</div>
+                        <div>Arsenal</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">1</div>
+                            <div class="text-[#f5c542] font-bold text-sm">2.10</div>
+                        </div>
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">X</div>
+                            <div class="text-[#f5c542] font-bold text-sm">3.40</div>
+                        </div>
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">2</div>
+                            <div class="text-[#f5c542] font-bold text-sm">3.20</div>
                         </div>
                     </div>
+                    <a href="{{ route('sportsbook') }}" wire:navigate
+                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-sm">
+                        Bet Now
+                    </a>
                 </div>
+
+                {{-- Card 2: La Liga --}}
+                <div class="bg-[#111] border border-[#222] rounded-xl p-4 hover:border-[#f5c542] transition-all duration-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs text-[#f5c542] font-semibold uppercase tracking-wide">La Liga</span>
+                        <span class="text-xs text-gray-500">Tomorrow 21:00</span>
+                    </div>
+                    <div class="text-white font-semibold text-sm mb-4 text-center">
+                        <div>Barcelona</div>
+                        <div class="text-gray-500 text-xs my-1.5">vs</div>
+                        <div>Real Madrid</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">1</div>
+                            <div class="text-[#f5c542] font-bold text-sm">2.50</div>
+                        </div>
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">X</div>
+                            <div class="text-[#f5c542] font-bold text-sm">3.10</div>
+                        </div>
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">2</div>
+                            <div class="text-[#f5c542] font-bold text-sm">2.80</div>
+                        </div>
+                    </div>
+                    <a href="{{ route('sportsbook') }}" wire:navigate
+                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-sm">
+                        Bet Now
+                    </a>
+                </div>
+
+                {{-- Card 3: NBA --}}
+                <div class="bg-[#111] border border-[#222] rounded-xl p-4 hover:border-[#f5c542] transition-all duration-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs text-[#f5c542] font-semibold uppercase tracking-wide">NBA</span>
+                        <span class="text-xs text-gray-500">Today 02:30</span>
+                    </div>
+                    <div class="text-white font-semibold text-sm mb-4 text-center">
+                        <div>LA Lakers</div>
+                        <div class="text-gray-500 text-xs my-1.5">vs</div>
+                        <div>Boston Celtics</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mb-4">
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">1</div>
+                            <div class="text-[#f5c542] font-bold text-sm">1.85</div>
+                        </div>
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">X</div>
+                            <div class="text-[#f5c542] font-bold text-sm">—</div>
+                        </div>
+                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
+                            <div class="text-[10px] text-gray-500">2</div>
+                            <div class="text-[#f5c542] font-bold text-sm">1.95</div>
+                        </div>
+                    </div>
+                    <a href="{{ route('sportsbook') }}" wire:navigate
+                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-sm">
+                        Bet Now
+                    </a>
+                </div>
+
             </div>
         </div>
     </section>

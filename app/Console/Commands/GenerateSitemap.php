@@ -16,6 +16,7 @@ class GenerateSitemap extends Command
         Sitemap::create()
             ->add(Url::create('/')->setPriority(1.0)->setChangeFrequency('daily'))
             ->add(Url::create('/lobby')->setPriority(0.9)->setChangeFrequency('weekly'))
+            ->add(Url::create('/sportsbook')->setPriority(0.9)->setChangeFrequency('weekly'))
             ->writeToFile(public_path('sitemap.xml'));
 
         $this->info('Sitemap written to public/sitemap.xml');

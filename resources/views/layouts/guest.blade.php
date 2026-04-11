@@ -16,20 +16,21 @@
             <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;" wire:navigate>
-                    ♠ KADI KINGS
+                    ♠ ANGEL PALACE
                 </a>
 
                 {{-- Desktop nav links --}}
                 <div class="hidden items-center gap-8 md:flex">
                     <a href="{{ route('home') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Home</a>
                     <a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Games</a>
+                    <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sportsbook</a>
                     <a href="#about" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
                     <a href="#promotions" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
                 </div>
 
                 {{-- Right side: auth button + hamburger --}}
                 <div class="flex items-center gap-3">
-                    <div class="hidden md:block">
+                    <!--<div class="hidden md:block">
                         @auth
                             <a href="{{ route('dashboard') }}" wire:navigate
                                class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
@@ -41,7 +42,7 @@
                                 Login
                             </a>
                         @endauth
-                    </div>
+                    </div>-->
 
                     {{-- Hamburger (mobile only) --}}
                     <button
@@ -77,13 +78,15 @@
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Home</a>
                     <a href="{{ route('guest.games') }}" @click="menuOpen = false" wire:navigate
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Games</a>
+                    <a href="{{ route('sportsbook') }}" @click="menuOpen = false" wire:navigate
+                       class="py-3 text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">🏆 Sportsbook</a>
                     <a href="#about" @click="menuOpen = false"
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
                     <a href="#promotions" @click="menuOpen = false"
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
 
                     {{-- Auth CTA — mobile only --}}
-                    <div class="py-4">
+                    <!--<div class="py-4">
                         @auth
                             <a href="{{ route('dashboard') }}" @click="menuOpen = false" wire:navigate
                                class="btn-casino-primary block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
@@ -101,7 +104,7 @@
                                 </a>
                             </div>
                         @endauth
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </nav>
@@ -115,7 +118,7 @@
                 <div class="grid grid-cols-1 gap-12 md:grid-cols-3">
                     {{-- Brand --}}
                     <div>
-                        <div class="mb-4 text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ KADI KINGS</div>
+                        <div class="mb-4 text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ ANGEL PALACE</div>
                         <p class="text-sm leading-relaxed text-[#6b6b6b]">
                             The premier destination for luxury online casino gaming. Experience the thrill of high-stakes entertainment from the comfort of your home.
                         </p>
@@ -137,7 +140,7 @@
                         <h4 class="mb-4 text-sm font-semibold uppercase tracking-widest text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Support</h4>
                         <ul class="space-y-2">
                             <li><span class="text-sm text-[#6b6b6b]">24/7 Live Chat</span></li>
-                            <li><span class="text-sm text-[#6b6b6b]">support@kadikings.com</span></li>
+                            <li><span class="text-sm text-[#6b6b6b]">info@angelpalace.com</span></li>
                             <li><span class="text-sm text-[#6b6b6b]">Terms & Conditions</span></li>
                             <li><span class="text-sm text-[#6b6b6b]">Privacy Policy</span></li>
                         </ul>
@@ -147,7 +150,7 @@
 
             <div class="border-t border-[#f5c542]/20 bg-black/50 px-6 py-4 text-center">
                 <p class="text-xs text-[#6b6b6b]">
-                    &copy; {{ date('Y') }} KADI KINGS. All rights reserved. &nbsp;|&nbsp; Play Responsibly 🎰 &nbsp;|&nbsp; 18+
+                    &copy; {{ date('Y') }} ANGEL PALACE. All rights reserved. &nbsp;|&nbsp; Play Responsibly 🎰 &nbsp;|&nbsp; 18+
                 </p>
             </div>
         </footer>

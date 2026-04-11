@@ -212,6 +212,9 @@
         </div>
     </section>
 
+    {{-- ── Sports Betting Preview ── --}}
+    <livewire:dashboard.sports-betting-preview />
+
     {{-- ── Recent Transactions ── --}}
     <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
         <div class="mb-6 flex items-center justify-between">
