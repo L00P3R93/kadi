@@ -48,7 +48,7 @@
         </div>
 
         {{-- Sign-in prompt (replaces PLACE BET) --}}
-        <div class="mt-3 bg-[#1a1200] border border-[#f5c542]/30 rounded-lg p-3 text-center">
+        <!--<div class="mt-3 bg-[#1a1200] border border-[#f5c542]/30 rounded-lg p-3 text-center">
             <div class="text-[#f5c542] text-xs font-semibold mb-2">🔐 Sign in to place bets</div>
             <div class="text-gray-500 text-xs mb-3">Create a free account to start winning</div>
             <div class="flex gap-2">
@@ -61,7 +61,7 @@
                     Register
                 </a>
             </div>
-        </div>
+        </div>-->
 
         <button
             wire:click="clearSlip()"

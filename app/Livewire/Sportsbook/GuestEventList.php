@@ -21,8 +21,8 @@ class GuestEventList extends Component
 
     public function mount(OddsApiService $service): void
     {
-        $this->events = $service->getEvents($this->sport);
         $this->odds = $service->getOdds($this->sport);
+        $this->events = $this->odds;
         $this->oddsMap = collect($this->odds)->keyBy('id')->toArray();
     }
 
@@ -31,8 +31,8 @@ class GuestEventList extends Component
     {
         $this->sport = $sport;
         $service = app(OddsApiService::class);
-        $this->events = $service->getEvents($sport);
         $this->odds = $service->getOdds($sport);
+        $this->events = $this->odds;
         $this->oddsMap = collect($this->odds)->keyBy('id')->toArray();
     }
 
@@ -41,8 +41,8 @@ class GuestEventList extends Component
         Cache::forget("odds_api.events.{$this->sport}");
         Cache::forget("odds_api.odds.{$this->sport}");
         $service = app(OddsApiService::class);
-        $this->events = $service->getEvents($this->sport);
         $this->odds = $service->getOdds($this->sport);
+        $this->events = $this->odds;
         $this->oddsMap = collect($this->odds)->keyBy('id')->toArray();
     }
 

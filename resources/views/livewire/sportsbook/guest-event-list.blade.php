@@ -1,10 +1,22 @@
-<div wire:poll.60000ms="refreshData" class="flex flex-col h-full">
+<div wire:poll.900000ms="refreshData" class="flex flex-col h-full">
 
     {{-- Top Bar --}}
     <div class="sticky top-0 z-10 bg-[#111] border-b border-[#222] px-4 py-3 flex justify-between items-center flex-shrink-0">
-        <span class="text-white font-bold">
-            {{ ucwords(str_replace('_', ' ', $sport)) }}
-        </span>
+        <div class="flex items-center gap-2">
+            {{-- Mobile: sidebar toggle — inherits sidenavOpen from parent Alpine scope --}}
+            <button
+                @click="sidenavOpen = !sidenavOpen"
+                class="lg:hidden flex items-center justify-center w-7 h-7 text-gray-400 hover:text-[#f5c542] transition-colors"
+                aria-label="Open sports menu"
+            >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
+                </svg>
+            </button>
+            <span class="text-white font-bold">
+                {{ ucwords(str_replace('_', ' ', $sport)) }}
+            </span>
+        </div>
         <div class="flex items-center gap-3">
             @php $quota = cache('odds_api.quota'); @endphp
             @if($quota)
@@ -27,13 +39,13 @@
         </div>
     </div>
 
-    {{-- Loading overlay --}}
-    <div wire:loading.flex class="flex-1 items-center justify-center py-20">
+    {{-- Loading overlay (only for explicit sport switches, not background polls) --}}
+    <div wire:loading.flex wire:target="onSportSelected" class="flex-1 items-center justify-center py-20">
         <div class="text-[#f5c542] text-sm animate-pulse">Loading odds...</div>
     </div>
 
     {{-- Event list --}}
-    <div wire:loading.remove class="flex-1 overflow-y-auto">
+    <div wire:loading.remove wire:target="onSportSelected" class="flex-1 overflow-y-auto">
         @forelse($events as $event)
             @php
                 $dt = \Carbon\Carbon::parse($event['commence_time'])->setTimezone('Africa/Nairobi');
