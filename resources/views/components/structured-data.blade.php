@@ -4,7 +4,7 @@
 ])
 @php
     $appUrl   = rtrim(config('app.url', 'https://kadikings.co.ke'), '/');
-    $siteName = config('app.name', 'Kadi Kings');
+    $siteName = config('app.name', 'Angel Palace');
     $emit     = ! $noindex;
     $isHome   = $emit && $page === 'home';
     $isGames  = $emit && $page === 'games';

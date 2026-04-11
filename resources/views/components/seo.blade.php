@@ -6,12 +6,12 @@
 ])
 
 @php
-    $siteName      = config('app.name', 'Kadi Kings');
+    $siteName      = config('app.name', 'Angel Palace');
     $appUrl        = rtrim(config('app.url', 'https://kadikings.co.ke'), '/');
     $resolvedTitle = filled($title) ? $title : $siteName;
     $resolvedDesc  = filled($description)
         ? $description
-        : 'Kenya\'s premier online casino — slots, live tables, and instant payouts. Play now at Kadi Kings.';
+        : 'Kenya\'s premier online casino — slots, live tables, and instant payouts. Play now at Angel Palace.';
     $ogImage   = $appUrl . '/images/og-default.png';
     $canonical = $appUrl . request()->getPathInfo();
 @endphp
