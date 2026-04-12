@@ -2,8 +2,9 @@
 
 namespace App\Livewire\Sportsbook;
 
+use App\Services\CachedSportsbookService;
 use App\Services\OddsApiService;
-use Illuminate\Support\Facades\Cache;
+use App\Support\SportsbookMarkets;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -13,52 +14,127 @@ class GuestEventList extends Component
 
     public array $events = [];
 
-    public array $odds = [];
-
     public array $oddsMap = [];
 
-    public array $betSlip = [];
+    public ?string $expandedEventId = null;
 
-    public function mount(OddsApiService $service): void
+    public string $activeMarket = 'h2h';
+
+    public array $eventMarkets = [];
+
+    public array $eventDetailOdds = [];
+
+    public bool $loadingMarkets = false;
+
+    public function mount(CachedSportsbookService $cachedService): void
     {
-        $this->odds = $service->getOdds($this->sport);
-        $this->events = $this->odds;
-        $this->oddsMap = collect($this->odds)->keyBy('id')->toArray();
+        $this->events = $cachedService->getEventsForSport($this->sport);
+        $this->oddsMap = collect($this->events)->keyBy('id')->toArray();
     }
 
     #[On('sport-selected')]
     public function onSportSelected(string $sport): void
     {
         $this->sport = $sport;
-        $service = app(OddsApiService::class);
-        $this->odds = $service->getOdds($sport);
-        $this->events = $this->odds;
-        $this->oddsMap = collect($this->odds)->keyBy('id')->toArray();
+        $this->expandedEventId = null;
+        $this->eventMarkets = [];
+        $this->eventDetailOdds = [];
+
+        $cachedService = app(CachedSportsbookService::class);
+        $this->events = $cachedService->getEventsForSport($sport);
+        $this->oddsMap = collect($this->events)->keyBy('id')->toArray();
     }
 
     public function refreshData(): void
     {
-        Cache::forget("odds_api.events.{$this->sport}");
-        Cache::forget("odds_api.odds.{$this->sport}");
-        $service = app(OddsApiService::class);
-        $this->odds = $service->getOdds($this->sport);
-        $this->events = $this->odds;
-        $this->oddsMap = collect($this->odds)->keyBy('id')->toArray();
+        $cachedService = app(CachedSportsbookService::class);
+        $this->events = $cachedService->getEventsForSport($this->sport);
+        $this->oddsMap = collect($this->events)->keyBy('id')->toArray();
     }
 
-    public function toggleBetSlip(string $eventId, string $team, float $price, string $homeTeam, string $awayTeam): void
+    public function expandEvent(string $eventId): void
     {
-        if (isset($this->betSlip[$eventId])) {
-            unset($this->betSlip[$eventId]);
-        } else {
-            $this->betSlip[$eventId] = [
-                'team'  => $team,
-                'price' => $price,
-                'label' => "{$homeTeam} vs {$awayTeam}",
-            ];
+        if ($this->expandedEventId === $eventId) {
+            $this->expandedEventId = null;
+            $this->eventMarkets = [];
+            $this->eventDetailOdds = [];
+
+            return;
         }
 
-        $this->dispatch('guest-bet-slip-updated', selections: $this->betSlip);
+        $this->expandedEventId = $eventId;
+        $this->activeMarket = 'h2h';
+        $this->loadingMarkets = true;
+        $this->eventMarkets = [];
+        $this->eventDetailOdds = [];
+
+        // Step 1: Get available market keys — live API call (1 credit, cached 1hr)
+        $service = app(OddsApiService::class);
+        $this->eventMarkets = $service->getEventMarkets($this->sport, $eventId);
+        $this->eventMarkets = SportsbookMarkets::sortMarkets($this->eventMarkets);
+
+        // Step 2: Pre-load h2h odds from the JSON cache (free, instant)
+        $cachedService = app(CachedSportsbookService::class);
+        $h2hOutcomes = $cachedService->getH2HOutcomesForEvent($this->sport, $eventId);
+        if (! empty($h2hOutcomes)) {
+            $this->eventDetailOdds['h2h'] = ['outcomes' => $h2hOutcomes];
+        }
+
+        $this->loadingMarkets = false;
+    }
+
+    public function selectMarket(string $marketKey): void
+    {
+        $this->activeMarket = $marketKey;
+
+        // Already loaded
+        if (isset($this->eventDetailOdds[$marketKey])) {
+            return;
+        }
+
+        // h2h — check JSON cache first
+        if ($marketKey === 'h2h') {
+            $cachedService = app(CachedSportsbookService::class);
+            $h2hOutcomes = $cachedService->getH2HOutcomesForEvent($this->sport, $this->expandedEventId);
+            if (! empty($h2hOutcomes)) {
+                $this->eventDetailOdds['h2h'] = ['outcomes' => $h2hOutcomes];
+
+                return;
+            }
+        }
+
+        // Fetch from live API for this specific market
+        $this->loadingMarkets = true;
+        $service = app(OddsApiService::class);
+        $oddsData = $service->getEventOddsByMarkets($this->sport, $this->expandedEventId, [$marketKey]);
+        $newMarkets = $this->parseEventOddsResponse($oddsData);
+        $this->eventDetailOdds = array_merge($this->eventDetailOdds, $newMarkets);
+        $this->loadingMarkets = false;
+    }
+
+    private function parseEventOddsResponse(array $oddsData): array
+    {
+        $markets = [];
+
+        foreach ($oddsData['bookmakers'] ?? [] as $bm) {
+            foreach ($bm['markets'] ?? [] as $market) {
+                $key = $market['key'];
+                if (str_ends_with($key, '_lay')) {
+                    continue;
+                }
+                if (! isset($markets[$key])) {
+                    $markets[$key] = ['outcomes' => $market['outcomes'] ?? []];
+                }
+            }
+            break;
+        }
+
+        return $markets;
+    }
+
+    public function getOutcomesForActiveMarket(): array
+    {
+        return $this->eventDetailOdds[$this->activeMarket]['outcomes'] ?? [];
     }
 
     public function getEventOdds(string $eventId): array

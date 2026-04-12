@@ -11,31 +11,57 @@ class GuestBetSlip extends Component
 
     public string $stake = '';
 
-    #[On('guest-bet-slip-updated')]
-    public function onBetSlipUpdated(array $selections): void
+    #[On('alpine-guest-bet-slip-updated')]
+    public function onAlpineBetSlipUpdated(array $selections): void
     {
         $this->selections = $selections;
     }
 
-    public function removeSelection(string $eventId): void
+    public function getBetType(): string
     {
-        unset($this->selections[$eventId]);
-        $this->dispatch('guest-bet-slip-updated', selections: $this->selections);
-    }
+        if (count($this->selections) === 1) {
+            $firstSel = reset($this->selections);
 
-    public function clearSlip(): void
-    {
-        $this->selections = [];
-        $this->stake = '';
-    }
-
-    public function potentialPayout(): float
-    {
-        if (! is_numeric($this->stake) || (float) $this->stake <= 0 || empty($this->selections)) {
-            return 0.00;
+            return $firstSel['marketLabel'] ?? 'Single Bet';
         }
 
-        return round((float) $this->stake * array_product(array_column($this->selections, 'price')), 2);
+        return 'Multi Bet';
+    }
+
+    public function getSelectionCount(): int
+    {
+        return count($this->selections);
+    }
+
+    public function getTotalOdds(): float
+    {
+        if (empty($this->selections)) {
+            return 0.0;
+        }
+
+        return round(
+            array_reduce(
+                $this->selections,
+                fn ($carry, $sel) => $carry * (float) ($sel['price'] ?? 1),
+                1.0
+            ),
+            2
+        );
+    }
+
+    public function getPossibleWin(): float
+    {
+        $stake = (float) $this->stake;
+        if ($stake <= 0 || empty($this->selections)) {
+            return 0.0;
+        }
+
+        return round($stake * $this->getTotalOdds(), 2);
+    }
+
+    public function setStake(int|string $amount): void
+    {
+        $this->stake = (string) $amount;
     }
 
     public function render()

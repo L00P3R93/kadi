@@ -1,10 +1,8 @@
 <div
     x-data="{
         sidenavOpen: false,
-        betslipOpen: false,
-        betCount: 0
+        betslipOpen: false
     }"
-    x-on:guest-bet-slip-updated.window="betCount = Object.keys($event.detail.selections).length"
     class="pt-16"
 >
     {{-- Mobile sidebar backdrop --}}
@@ -45,7 +43,7 @@
                    transition-transform duration-200 ease-out
                    lg:static lg:w-56 lg:z-auto lg:transition-none lg:top-auto lg:bottom-auto"
         >
-            <livewire:sportsbook.sports-sidebar />
+            <livewire:sportsbook.guest-sports-sidebar />
         </div>
 
         {{-- Center: Event List --}}
@@ -59,6 +57,14 @@
         </div>
 
     </div>
+
+    {{-- Cache status --}}
+    @php $cachedService = app(\App\Services\CachedSportsbookService::class); @endphp
+    @if($cachedService->getGeneratedAt())
+        <div class="text-center py-2 text-[10px] text-gray-700">
+            Odds updated {{ \Carbon\Carbon::parse($cachedService->getGeneratedAt())->setTimezone('Africa/Nairobi')->diffForHumans() }}
+        </div>
+    @endif
 
     {{-- Mobile: Floating Bet Slip button (bottom-right) --}}
     <button
@@ -75,8 +81,8 @@
             </svg>
             {{-- Counter badge --}}
             <span
-                x-show="betCount > 0"
-                x-text="betCount"
+                x-show="$store.betSlip.count() > 0"
+                x-text="$store.betSlip.count()"
                 x-cloak
                 class="absolute -top-3 -right-3 bg-red-500 text-white text-[10px] font-bold
                        rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1

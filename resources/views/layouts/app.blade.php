@@ -207,5 +207,72 @@
 
         <x-structured-data :page="$page ?? 'dashboard'" :noindex="true" />
         @fluxScripts
+        <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('betSlip', {
+                selections: {},
+
+                add(eventId, selectionKey, team, price, homeTeam, awayTeam, marketKey, marketLabel, commenceTime, isLive) {
+                    const key = selectionKey || eventId;
+                    if (this.selections[key] && this.selections[key].team === team) {
+                        delete this.selections[key];
+                    } else {
+                        this.selections[key] = {
+                            team,
+                            price:        parseFloat(price),
+                            homeTeam,
+                            awayTeam,
+                            marketKey:    marketKey    || 'h2h',
+                            marketLabel:  marketLabel  || 'Match Winner',
+                            commenceTime: commenceTime || null,
+                            isLive:       isLive       || false,
+                            eventId,
+                        };
+                    }
+                    Livewire.dispatch('alpine-bet-slip-updated', {
+                        selections: Object.fromEntries(Object.entries(this.selections))
+                    });
+                },
+
+                remove(key) {
+                    delete this.selections[key];
+                    Livewire.dispatch('alpine-bet-slip-updated', {
+                        selections: Object.fromEntries(Object.entries(this.selections))
+                    });
+                },
+
+                clear() {
+                    this.selections = {};
+                    Livewire.dispatch('alpine-bet-slip-updated', { selections: {} });
+                },
+
+                isSelected(selectionKey, team) {
+                    return this.selections[selectionKey] && this.selections[selectionKey].team === team;
+                },
+
+                count() { return Object.keys(this.selections).length; },
+
+                potentialPayout(stake) {
+                    if (!stake || isNaN(stake) || parseFloat(stake) <= 0) return '0.00';
+                    let product = Object.values(this.selections).reduce((acc, s) => acc * s.price, 1);
+                    return (parseFloat(stake) * product).toFixed(2);
+                },
+
+                formatTime(iso) {
+                    if (!iso) return '';
+                    // Convert UTC to EAT (UTC+3)
+                    const d = new Date(new Date(iso).getTime() + (3 * 60 * 60 * 1000));
+                    const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+                    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                    const day   = days[d.getUTCDay()];
+                    const date  = String(d.getUTCDate()).padStart(2,'0');
+                    const month = months[d.getUTCMonth()];
+                    const hh    = String(d.getUTCHours()).padStart(2,'0');
+                    const mm    = String(d.getUTCMinutes()).padStart(2,'0');
+                    return `${day} ${date} ${month}, ${hh}:${mm}`;
+                }
+            });
+        });
+        </script>
     </body>
 </html>

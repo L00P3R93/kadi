@@ -1,309 +1,383 @@
 <div>
     {{-- ===================== HERO ===================== --}}
-    <section class="hero-mesh relative flex min-h-screen items-center justify-center overflow-hidden">
+    <section class="relative overflow-hidden bg-[#0a0a0a] min-h-[420px] md:min-h-[480px] flex items-center">
 
-        {{-- PNG floating symbols --}}
-        <div class="pointer-events-none absolute inset-0 overflow-hidden">
-            <img src="/casino/kadi.png"           class="casino-floater" style="top:10%;left:5%;width:80px;animation-delay:0s;animation-duration:7s;" />
-            <img src="/casino/roulette.png"        class="casino-floater" style="top:15%;right:7%;width:95px;animation-delay:1.2s;animation-duration:9s;" />
-            <img src="/casino/slot-machine-2.png"  class="casino-floater" style="top:55%;left:3%;width:70px;animation-delay:2.5s;animation-duration:8s;" />
-            <img src="/casino/poker-1.png"         class="casino-floater" style="top:70%;right:5%;width:85px;animation-delay:0.7s;animation-duration:6.5s;" />
-            <img src="/casino/blackjack-2.png"     class="casino-floater" style="top:35%;left:8%;width:65px;animation-delay:3.1s;animation-duration:10s;" />
-            <img src="/casino/dice.png"            class="casino-floater" style="top:80%;left:15%;width:75px;animation-delay:1.8s;animation-duration:7.5s;" />
-            <img src="/casino/kadi.png"            class="casino-floater" style="top:20%;right:20%;width:60px;animation-delay:4.0s;animation-duration:8.5s;" />
-            <img src="/casino/roulette.png"        class="casino-floater" style="top:65%;right:15%;width:100px;animation-delay:2.2s;animation-duration:11s;" />
-            <img src="/casino/slot-machine-2.png"  class="casino-floater" style="top:5%;right:40%;width:55px;animation-delay:0.5s;animation-duration:9.5s;" />
-            <img src="/casino/poker-1.png"         class="casino-floater" style="top:45%;right:3%;width:72px;animation-delay:3.5s;animation-duration:7s;" />
+        {{-- Radial gold glow behind left content --}}
+        <div class="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2
+                    w-[500px] h-[500px] rounded-full pointer-events-none"
+             style="background: radial-gradient(circle, rgba(245,197,66,0.07) 0%, transparent 70%);">
+        </div>
+        {{-- Radial glow behind right content --}}
+        <div class="absolute top-1/3 right-1/4 -translate-y-1/2
+                    w-[400px] h-[400px] rounded-full pointer-events-none"
+             style="background: radial-gradient(circle, rgba(245,197,66,0.05) 0%, transparent 70%);">
         </div>
 
-        {{-- Hero content --}}
-        <div class="relative z-10 mx-auto max-w-4xl px-6 pt-24 text-center">
-            {{-- Badge --}}
-            <div class="mb-8 inline-flex items-center rounded-full border border-[#f5c542]/40 bg-[#f5c542]/10 px-6 py-2">
-                <span class="text-xs font-semibold tracking-widest text-[#f5c542]">✦ PREMIUM ONLINE CASINO ✦</span>
-            </div>
+        {{-- Faded background images --}}
+        @php
+            $casinoImages = array_slice(glob(public_path('casino/*.{png,jpg,webp}'), GLOB_BRACE), 0, 4);
+            $bgPositions = [
+                ['top-4 -left-8 md:top-8 md:-left-4', 'rotate-[-15deg]'],
+                ['top-0 right-0 md:-right-6',          'rotate-[10deg]'],
+                ['bottom-4 left-16 md:bottom-8 md:left-24', 'rotate-[8deg]'],
+                ['-bottom-4 right-8 md:right-16',      'rotate-[-12deg]'],
+            ];
+        @endphp
+        @foreach($casinoImages as $i => $imgPath)
+            @php [$pos, $rot] = $bgPositions[$i] ?? ['top-0 left-0', '']; @endphp
+            <img src="{{ asset('casino/' . basename($imgPath)) }}"
+                 alt=""
+                 class="absolute {{ $pos }} {{ $rot }} opacity-[0.08] pointer-events-none select-none w-40 md:w-52 object-contain"
+                 aria-hidden="true" />
+        @endforeach
 
-            {{-- Headline --}}
-            <h1 class="shimmer-text mb-6 text-5xl font-black leading-tight md:text-7xl lg:text-8xl"
-                style="font-family: 'Cinzel', serif;">
-                WHERE FORTUNE<br>FAVORS THE BOLD
-            </h1>
+        {{-- Content grid --}}
+        <div class="relative z-10 w-full max-w-6xl mx-auto px-6 md:px-10 py-10 md:py-14">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
 
-            {{-- Subheadline --}}
-            <p class="mx-auto mb-8 max-w-xl text-xl text-[#f5f5f0]/60" style="font-family: 'Outfit', sans-serif;">
-                Play the world's finest casino games. Win real prizes.
-            </p>
+                {{-- ══ LEFT: Tagline + CTA ══ --}}
+                <div class="flex flex-col items-start">
 
-            {{-- Gold divider --}}
-            <div class="mb-10 flex items-center justify-center gap-4 text-[#f5c542]/60">
-                <div class="h-px w-16 bg-[#f5c542]/30"></div>
-                <span class="tracking-widest">♠ ♥ ♦ ♣</span>
-                <div class="h-px w-16 bg-[#f5c542]/30"></div>
-            </div>
+                    {{-- Live badge --}}
+                    <div class="inline-flex items-center gap-2 bg-[#f5c542]/10 border border-[#f5c542]/20 rounded-full px-3 py-1 mb-5 mt-10">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#f5c542] animate-pulse"></span>
+                        <span class="font-cinzel text-[10px] text-[#f5c542] uppercase tracking-[0.2em] font-semibold">
+                            Live Now · 2,847 Players
+                        </span>
+                    </div>
 
-            {{-- CTA buttons --}}
-            <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <!--<a href="{{ route('register') }}" wire:navigate
-                   class="btn-casino-primary inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg no-underline transition-all hover:-translate-y-1">
-                    🎰 JOIN US
-                </a>-->
-                <a href="{{ route('guest.games') }}"
-                   class="btn-casino-ghost inline-flex items-center gap-2 rounded-full px-8 py-4 text-lg no-underline">
-                    Browse Games
-                </a>
-            </div>
+                    {{-- Tagline --}}
+                    <div class="mb-6">
+                        <div class="flex items-center gap-3 mb-1">
+                            <h1 class="font-cinzel font-bold text-2xl md:text-3xl lg:text-4xl text-[#f5c542] leading-none tracking-wide"
+                                style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">
+                                WHERE FORTUNE
+                            </h1>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <h2 class="font-cinzel font-black text-2xl md:text-3xl lg:text-4xl text-white leading-none tracking-wide"
+                                style="text-shadow: 0 2px 20px rgba(255,255,255,0.1);">
+                                FAVORS THE BOLD
+                            </h2>
+                        </div>
+                    </div>
 
-            {{-- Scroll indicator --}}
-            <div class="mt-20 flex justify-center">
-                <div class="animate-bounce text-2xl text-[#f5c542]/60">↓</div>
+                    {{-- Subline --}}
+                    <p class="text-gray-400 text-sm md:text-base leading-relaxed mb-7 max-w-sm">
+                        Premium casino games, live sports betting &amp; real-time odds.
+                        Your winning moment starts here.
+                    </p>
+
+                    {{-- CTAs --}}
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('games') }}"
+                           class="inline-flex items-center gap-2 bg-[#f5c542] text-black font-black
+                                  px-6 py-3 rounded-xl hover:bg-[#ffde74] transition-all duration-200
+                                  text-sm tracking-wide shadow-lg shadow-[#f5c542]/25
+                                  hover:shadow-[#f5c542]/40 hover:-translate-y-0.5">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                            </svg>
+                            Play Games
+                        </a>
+                        <a href="{{ route('sportsbook') }}"
+                           class="inline-flex items-center gap-2 bg-transparent border border-[#f5c542]/40
+                                  text-[#f5c542] font-bold px-6 py-3 rounded-xl
+                                  hover:border-[#f5c542] hover:bg-[#f5c542]/5 transition-all duration-200
+                                  text-sm tracking-wide hover:-translate-y-0.5">
+                            🏆 Sportsbook
+                        </a>
+                    </div>
+
+                    {{-- Trust badges --}}
+                    <div class="flex items-center gap-4 mt-5">
+                        <div class="flex items-center gap-1.5 text-gray-600">
+                            <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-[11px]">Secure &amp; Licensed</span>
+                        </div>
+                        <div class="w-px h-3 bg-gray-700"></div>
+                        <div class="flex items-center gap-1.5 text-gray-600">
+                            <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-[11px]">Instant Withdrawals</span>
+                        </div>
+                        <div class="w-px h-3 bg-gray-700"></div>
+                        <div class="flex items-center gap-1.5 text-gray-600">
+                            <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                            <span class="text-[11px]">24/7 Support</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                {{-- ══ RIGHT: Prize Pool ══ --}}
+                <div class="relative">
+
+                    <div class="relative bg-gradient-to-b from-[#1a1200]/80 to-[#0a0a0a]/60
+                                border border-[#f5c542]/15 rounded-2xl p-6 backdrop-blur-sm"
+                         style="box-shadow: 0 0 40px rgba(245,197,66,0.06), inset 0 1px 0 rgba(245,197,66,0.1);">
+
+                        {{-- Header --}}
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <div class="font-cinzel text-[9px] text-[#f5c542]/50 uppercase tracking-[0.3em]">Current</div>
+                                <div class="font-cinzel text-sm font-bold text-[#f5c542] tracking-wider">Prize Pool</div>
+                            </div>
+                            <svg class="w-8 h-8 text-[#f5c542]/20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M7 2v2H2v6c0 2.21 1.79 4 4 4h.5c.8 2 2.3 3.5 4.5 3.94V20H7v2h10v-2h-4v-2.06c2.2-.44 3.7-1.94 4.5-3.94H18c2.21 0 4-1.79 4-4V4h-5V2H7zm-1 2v4H4V6h2zm12 4V4h2v4h-2z"/>
+                            </svg>
+                        </div>
+
+                        <div class="h-px bg-gradient-to-r from-transparent via-[#f5c542]/20 to-transparent mb-5"></div>
+
+                        {{-- Prize rows --}}
+                        @php
+                            $seed = (int) date('YmdH');
+                            mt_srand($seed);
+                            $prizes = [
+                                ['rank'=>1,'label'=>'1st Place',      'emoji'=>'🥇','amount'=> 110452931 + mt_rand(-500000,500000), 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
+                                ['rank'=>2,'label'=>'Runner-Up',       'emoji'=>'🥈','amount'=>  25016384 + mt_rand(-200000,200000), 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
+                                ['rank'=>3,'label'=>'Semis (each)',    'emoji'=>'🥉','amount'=>   9978624 + mt_rand(-100000,100000), 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
+                                ['rank'=>4,'label'=>'Quarters (each)','emoji'=>'🎯','amount'=>   3107899 + mt_rand(-50000, 50000),  'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
+                            ];
+                        @endphp
+
+                        <div
+                            x-data="{
+                                prizes: @js($prizes),
+                                displayed: [0,0,0,0],
+                                started: false,
+                                startCounting() {
+                                    if (this.started) return;
+                                    this.started = true;
+                                    this.prizes.forEach((prize, i) => {
+                                        const target = prize.amount;
+                                        const steps = 65;
+                                        let step = 0;
+                                        const iv = setInterval(() => {
+                                            step++;
+                                            const eased = 1 - Math.pow(1 - step/steps, 3);
+                                            this.displayed[i] = Math.round(target * eased);
+                                            this.displayed = [...this.displayed];
+                                            if (step >= steps) { clearInterval(iv); this.displayed[i] = target; this.displayed = [...this.displayed]; }
+                                        }, 2200 / steps);
+                                    });
+                                },
+                                fmt(n) { return Math.round(n).toLocaleString(); }
+                            }"
+                            x-intersect.once="startCounting()"
+                            class="space-y-3"
+                        >
+                            @foreach($prizes as $i => $prize)
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl flex-shrink-0 leading-none"
+                                          style="filter: drop-shadow(0 0 8px {{ $prize['glow'] }});">
+                                        {{ $prize['emoji'] }}
+                                    </span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-[10px] font-semibold uppercase tracking-widest"
+                                             style="color: {{ $prize['color'] }}; opacity: 0.6;">
+                                            {{ $prize['label'] }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right flex-shrink-0">
+                                        <div class="font-cinzel font-black text-sm md:text-base leading-none"
+                                             style="color: {{ $prize['color'] }}; text-shadow: 0 0 12px {{ $prize['glow'] }};"
+                                             :x-text="'KES ' + fmt(displayed[{{ $i }}])"
+                                             x-text="'KES {{ number_format($prize['amount']) }}'">
+                                        </div>
+                                    </div>
+                                </div>
+                                @if($i < 3)
+                                    <div class="h-px bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+                                @endif
+                            @endforeach
+                        </div>
+
+                        <div class="mt-5 text-center">
+                            <span class="text-[10px] text-gray-700 font-cinzel tracking-widest uppercase">
+                                Updates every hour
+                            </span>
+                        </div>
+                    </div>
+
+                    {{-- Corner accent --}}
+                    <div class="absolute -top-2 -right-2 w-16 h-16 pointer-events-none"
+                         style="background: radial-gradient(circle at top right, rgba(245,197,66,0.15), transparent 70%);">
+                    </div>
+                </div>
+
             </div>
         </div>
+
     </section>
 
     {{-- ===================== FEATURED GAMES ===================== --}}
-    <section id="games" class="py-24" style="background: linear-gradient(160deg, #0d0800 0%, #1a1200 50%, #0a0800 100%);">
-        <div class="mx-auto max-w-7xl px-6">
-            {{-- Section header --}}
-            <div class="mb-16 text-center">
-                <div class="mb-4 flex items-center justify-center gap-4">
-                    <div class="h-px w-20 bg-[#f5c542]/30"></div>
-                    <span class="text-sm tracking-widest text-[#f5c542]/60">♠</span>
-                    <div class="h-px w-20 bg-[#f5c542]/30"></div>
-                </div>
-                <h2 class="text-4xl font-bold text-[#f5f5f0] md:text-5xl" style="font-family: 'Cinzel', serif;">
-                    PLAY OUR GAMES
-                </h2>
-                <div class="mt-4 flex items-center justify-center gap-4">
-                    <div class="h-px w-20 bg-[#f5c542]/30"></div>
-                    <span class="text-sm tracking-widest text-[#f5c542]/60">♣</span>
-                    <div class="h-px w-20 bg-[#f5c542]/30"></div>
-                </div>
-            </div>
+    <section id="games" class="py-10 bg-[#0a0a0a]">
+        @php
+            $featuredGames = [
+                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'category' => 'Card Game'],
+                ['image' => asset('casino/slots.png'),'title' => 'Golden Slots',    'category' => 'Slots'],
+                ['image' => asset('casino/roulette.png'),    'title' => 'Roulette Noir',   'category' => 'Table Game'],
+                ['image' => asset('casino/poker.png'),       'title' => 'Royal Poker',     'category' => 'Poker'],
+                ['image' => asset('casino/king.png'),   'title' => 'Royal BlackJack', 'category' => 'Table Game'],
+                ['image' => asset('casino/dice.png'),          'title' => 'Royal Dice',      'category' => 'Dice'],
+                ['image' => asset('casino/slots.png'),'title' => 'Mega Slots',      'category' => 'Slots'],
+                ['image' => asset('casino/crown.png'),       'title' => 'Texas Hold\'em',  'category' => 'Poker'],
+            ];
+        @endphp
 
-            {{-- Game cards --}}
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                @php
-                    $games = [
-                        ['img' => '/casino/kadi.png',          'name' => 'Kadi',            'tagline' => 'Classic Kenyan card game. Win big.'],
-                        ['img' => '/casino/slot-machine-2.png','name' => 'Golden Slots',    'tagline' => 'Spin luxury reels. Chase glittering jackpots.'],
-                        ['img' => '/casino/roulette.png',      'name' => 'Roulette Noir',   'tagline' => 'Golden wheel. High-value wins. Elegant style.'],
-                        ['img' => '/casino/poker-1.png',       'name' => 'Royal Poker',     'tagline' => 'Challenge the crown room. Build your stack.'],
-                        ['img' => '/casino/blackjack-2.png',   'name' => 'Royal BlackJack', 'tagline' => 'Beat the dealer. Rule the table.'],
-                        ['img' => '/casino/dice.png',          'name' => 'Royal Dice',      'tagline' => 'Roll your way to riches.'],
-                    ];
-                @endphp
+        <x-carousel
+            title="🎰 Featured Games"
+            subtitle="Top picks from our casino floor"
+            view-all-link="{{ route('login') }}"
+        >
+            @foreach($featuredGames as $game)
+                <div class="group relative rounded-2xl overflow-hidden cursor-pointer
+                            flex-shrink-0 w-56 sm:w-64 h-72 bg-[#111]
+                            border border-[#222] hover:border-[#f5c542]/40 transition-all duration-300
+                            snap-start shadow-lg hover:shadow-[0_8px_30px_rgba(245,197,66,0.15)]">
 
-                @foreach ($games as $game)
-                    <div class="game-card glass-card glass-card-hover group p-8">
-                        <img src="{{ $game['img'] }}" class="w-16 h-16 object-contain mx-auto mb-4" alt="{{ $game['name'] }}" />
-                        <h3 class="mb-2 text-center text-xl font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;">
-                            {{ $game['name'] }}
-                        </h3>
-                        <p class="mb-6 text-center text-sm text-[#f5f5f0]/50" style="font-family: 'Outfit', sans-serif;">{{ $game['tagline'] }}</p>
-                        <div class="text-center">
-                            <a href="{{ route('register') }}" wire:navigate class="text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74]">
-                                Play Now →
-                            </a>
-                        </div>
+                    <img
+                        src="{{ $game['image'] }}"
+                        alt="{{ $game['title'] }}"
+                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1a1a 0%, #2a1f00 100%)';"
+                    />
+
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-transparent"></div>
+
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pt-12 pb-4 px-4">
+                        @if(!empty($game['category']))
+                            <span class="text-[10px] font-bold uppercase text-[#f5c542] bg-[#f5c542]/10 border border-[#f5c542]/20 px-2 py-0.5 rounded block w-fit mb-1">
+                                {{ $game['category'] }}
+                            </span>
+                        @endif
+                        <h3 class="text-white font-bold text-sm leading-tight mb-2">{{ $game['title'] }}</h3>
+                        <a href="{{ route('login') }}" wire:navigate
+                           class="inline-flex items-center gap-1 text-xs font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-3 py-1.5 rounded transition-colors duration-150">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            Play Now
+                        </a>
                     </div>
-                @endforeach
-            </div>
-        </div>
+
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                                bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none"></div>
+                </div>
+            @endforeach
+        </x-carousel>
     </section>
 
     {{-- ===================== POPULAR GAMES ===================== --}}
-    <section class="py-24" style="background: linear-gradient(160deg, #0a0a0a 0%, #100d00 50%, #0a0a0a 100%);">
-        <div class="mx-auto max-w-7xl px-6">
-            <div class="text-center mb-12">
-                <span class="inline-block px-4 py-1 rounded-full border border-[#f5c542]/40 text-[#f5c542] text-xs tracking-[0.2em] uppercase mb-4" style="font-family: 'Outfit', sans-serif;">
-                    ✦ Most Played ✦
-                </span>
-                <h2 class="text-4xl text-white" style="font-family: 'Cinzel', serif;">POPULAR <span class="shimmer-text">GAMES</span></h2>
-                <div class="flex items-center justify-center gap-3 mt-3">
-                    <div class="h-px w-16 bg-gradient-to-r from-transparent to-[#f5c542]"></div>
-                    <span class="text-[#f5c542] text-sm">♠</span>
-                    <div class="h-px w-16 bg-gradient-to-l from-transparent to-[#f5c542]"></div>
-                </div>
-            </div>
+    <section class="py-10 bg-[#0d0d0d]">
+        @php
+            $popularGames = [
+                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'badge' => '🟢 Live Dealer',  'players' => rand(120, 850)],
+                ['image' => asset('casino/slots.png'),'title' => 'Golden Slots',    'badge' => '📊 RTP 97.4%',    'players' => rand(200, 1200)],
+                ['image' => asset('casino/roulette.png'),      'title' => 'Roulette Noir',   'badge' => '👑 VIP Room',     'players' => rand(80, 600)],
+                ['image' => asset('casino/poker.png'),         'title' => 'Royal Poker',     'badge' => '🏆 Prize Pool',   'players' => rand(50, 400)],
+                ['image' => asset('casino/crown.png'),   'title' => 'Royal BlackJack', 'badge' => '🃏 Classic',      'players' => rand(60, 500)],
+                ['image' => asset('casino/king.png'),        'title' => 'Casino Royale',   'badge' => '✨ Featured',     'players' => rand(90, 700)],
+            ];
+        @endphp
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                @php
-                    $popularGames = [
-                        [
-                            'img'    => '/casino/kadi.png',
-                            'name'   => 'Kadi',
-                            'desc'   => 'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments. Rise Through the Jackpots.',
-                            'badge1' => '🟢 Live Dealer',
-                            'badge2' => rand(120, 850).' Playing',
-                            'btn'    => 'Join Now',
-                            'href'   => '/login',
-                        ],
-                        [
-                            'img'    => '/casino/slot-machine-2.png',
-                            'name'   => 'Golden Slots',
-                            'desc'   => 'Luxury slot action with rich visuals, bonus rounds, and glittering jackpots.',
-                            'badge1' => '📊 RTP 97.4%',
-                            'badge2' => rand(200, 1200).' Playing',
-                            'btn'    => 'Spin Now',
-                            'href'   => '/login',
-                        ],
-                        [
-                            'img'    => '/casino/roulette.png',
-                            'name'   => 'Roulette Noir',
-                            'desc'   => 'Spin the golden wheel and chase high-value wins in elegant style.',
-                            'badge1' => '👑 VIP Room',
-                            'badge2' => rand(80, 600).' Playing',
-                            'btn'    => 'Spin Now',
-                            'href'   => '/login',
-                        ],
-                        [
-                            'img'    => '/casino/poker-1.png',
-                            'name'   => 'Royal Poker',
-                            'desc'   => 'Challenge top players in the crown room and build your tournament stack.',
-                            'badge1' => '🏆 Prize Pool',
-                            'badge2' => rand(50, 400).' Playing',
-                            'btn'    => 'Enter Room',
-                            'href'   => '/login',
-                        ],
-                    ];
-                @endphp
+        <x-carousel
+            title="🔥 Popular Games"
+            subtitle="Most played this week"
+            view-all-link="{{ route('login') }}"
+        >
+            @foreach($popularGames as $pg)
+                <div class="group relative rounded-xl overflow-hidden flex-shrink-0 w-48 sm:w-56 h-60 bg-[#111]
+                            border border-[#222] hover:border-[#f5c542]/40 transition-all duration-300 snap-start">
 
-                @foreach ($popularGames as $pg)
-                    <div class="glass-card glass-card-hover overflow-hidden flex flex-col">
-                        {{-- Image top --}}
-                        <div class="relative flex items-center justify-center p-6" style="background: radial-gradient(ellipse at center, rgba(245,197,66,0.12) 0%, transparent 70%);">
-                            <img src="{{ $pg['img'] }}" class="w-24 h-24 object-contain" alt="{{ $pg['name'] }}" />
+                    <img
+                        src="{{ $pg['image'] }}"
+                        alt="{{ $pg['title'] }}"
+                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1a1a 0%, #2a1f00 100%)';"
+                    />
+
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent pt-10 pb-3 px-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[9px] font-bold text-[#f5c542]">{{ $pg['badge'] }}</span>
+                            <span class="text-[9px] text-gray-500">{{ $pg['players'] }} playing</span>
                         </div>
-                        {{-- Content bottom --}}
-                        <div class="flex flex-1 flex-col p-5">
-                            <div class="mb-3 flex flex-wrap gap-2">
-                                <span class="stat-badge">{{ $pg['badge1'] }}</span>
-                                <span class="stat-badge">{{ $pg['badge2'] }}</span>
-                            </div>
-                            <h3 class="mb-2 text-lg font-bold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $pg['name'] }}</h3>
-                            <p class="mb-4 flex-1 text-sm text-[#f5f5f0]/50 line-clamp-3" style="font-family: 'Outfit', sans-serif;">{{ $pg['desc'] }}</p>
-                            <a href="{{ $pg['href'] }}" wire:navigate
-                               class="btn-casino-primary block w-full rounded-xl py-2.5 text-center text-sm no-underline">
-                                {{ $pg['btn'] }}
-                            </a>
-                        </div>
+                        <h3 class="text-white font-semibold text-sm leading-tight mb-2">{{ $pg['title'] }}</h3>
+                        <a href="{{ route('login') }}" wire:navigate
+                           class="text-[#f5c542] text-xs font-bold hover:underline">
+                            Play →
+                        </a>
                     </div>
-                @endforeach
-            </div>
-        </div>
+                </div>
+            @endforeach
+        </x-carousel>
     </section>
 
     {{-- ===================== SPORTS BETTING ===================== --}}
-    <section class="px-4 md:px-6 py-10 bg-[#0d0d0d]">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">⚽ Sports Betting</h2>
-                    <p class="text-gray-400 text-sm mt-1">Live odds on football, basketball, tennis and more</p>
+    <section class="py-10 bg-[#0a0a0a]">
+        @php
+            $sportsbookCards = [
+                ['league' => 'Premier League', 'time' => 'Today 20:00',    'home' => 'Manchester City', 'away' => 'Arsenal',       'odds' => ['2.10', '3.40', '3.20']],
+                ['league' => 'La Liga',        'time' => 'Tomorrow 21:00', 'home' => 'Barcelona',       'away' => 'Real Madrid',   'odds' => ['2.50', '3.10', '2.80']],
+                ['league' => 'NBA',            'time' => 'Today 02:30',    'home' => 'LA Lakers',       'away' => 'Boston Celtics','odds' => ['1.85', '—',    '1.95']],
+                ['league' => 'Serie A',        'time' => 'Sat 19:45',      'home' => 'AC Milan',        'away' => 'Juventus',      'odds' => ['2.30', '3.20', '2.90']],
+                ['league' => 'Bundesliga',     'time' => 'Sat 17:30',      'home' => 'Bayern Munich',   'away' => 'Dortmund',      'odds' => ['1.75', '3.80', '4.50']],
+            ];
+        @endphp
+
+        <x-carousel
+            title="⚽ Sports Betting"
+            subtitle="Live odds — updated every 2 hours"
+            view-all-link="{{ route('sportsbook') }}"
+            view-all-text="Full Sportsbook"
+        >
+            @foreach($sportsbookCards as $card)
+                <div class="flex-shrink-0 w-64 snap-start bg-[#111] border border-[#222] rounded-xl p-4
+                            hover:border-[#f5c542]/40 transition-all duration-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[10px] text-[#f5c542] font-bold uppercase tracking-wide bg-[#1a1200] px-2 py-0.5 rounded">
+                            {{ $card['league'] }}
+                        </span>
+                        <span class="text-[10px] text-gray-500">{{ $card['time'] }}</span>
+                    </div>
+                    <div class="text-center mb-3">
+                        <div class="text-white font-bold text-sm">{{ $card['home'] }}</div>
+                        <div class="text-gray-600 text-xs my-1">vs</div>
+                        <div class="text-white font-bold text-sm">{{ $card['away'] }}</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1.5 mb-3">
+                        @foreach([['1', $card['odds'][0]], ['X', $card['odds'][1]], ['2', $card['odds'][2]]] as [$label, $price])
+                            <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#2a2a3e] hover:border-[#f5c542] transition cursor-pointer">
+                                <div class="text-[10px] text-gray-500">{{ $label }}</div>
+                                <div class="text-[#f5c542] font-bold text-sm">{{ $price }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <a href="{{ route('sportsbook') }}" wire:navigate
+                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-xs">
+                        Bet Now
+                    </a>
                 </div>
+            @endforeach
+
+            {{-- "View All" end card --}}
+            <div class="flex-shrink-0 w-48 snap-start flex flex-col items-center justify-center
+                        bg-[#111] border border-dashed border-[#333] rounded-xl p-6 text-center">
+                <div class="text-3xl mb-2">🏆</div>
+                <div class="text-gray-400 text-sm font-semibold mb-3">More Sports</div>
                 <a href="{{ route('sportsbook') }}" wire:navigate
-                   class="text-[#f5c542] text-sm hover:underline font-semibold">
-                    View All →
+                   class="text-xs font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-4 py-2 rounded transition">
+                    View All
                 </a>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                {{-- Card 1: EPL --}}
-                <div class="bg-[#111] border border-[#222] rounded-xl p-4 hover:border-[#f5c542] transition-all duration-200">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs text-[#f5c542] font-semibold uppercase tracking-wide">Premier League</span>
-                        <span class="text-xs text-gray-500">Today 20:00</span>
-                    </div>
-                    <div class="text-white font-semibold text-sm mb-4 text-center">
-                        <div>Manchester City</div>
-                        <div class="text-gray-500 text-xs my-1.5">vs</div>
-                        <div>Arsenal</div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">1</div>
-                            <div class="text-[#f5c542] font-bold text-sm">2.10</div>
-                        </div>
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">X</div>
-                            <div class="text-[#f5c542] font-bold text-sm">3.40</div>
-                        </div>
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">2</div>
-                            <div class="text-[#f5c542] font-bold text-sm">3.20</div>
-                        </div>
-                    </div>
-                    <a href="{{ route('sportsbook') }}" wire:navigate
-                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-sm">
-                        Bet Now
-                    </a>
-                </div>
-
-                {{-- Card 2: La Liga --}}
-                <div class="bg-[#111] border border-[#222] rounded-xl p-4 hover:border-[#f5c542] transition-all duration-200">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs text-[#f5c542] font-semibold uppercase tracking-wide">La Liga</span>
-                        <span class="text-xs text-gray-500">Tomorrow 21:00</span>
-                    </div>
-                    <div class="text-white font-semibold text-sm mb-4 text-center">
-                        <div>Barcelona</div>
-                        <div class="text-gray-500 text-xs my-1.5">vs</div>
-                        <div>Real Madrid</div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">1</div>
-                            <div class="text-[#f5c542] font-bold text-sm">2.50</div>
-                        </div>
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">X</div>
-                            <div class="text-[#f5c542] font-bold text-sm">3.10</div>
-                        </div>
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">2</div>
-                            <div class="text-[#f5c542] font-bold text-sm">2.80</div>
-                        </div>
-                    </div>
-                    <a href="{{ route('sportsbook') }}" wire:navigate
-                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-sm">
-                        Bet Now
-                    </a>
-                </div>
-
-                {{-- Card 3: NBA --}}
-                <div class="bg-[#111] border border-[#222] rounded-xl p-4 hover:border-[#f5c542] transition-all duration-200">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs text-[#f5c542] font-semibold uppercase tracking-wide">NBA</span>
-                        <span class="text-xs text-gray-500">Today 02:30</span>
-                    </div>
-                    <div class="text-white font-semibold text-sm mb-4 text-center">
-                        <div>LA Lakers</div>
-                        <div class="text-gray-500 text-xs my-1.5">vs</div>
-                        <div>Boston Celtics</div>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 mb-4">
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">1</div>
-                            <div class="text-[#f5c542] font-bold text-sm">1.85</div>
-                        </div>
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">X</div>
-                            <div class="text-[#f5c542] font-bold text-sm">—</div>
-                        </div>
-                        <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#333] hover:border-[#f5c542] transition cursor-pointer">
-                            <div class="text-[10px] text-gray-500">2</div>
-                            <div class="text-[#f5c542] font-bold text-sm">1.95</div>
-                        </div>
-                    </div>
-                    <a href="{{ route('sportsbook') }}" wire:navigate
-                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-sm">
-                        Bet Now
-                    </a>
-                </div>
-
-            </div>
-        </div>
+        </x-carousel>
     </section>
 
     {{-- ===================== WHY CHOOSE US ===================== --}}
