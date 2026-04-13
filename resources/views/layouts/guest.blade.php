@@ -22,10 +22,8 @@
                 {{-- Desktop nav links --}}
                 <div class="hidden items-center gap-8 md:flex">
                     <a href="{{ route('home') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Home</a>
-                    <a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Games</a>
-                    <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sportsbook</a>
-                    <a href="#about" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
-                    <a href="#promotions" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
+                    <a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Casino</a>
+                    <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>
                 </div>
 
                 {{-- Right side: auth button + hamburger --}}
@@ -77,13 +75,9 @@
                     <a href="{{ route('home') }}" @click="menuOpen = false" wire:navigate
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Home</a>
                     <a href="{{ route('guest.games') }}" @click="menuOpen = false" wire:navigate
-                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Games</a>
+                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Casino</a>
                     <a href="{{ route('sportsbook') }}" @click="menuOpen = false" wire:navigate
-                       class="py-3 text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">🏆 Sportsbook</a>
-                    <a href="#about" @click="menuOpen = false"
-                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
-                    <a href="#promotions" @click="menuOpen = false"
-                       class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
+                       class="py-3 text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>
 
                     {{-- Auth CTA — mobile only --}}
                     <!--<div class="py-4">
@@ -150,7 +144,7 @@
 
             <div class="border-t border-[#f5c542]/20 bg-black/50 px-6 py-4 text-center">
                 <p class="text-xs text-[#6b6b6b]">
-                    &copy; {{ date('Y') }} ANGEL PALACE. All rights reserved. &nbsp;|&nbsp; Play Responsibly 🎰 &nbsp;|&nbsp; 18+
+                    &copy; {{ date('Y') }} ANGEL PALACE. All rights reserved. &nbsp;|&nbsp; Play Responsibly &nbsp;|&nbsp; 18+
                 </p>
             </div>
         </footer>
@@ -164,11 +158,15 @@
                 selections: {},
 
                 add(eventId, selectionKey, team, price, homeTeam, awayTeam, marketKey, marketLabel, commenceTime, isLive) {
-                    const key = selectionKey || eventId;
-                    if (this.selections[key] && this.selections[key].team === team) {
-                        delete this.selections[key];
+                    // Always key by eventId — only one selection per event allowed
+                    const existing = this.selections[eventId];
+
+                    // Toggle: if clicking the EXACT same team + market, remove it
+                    if (existing && existing.team === team && existing.marketKey === (marketKey || 'h2h')) {
+                        delete this.selections[eventId];
                     } else {
-                        this.selections[key] = {
+                        // Replace any existing selection for this event
+                        this.selections[eventId] = {
                             team,
                             price:        parseFloat(price),
                             homeTeam,
@@ -183,10 +181,11 @@
                     Livewire.dispatch('alpine-guest-bet-slip-updated', {
                         selections: Object.fromEntries(Object.entries(this.selections))
                     });
+                    window.dispatchEvent(new CustomEvent('bet-slip-updated'));
                 },
 
-                remove(key) {
-                    delete this.selections[key];
+                remove(eventId) {
+                    delete this.selections[eventId];
                     Livewire.dispatch('alpine-guest-bet-slip-updated', {
                         selections: Object.fromEntries(Object.entries(this.selections))
                     });
@@ -197,8 +196,9 @@
                     Livewire.dispatch('alpine-guest-bet-slip-updated', { selections: {} });
                 },
 
-                isSelected(selectionKey, team) {
-                    return this.selections[selectionKey] && this.selections[selectionKey].team === team;
+                isSelected(eventId, team, marketKey) {
+                    const sel = this.selections[eventId];
+                    return sel && sel.team === team && sel.marketKey === (marketKey || 'h2h');
                 },
 
                 count() { return Object.keys(this.selections).length; },

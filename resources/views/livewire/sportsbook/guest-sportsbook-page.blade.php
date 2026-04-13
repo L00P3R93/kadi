@@ -33,27 +33,35 @@
         class="fixed inset-0 bg-black/70 z-40 lg:hidden"
     ></div>
 
-    {{-- Three-column layout --}}
-    <div class="flex h-[calc(100vh-4rem)] overflow-hidden bg-[#0a0a0a]">
+    {{-- Three-column layout — natural height, page scrolls --}}
+    <div class="flex min-h-[calc(100vh-4rem)] bg-[#0a0a0a]">
 
-        {{-- Left: Sports Sidebar — fixed drawer on mobile, static column on desktop --}}
+        {{-- Left: Sports Sidebar — fixed drawer on mobile, sticky column on desktop --}}
         <div
             :class="sidenavOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-            class="fixed top-16 left-0 bottom-0 w-64 z-50 flex flex-col border-r border-[#222]
+            class="fixed top-16 left-0 bottom-0 w-64 z-50 border-r border-[#222]
                    transition-transform duration-200 ease-out
-                   lg:static lg:w-56 lg:z-auto lg:transition-none lg:top-auto lg:bottom-auto"
+                   lg:static lg:w-56 lg:z-auto lg:transition-none lg:top-auto lg:bottom-auto lg:block"
         >
-            <livewire:sportsbook.guest-sports-sidebar />
+            <div class="sticky top-0 max-h-screen overflow-y-auto">
+                <livewire:sportsbook.guest-sports-sidebar />
+            </div>
         </div>
 
-        {{-- Center: Event List --}}
-        <div class="flex-1 overflow-hidden min-w-0">
+        {{-- Center: Event List — natural scroll with page --}}
+        <div class="flex-1 min-w-0">
             <livewire:sportsbook.guest-event-list />
+
+            {{-- M-Pesa card — mobile only (desktop version is in right column) --}}
+            <div class="lg:hidden px-3 pb-24">
+                @include('partials.mpesa-card')
+            </div>
         </div>
 
-        {{-- Right: Guest Bet Slip (desktop only) --}}
-        <div class="w-72 hidden lg:flex flex-col border-l border-[#222] overflow-hidden">
+        {{-- Right: Guest Bet Slip + M-Pesa (desktop only, natural height) --}}
+        <div class="hidden lg:block w-72 flex-shrink-0 border-l border-[#222]">
             <livewire:sportsbook.guest-bet-slip />
+            @include('partials.mpesa-card')
         </div>
 
     </div>

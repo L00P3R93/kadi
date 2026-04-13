@@ -70,7 +70,7 @@
 
                     {{-- CTAs --}}
                     <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('games') }}"
+                        <a href="https://kadi-kings.co.ke/" target="_blank"
                            class="inline-flex items-center gap-2 bg-[#f5c542] text-black font-black
                                   px-6 py-3 rounded-xl hover:bg-[#ffde74] transition-all duration-200
                                   text-sm tracking-wide shadow-lg shadow-[#f5c542]/25
@@ -78,14 +78,14 @@
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
                             </svg>
-                            Play Games
+                            Play Kadi
                         </a>
                         <a href="{{ route('sportsbook') }}"
                            class="inline-flex items-center gap-2 bg-transparent border border-[#f5c542]/40
                                   text-[#f5c542] font-bold px-6 py-3 rounded-xl
                                   hover:border-[#f5c542] hover:bg-[#f5c542]/5 transition-all duration-200
                                   text-sm tracking-wide hover:-translate-y-0.5">
-                            🏆 Sportsbook
+                            🏆 Sports
                         </a>
                     </div>
 
@@ -125,8 +125,8 @@
                         {{-- Header --}}
                         <div class="flex items-center justify-between mb-5">
                             <div>
-                                <div class="font-cinzel text-[9px] text-[#f5c542]/50 uppercase tracking-[0.3em]">Current</div>
-                                <div class="font-cinzel text-sm font-bold text-[#f5c542] tracking-wider">Prize Pool</div>
+                                <div class="font-cinzel text-[9px] text-[#f5c542]/50 uppercase tracking-[0.3em]">Jackpot</div>
+                                <div class="font-cinzel text-sm font-bold text-[#f5c542] tracking-wider">Kadi Prize Pool</div>
                             </div>
                             <svg class="w-8 h-8 text-[#f5c542]/20" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M7 2v2H2v6c0 2.21 1.79 4 4 4h.5c.8 2 2.3 3.5 4.5 3.94V20H7v2h10v-2h-4v-2.06c2.2-.44 3.7-1.94 4.5-3.94H18c2.21 0 4-1.79 4-4V4h-5V2H7zm-1 2v4H4V6h2zm12 4V4h2v4h-2z"/>
@@ -140,10 +140,10 @@
                             $seed = (int) date('YmdH');
                             mt_srand($seed);
                             $prizes = [
-                                ['rank'=>1,'label'=>'1st Place',      'emoji'=>'🥇','amount'=> 110452931 + mt_rand(-500000,500000), 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
-                                ['rank'=>2,'label'=>'Runner-Up',       'emoji'=>'🥈','amount'=>  25016384 + mt_rand(-200000,200000), 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
-                                ['rank'=>3,'label'=>'Semis (each)',    'emoji'=>'🥉','amount'=>   9978624 + mt_rand(-100000,100000), 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
-                                ['rank'=>4,'label'=>'Quarters (each)','emoji'=>'🎯','amount'=>   3107899 + mt_rand(-50000, 50000),  'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
+                                ['rank'=>1,'label'=>'1st Place',            'emoji'=>'🥇','amount'=> 110452931 + mt_rand(-500000,500000), 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
+                                ['rank'=>2,'label'=>'Runner-Up',            'emoji'=>'🥈','amount'=>  25016384 + mt_rand(-200000,200000), 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
+                                ['rank'=>3,'label'=>'Semis (x2 Losers)',    'emoji'=>'🥉','amount'=>   9978624 + mt_rand(-100000,100000), 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
+                                ['rank'=>4,'label'=>'Quarters (x4 Losers)', 'emoji'=>'🎯','amount'=>   3107899 + mt_rand(-50000, 50000),  'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
                             ];
                         @endphp
 
@@ -201,7 +201,7 @@
 
                         <div class="mt-5 text-center">
                             <span class="text-[10px] text-gray-700 font-cinzel tracking-widest uppercase">
-                                Updates every hour
+                                Guaranteed Wins
                             </span>
                         </div>
                     </div>
@@ -220,49 +220,38 @@
     {{-- ===================== FEATURED GAMES ===================== --}}
     <section id="games" class="py-10 bg-[#0a0a0a]">
         @php
-            $featuredGames = [
-                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'category' => 'Card Game'],
-                ['image' => asset('casino/slots.png'),'title' => 'Golden Slots',    'category' => 'Slots'],
-                ['image' => asset('casino/roulette.png'),    'title' => 'Roulette Noir',   'category' => 'Table Game'],
-                ['image' => asset('casino/poker.png'),       'title' => 'Royal Poker',     'category' => 'Poker'],
-                ['image' => asset('casino/king.png'),   'title' => 'Royal BlackJack', 'category' => 'Table Game'],
-                ['image' => asset('casino/dice.png'),          'title' => 'Royal Dice',      'category' => 'Dice'],
-                ['image' => asset('casino/slots.png'),'title' => 'Mega Slots',      'category' => 'Slots'],
-                ['image' => asset('casino/crown.png'),       'title' => 'Texas Hold\'em',  'category' => 'Poker'],
-            ];
+            $featuredGames = app(\App\Services\GamesService::class)->all()->take(10)->values()->toArray();
         @endphp
 
         <x-carousel
-            title="🎰 Featured Games"
+            title="Featured Casino Games"
             subtitle="Top picks from our casino floor"
-            view-all-link="{{ route('login') }}"
+            view-all-link="{{ route('guest.games') }}"
         >
             @foreach($featuredGames as $game)
                 <div class="group relative rounded-2xl overflow-hidden cursor-pointer
-                            flex-shrink-0 w-56 sm:w-64 h-72 bg-[#111]
+                            flex-shrink-0 w-48 sm:w-56 h-64 bg-[#111]
                             border border-[#222] hover:border-[#f5c542]/40 transition-all duration-300
-                            snap-start shadow-lg hover:shadow-[0_8px_30px_rgba(245,197,66,0.15)]">
+                            snap-start shadow-lg hover:shadow-[0_8px_30px_rgba(245,197,66,0.12)]">
 
                     <img
-                        src="{{ $game['image'] }}"
-                        alt="{{ $game['title'] }}"
+                        src="{{ asset($game['path']) }}"
+                        alt="{{ $game['name'] }}"
                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
-                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1a1a 0%, #2a1f00 100%)';"
+                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1200 0%, #2a1f00 100%)';"
                     />
 
                     <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-transparent"></div>
 
                     <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pt-12 pb-4 px-4">
-                        @if(!empty($game['category']))
-                            <span class="text-[10px] font-bold uppercase text-[#f5c542] bg-[#f5c542]/10 border border-[#f5c542]/20 px-2 py-0.5 rounded block w-fit mb-1">
-                                {{ $game['category'] }}
-                            </span>
-                        @endif
-                        <h3 class="text-white font-bold text-sm leading-tight mb-2">{{ $game['title'] }}</h3>
-                        <a href="{{ route('login') }}" wire:navigate
-                           class="inline-flex items-center gap-1 text-xs font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-3 py-1.5 rounded transition-colors duration-150">
-                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-[#f5c542] bg-[#f5c542]/10 border border-[#f5c542]/20 px-1.5 py-0.5 rounded block w-fit mb-1">
+                            Casino
+                        </span>
+                        <!--<h3 class="text-white font-bold text-sm leading-tight mb-2 line-clamp-1">{{ $game['name'] }}</h3>-->
+                        <a href="#" wire:navigate
+                           class="inline-flex items-center gap-1 text-[11px] font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-2.5 py-1.5 rounded transition-colors duration-150">
+                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             Play Now
                         </a>
                     </div>
@@ -278,19 +267,19 @@
     <section class="py-10 bg-[#0d0d0d]">
         @php
             $popularGames = [
-                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'badge' => '🟢 Live Dealer',  'players' => rand(120, 850)],
-                ['image' => asset('casino/slots.png'),'title' => 'Golden Slots',    'badge' => '📊 RTP 97.4%',    'players' => rand(200, 1200)],
-                ['image' => asset('casino/roulette.png'),      'title' => 'Roulette Noir',   'badge' => '👑 VIP Room',     'players' => rand(80, 600)],
-                ['image' => asset('casino/poker.png'),         'title' => 'Royal Poker',     'badge' => '🏆 Prize Pool',   'players' => rand(50, 400)],
-                ['image' => asset('casino/crown.png'),   'title' => 'Royal BlackJack', 'badge' => '🃏 Classic',      'players' => rand(60, 500)],
-                ['image' => asset('casino/king.png'),        'title' => 'Casino Royale',   'badge' => '✨ Featured',     'players' => rand(90, 700)],
+                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'badge' => '🟢 Live Dealer',  'players' => rand(120, 850),  'link' => 'https://kadi-kings.co.ke'],
+                ['image' => asset('casino/slots.png'),         'title' => 'Golden Slots',    'badge' => '📊 RTP 97.4%',    'players' => rand(200, 1200), 'link' => 'https://kadi-kings.co.ke'],
+                ['image' => asset('casino/roulette.png'),      'title' => 'Roulette Noir',   'badge' => '👑 VIP Room',     'players' => rand(80, 600),   'link' => 'https://kadi-kings.co.ke'],
+                ['image' => asset('casino/poker.png'),         'title' => 'Royal Poker',     'badge' => '🏆 Prize Pool',   'players' => rand(50, 400),   'link' => 'https://kadi-kings.co.ke'],
+                ['image' => asset('casino/crown.png'),         'title' => 'Royal BlackJack', 'badge' => '🃏 Classic',      'players' => rand(60, 500),   'link' => 'https://kadi-kings.co.ke'],
+                ['image' => asset('casino/king.png'),          'title' => 'Casino Royale',   'badge' => '✨ Featured',     'players' => rand(90, 700),   'link' => 'https://kadi-kings.co.ke'],
             ];
         @endphp
 
         <x-carousel
-            title="🔥 Popular Games"
+            title="Popular Casino Games"
             subtitle="Most played this week"
-            view-all-link="{{ route('login') }}"
+            view-all-link="{{ route('guest.games') }}"
         >
             @foreach($popularGames as $pg)
                 <div class="group relative rounded-xl overflow-hidden flex-shrink-0 w-48 sm:w-56 h-60 bg-[#111]
@@ -310,7 +299,7 @@
                             <span class="text-[9px] text-gray-500">{{ $pg['players'] }} playing</span>
                         </div>
                         <h3 class="text-white font-semibold text-sm leading-tight mb-2">{{ $pg['title'] }}</h3>
-                        <a href="{{ route('login') }}" wire:navigate
+                        <a href="{{ $pg['link'] }}" target="_blank"
                            class="text-[#f5c542] text-xs font-bold hover:underline">
                             Play →
                         </a>
@@ -333,7 +322,7 @@
         @endphp
 
         <x-carousel
-            title="⚽ Sports Betting"
+            title="Sports Betting"
             subtitle="Live odds — updated every 2 hours"
             view-all-link="{{ route('sportsbook') }}"
             view-all-text="Full Sportsbook"

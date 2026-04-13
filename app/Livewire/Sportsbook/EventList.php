@@ -18,15 +18,19 @@ class EventList extends Component
 
     public array $oddsMap = [];
 
-    public ?string $expandedEventId = null;
+    public bool $showMarketsModal = false;
 
-    public array $eventMarkets = [];
+    public ?string $modalEventId = null;
 
-    public array $eventDetailOdds = [];
+    public array $modalEvent = [];
 
-    public string $activeMarket = 'h2h';
+    public array $modalMarkets = [];
 
-    public bool $loadingMarkets = false;
+    public bool $modalLoading = false;
+
+    public bool $modalLoadingMore = false;
+
+    public string $modalActiveTab = 'all';
 
     public function mount(OddsApiService $service): void
     {
@@ -39,9 +43,13 @@ class EventList extends Component
     public function onSportSelected(string $sport): void
     {
         $this->sport = $sport;
-        $this->expandedEventId = null;
-        $this->eventMarkets = [];
-        $this->eventDetailOdds = [];
+        $this->showMarketsModal = false;
+        $this->modalEventId = null;
+        $this->modalEvent = [];
+        $this->modalMarkets = [];
+        $this->modalLoading = false;
+        $this->modalLoadingMore = false;
+        $this->modalActiveTab = 'all';
 
         $service = app(OddsApiService::class);
         $this->events = $service->getEvents($sport);
@@ -60,46 +68,57 @@ class EventList extends Component
         $this->oddsMap = collect($this->odds)->keyBy('id')->toArray();
     }
 
-    public function expandEvent(string $eventId): void
+    public function openMarketsModal(string $eventId): void
     {
-        if ($this->expandedEventId === $eventId) {
-            $this->expandedEventId = null;
-            $this->eventMarkets = [];
-            $this->eventDetailOdds = [];
+        $this->showMarketsModal  = true;
+        $this->modalEventId      = $eventId;
+        $this->modalLoading      = false;
+        $this->modalLoadingMore  = true;
+        $this->modalMarkets      = [];
+        $this->modalActiveTab    = 'all';
+        $this->modalEvent        = collect($this->events)->firstWhere('id', $eventId) ?? [];
 
-            return;
-        }
-
-        $this->expandedEventId = $eventId;
-        $this->activeMarket = 'h2h';
-        $this->loadingMarkets = true;
-        $this->eventMarkets = [];
-        $this->eventDetailOdds = [];
-
-        $service = app(OddsApiService::class);
-
-        // 1 credit — cached 1 hour
-        $markets = $service->getEventMarkets($this->sport, $eventId);
-        $this->eventMarkets = SportsbookMarkets::sortMarkets($markets);
-
-        // Pre-load h2h only (free from getH2HOddsOnly cache)
-        $h2hOddsAll = $service->getH2HOddsOnly($this->sport);
-        $eventH2h = collect($h2hOddsAll)->firstWhere('id', $eventId);
-        if ($eventH2h) {
-            foreach ($eventH2h['bookmakers'] ?? [] as $bm) {
-                foreach ($bm['markets'] ?? [] as $market) {
-                    if ($market['key'] === 'h2h') {
-                        $this->eventDetailOdds['h2h'] = ['outcomes' => $market['outcomes'] ?? []];
-                        break 2;
-                    }
+        // Show h2h immediately from cached odds data (no API call)
+        $h2hOutcomes = [];
+        foreach ($this->modalEvent['bookmakers'] ?? [] as $bm) {
+            foreach ($bm['markets'] ?? [] as $market) {
+                if ($market['key'] === 'h2h') {
+                    $h2hOutcomes = $market['outcomes'] ?? [];
+                    break 2;
                 }
             }
         }
 
-        $this->loadingMarkets = false;
+        if (! empty($h2hOutcomes)) {
+            $this->modalMarkets = ['h2h' => ['outcomes' => $h2hOutcomes]];
+        }
     }
 
-    public function parseEventOddsResponse(array $oddsData): array
+    public function loadMoreMarkets(): void
+    {
+        if (! $this->modalEventId) {
+            $this->modalLoadingMore = false;
+
+            return;
+        }
+
+        $service = app(OddsApiService::class);
+
+        $marketKeys = $service->getEventMarkets($this->sport, $this->modalEventId);
+        $marketKeys = SportsbookMarkets::sortMarkets($marketKeys);
+
+        if (! empty($marketKeys)) {
+            $limitedKeys = array_slice($marketKeys, 0, 10);
+            $oddsData    = $service->getEventOddsByMarkets($this->sport, $this->modalEventId, $limitedKeys);
+            $fetched     = $this->parseModalOdds($oddsData);
+            // Merge: API data takes priority, but keep h2h if API didn't return it
+            $this->modalMarkets = array_merge($this->modalMarkets, $fetched);
+        }
+
+        $this->modalLoadingMore = false;
+    }
+
+    public function parseModalOdds(array $oddsData): array
     {
         $markets = [];
 
@@ -113,51 +132,24 @@ class EventList extends Component
                     $markets[$key] = ['outcomes' => $market['outcomes'] ?? []];
                 }
             }
-            break; // use only first bookmaker
+            break; // first bookmaker only
         }
 
-        return $markets;
+        return array_filter($markets, fn ($m) => ! empty($m['outcomes']));
     }
 
-    public function selectMarket(string $marketKey): void
+    public function closeMarketsModal(): void
     {
-        $this->activeMarket = $marketKey;
-
-        // Already loaded
-        if (isset($this->eventDetailOdds[$marketKey])) {
-            return;
-        }
-
-        // h2h — check cached h2h odds
-        if ($marketKey === 'h2h') {
-            $service = app(OddsApiService::class);
-            $h2hOddsAll = $service->getH2HOddsOnly($this->sport);
-            $eventH2h = collect($h2hOddsAll)->firstWhere('id', $this->expandedEventId);
-            if ($eventH2h) {
-                foreach ($eventH2h['bookmakers'] ?? [] as $bm) {
-                    foreach ($bm['markets'] ?? [] as $market) {
-                        if ($market['key'] === 'h2h') {
-                            $this->eventDetailOdds['h2h'] = ['outcomes' => $market['outcomes'] ?? []];
-
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Fetch from live API for this specific market
-        $this->loadingMarkets = true;
-        $service = app(OddsApiService::class);
-        $oddsData = $service->getEventOddsByMarkets($this->sport, $this->expandedEventId, [$marketKey]);
-        $newMarkets = $this->parseEventOddsResponse($oddsData);
-        $this->eventDetailOdds = array_merge($this->eventDetailOdds, $newMarkets);
-        $this->loadingMarkets = false;
+        $this->showMarketsModal = false;
+        $this->modalEventId    = null;
+        $this->modalEvent      = [];
+        $this->modalMarkets    = [];
+        $this->modalLoadingMore = false;
     }
 
-    public function getOutcomesForActiveMarket(): array
+    public function setModalTab(string $tab): void
     {
-        return $this->eventDetailOdds[$this->activeMarket]['outcomes'] ?? [];
+        $this->modalActiveTab = $tab;
     }
 
     public function getEventOdds(string $eventId): array
@@ -177,33 +169,6 @@ class EventList extends Component
         }
 
         return [];
-    }
-
-    public function getAllMarketsForEvent(string $eventId): array
-    {
-        $eventData = collect($this->events)->firstWhere('id', $eventId);
-
-        if (! $eventData) {
-            return [];
-        }
-
-        $bookmakers = $eventData['bookmakers'] ?? [];
-
-        if (empty($bookmakers)) {
-            return [];
-        }
-
-        $markets = [];
-
-        foreach ($bookmakers[0]['markets'] ?? [] as $market) {
-            $key = $market['key'];
-            if (str_ends_with($key, '_lay')) {
-                continue;
-            }
-            $markets[$key] = ['outcomes' => $market['outcomes'] ?? []];
-        }
-
-        return $markets;
     }
 
     public function render()

@@ -1,7 +1,8 @@
-<div class="bg-[#111] flex flex-col h-full">
+<div class="w-full bg-[#111]">
 
-    {{-- Header --}}
-    <div class="flex-shrink-0 px-4 py-3 border-b border-[#222] flex justify-between items-center bg-[#0f0f0f]">
+    {{-- STICKY HEADER — only the header is sticky --}}
+    <div class="sticky top-0 z-10 bg-[#0f0f0f] border-b border-[#222] px-4 py-3
+                flex justify-between items-center">
         <span class="font-cinzel text-xs font-bold tracking-widest text-white uppercase">Bet Slip</span>
         <span
             x-data
@@ -10,8 +11,8 @@
         ></span>
     </div>
 
-    {{-- Selections --}}
-    <div class="flex-1 overflow-y-auto px-3 py-3" x-data>
+    {{-- BODY — grows naturally --}}
+    <div class="px-3 py-3" x-data>
 
         {{-- Empty state --}}
         <template x-if="$store.betSlip.count() === 0">
@@ -25,8 +26,13 @@
         <template x-if="$store.betSlip.count() > 0">
             <div class="space-y-2">
                 <template x-for="[key, sel] in Object.entries($store.betSlip.selections)" :key="key">
-                    <div class="relative bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] overflow-hidden
-                                hover:border-[#333] transition-colors duration-150">
+                    <div
+                        x-data="{ flash: false }"
+                        x-on:bet-slip-updated.window="flash = true; setTimeout(() => flash = false, 400)"
+                        :class="flash ? 'ring-1 ring-[#f5c542]/50' : ''"
+                        class="relative bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] overflow-hidden
+                               hover:border-[#333] transition-all duration-300"
+                    >
                         {{-- Gold left accent bar --}}
                         <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#f5c542] to-[#f5c542]/40"></div>
                         <div class="pl-3 pr-3 pt-2.5 pb-2.5">
@@ -75,8 +81,8 @@
 
     </div>
 
-    {{-- Footer --}}
-    <div class="flex-shrink-0 border-t border-[#222] bg-[#0f0f0f]" x-data>
+    {{-- FOOTER — flows naturally after selections --}}
+    <div class="border-t border-[#222] bg-[#0f0f0f]" x-data>
 
         {{-- Show footer only when there are selections --}}
         <template x-if="$store.betSlip.count() > 0">

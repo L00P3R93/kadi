@@ -213,11 +213,15 @@
                 selections: {},
 
                 add(eventId, selectionKey, team, price, homeTeam, awayTeam, marketKey, marketLabel, commenceTime, isLive) {
-                    const key = selectionKey || eventId;
-                    if (this.selections[key] && this.selections[key].team === team) {
-                        delete this.selections[key];
+                    // Always key by eventId — only one selection per event allowed
+                    const existing = this.selections[eventId];
+
+                    // Toggle: if clicking the EXACT same team + market, remove it
+                    if (existing && existing.team === team && existing.marketKey === (marketKey || 'h2h')) {
+                        delete this.selections[eventId];
                     } else {
-                        this.selections[key] = {
+                        // Replace any existing selection for this event
+                        this.selections[eventId] = {
                             team,
                             price:        parseFloat(price),
                             homeTeam,
@@ -232,10 +236,11 @@
                     Livewire.dispatch('alpine-bet-slip-updated', {
                         selections: Object.fromEntries(Object.entries(this.selections))
                     });
+                    window.dispatchEvent(new CustomEvent('bet-slip-updated'));
                 },
 
-                remove(key) {
-                    delete this.selections[key];
+                remove(eventId) {
+                    delete this.selections[eventId];
                     Livewire.dispatch('alpine-bet-slip-updated', {
                         selections: Object.fromEntries(Object.entries(this.selections))
                     });
@@ -246,8 +251,9 @@
                     Livewire.dispatch('alpine-bet-slip-updated', { selections: {} });
                 },
 
-                isSelected(selectionKey, team) {
-                    return this.selections[selectionKey] && this.selections[selectionKey].team === team;
+                isSelected(eventId, team, marketKey) {
+                    const sel = this.selections[eventId];
+                    return sel && sel.team === team && sel.marketKey === (marketKey || 'h2h');
                 },
 
                 count() { return Object.keys(this.selections).length; },

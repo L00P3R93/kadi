@@ -31,9 +31,27 @@ class SportsbookMarkets
         'h2h_1st_5_innings', 'totals_1st_5_innings',
     ];
 
+    public static array $tabLabels = [
+        'all'      => 'All Markets',
+        'main'     => 'Main',
+        'goals'    => 'Goals',
+        'halftime' => 'Half Time',
+        'other'    => 'Other',
+    ];
+
     public static function getLabel(string $key): string
     {
         return self::$labels[$key] ?? ucwords(str_replace('_', ' ', $key));
+    }
+
+    public static function getTabCategory(string $marketKey): string
+    {
+        return match (true) {
+            in_array($marketKey, ['h2h', 'draw_no_bet', 'double_chance', 'h2h_lay']) => 'main',
+            in_array($marketKey, ['totals', 'btts'])                                  => 'goals',
+            in_array($marketKey, ['h2h_h1', 'h2h_3_way_h1', 'totals_h1'])            => 'halftime',
+            default                                                                   => 'other',
+        };
     }
 
     public static function sortMarkets(array $markets): array
