@@ -5,6 +5,7 @@ namespace App\Services;
 class CachedSportsbookService
 {
     protected string $cachePath;
+    protected static ?array $cachedData = null; // Adding memoization
 
     public function __construct()
     {
@@ -18,13 +19,17 @@ class CachedSportsbookService
 
     public function getAll(): array
     {
+        if (self::$cachedData !== null) {
+            return self::$cachedData;
+        }
+
         if (! $this->exists()) {
             return [];
         }
 
-        $data = json_decode(file_get_contents($this->cachePath), true);
+        self::$cachedData = json_decode(file_get_contents($this->cachePath), true);
 
-        return $data ?? [];
+        return self::$cachedData ?? [];
     }
 
     public function getSports(): array

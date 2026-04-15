@@ -34,7 +34,7 @@ class GuestEventList extends Component
         $cachedService = app(CachedSportsbookService::class);
         $sportsFlat = $cachedService->getSportsFlat();
         $firstFootball = collect($sportsFlat)->firstWhere('display_group', 'Football');
-        $this->sport = $firstFootball['key'] ?? 'soccer_epl';
+        $this->sport = 'soccer_epl'; // default selected group otherwise change to $firstFootball['key'] ?? 'soccer_epl' to select the first key
         $this->events = $cachedService->getEventsForSport($this->sport);
         $this->oddsMap = collect($this->events)->keyBy('id')->toArray();
     }
