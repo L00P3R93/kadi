@@ -13,9 +13,11 @@
              style="background: radial-gradient(circle, rgba(245,197,66,0.05) 0%, transparent 70%);">
         </div>
 
-        {{-- Faded background images --}}
+        {{-- Faded background images (cached) --}}
         @php
-            $casinoImages = array_slice(glob(public_path('casino/*.{png,jpg,webp}'), GLOB_BRACE), 0, 4);
+            $casinoImages = cache()->remember('welcome_casino_bg_images', 3600, function () {
+                return array_slice(glob(public_path('casino/*.{png,jpg,webp}'), GLOB_BRACE), 0, 4);
+            });
             $bgPositions = [
                 ['top-4 -left-8 md:top-8 md:-left-4', 'rotate-[-15deg]'],
                 ['top-0 right-0 md:-right-6',          'rotate-[10deg]'],
@@ -27,7 +29,11 @@
             @php [$pos, $rot] = $bgPositions[$i] ?? ['top-0 left-0', '']; @endphp
             <img src="{{ asset('casino/' . basename($imgPath)) }}"
                  alt=""
+                 width="208"
+                 height="208"
                  class="absolute {{ $pos }} {{ $rot }} opacity-[0.08] pointer-events-none select-none w-40 md:w-52 object-contain"
+                 loading="lazy"
+                 decoding="async"
                  aria-hidden="true" />
         @endforeach
 
@@ -237,8 +243,12 @@
                     <img
                         src="{{ asset($game['path']) }}"
                         alt="{{ $game['name'] }}"
+                        width="{{ $game['width'] }}"
+                        height="{{ $game['height'] }}"
                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
+                        loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                        fetchpriority="{{ $loop->first ? 'high' : 'auto' }}"
+                        decoding="async"
                         onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1200 0%, #2a1f00 100%)';"
                     />
 
@@ -288,8 +298,11 @@
                     <img
                         src="{{ $pg['image'] }}"
                         alt="{{ $pg['title'] }}"
+                        width="224"
+                        height="240"
                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
+                        decoding="async"
                         onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1a1a 0%, #2a1f00 100%)';"
                     />
 

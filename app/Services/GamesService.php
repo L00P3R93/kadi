@@ -3,17 +3,27 @@
 namespace App\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class GamesService
 {
+    private const CACHE_TTL_SECONDS = 3600; // 1 hour
+
     public function all(): Collection
     {
         $dir = public_path('games');
+        $cacheKey = $this->getCacheKey($dir);
+
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null) {
+            return collect($cached);
+        }
+
         $files = glob("$dir/*.{png,jpg,jpeg}", GLOB_BRACE) ?: [];
 
-        return collect($files)
+        $games = collect($files)
             ->map(function (string $filePath): ?array {
                 $filename = basename($filePath);
                 if (! preg_match('/^(.+?)-(\d+)x(\d+)\.(png|jpg|jpeg)$/i', $filename, $m)) {
@@ -38,5 +48,26 @@ class GamesService
             })
             ->filter()
             ->values();
+
+        Cache::put($cacheKey, $games->toArray(), self::CACHE_TTL_SECONDS);
+
+        return $games;
+    }
+
+    /**
+     * Clear the games cache. Call this when adding/removing game files.
+     */
+    public function clearCache(): void
+    {
+        $dir = public_path('games');
+        Cache::forget($this->getCacheKey($dir));
+    }
+
+    private function getCacheKey(string $dir): string
+    {
+        // Include directory mtime in cache key for automatic cache busting when files change
+        $mtime = is_dir($dir) ? filemtime($dir) : 0;
+
+        return 'games_service_all_'.$mtime;
     }
 }

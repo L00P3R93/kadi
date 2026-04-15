@@ -16,6 +16,7 @@
                     height="{{ $game['height'] }}"
                     loading="lazy"
                     decoding="async"
+                    fetchpriority="low"
                 />
             </div>
             <!--<div class="game-card__label">{{ $game['name'] }}</div>-->

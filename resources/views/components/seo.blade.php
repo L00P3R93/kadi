@@ -11,8 +11,8 @@
     $resolvedTitle = filled($title) ? $title : $siteName;
     $resolvedDesc  = filled($description)
         ? $description
-        : 'Kenya\'s premier online casino — slots, live tables, and instant payouts. Play now at Angel Palace.';
-    $ogImage   = $appUrl . '/images/og-default.png';
+        : 'Kenya\'s premier online casino — kadi, casino, sports betting and instant payouts. Play now at Angel Palace.';
+    $ogImage   = $appUrl . '/images/og-default-angel.png';
     $canonical = $appUrl . request()->getPathInfo();
 @endphp
 
