@@ -40,7 +40,11 @@ class OddsApiService
      * Only these sports will be fetched.
      */
     public static array $allowedSports = [
+        'soccer_efl_champ',
         'soccer_epl',
+        'soccer_fa_cup',
+        'soccer_germany_bundesliga',
+        'soccer_spain_la_liga',
         'basketball_nba',
         'boxing',
     ];
