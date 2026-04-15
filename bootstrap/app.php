@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\DetectCurrency;
+use App\Http\Middleware\SetCacheHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,8 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\DetectCurrency::class,
-            \App\Http\Middleware\SetCacheHeaders::class,
+            DetectCurrency::class,
+            SetCacheHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

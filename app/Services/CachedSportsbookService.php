@@ -34,10 +34,30 @@ class CachedSportsbookService
         return collect($data['sports'] ?? [])
             ->map(fn ($s) => [
                 'key' => $s['sport_key'],
-                'title' => $s['sport_title'],
-                'group' => $s['sport_group'],
+                'title' => $s['display_name'] ?? $s['sport_title'],
+                'group' => $s['display_group'] ?? $s['sport_group'],
+                'display_group' => $s['display_group'] ?? $s['sport_group'],
+                'priority' => $s['priority'] ?? 99,
             ])
-            ->groupBy('group')
+            ->sortBy('priority')
+            ->groupBy('display_group')
+            ->toArray();
+    }
+
+    public function getSportsFlat(): array
+    {
+        $data = $this->getAll();
+
+        return collect($data['sports'] ?? [])
+            ->map(fn ($s) => [
+                'key' => $s['sport_key'],
+                'title' => $s['display_name'] ?? $s['sport_title'],
+                'group' => $s['display_group'] ?? $s['sport_group'],
+                'display_group' => $s['display_group'] ?? $s['sport_group'],
+                'priority' => $s['priority'] ?? 99,
+            ])
+            ->sortBy('priority')
+            ->values()
             ->toArray();
     }
 
@@ -65,15 +85,23 @@ class CachedSportsbookService
             return [];
         }
 
-        foreach ($event['bookmakers'] ?? [] as $bm) {
-            foreach ($bm['markets'] ?? [] as $market) {
-                if ($market['key'] === 'h2h') {
-                    return $market['outcomes'] ?? [];
-                }
-            }
+        // New structure: event['markets']['h2h']['outcomes']
+        return $event['markets']['h2h']['outcomes'] ?? [];
+    }
+
+    public function getAllMarketsForEvent(string $sportKey, string $eventId): array
+    {
+        $events = $this->getEventsForSport($sportKey);
+        $event = collect($events)->firstWhere('id', $eventId);
+
+        if (! $event) {
+            return [];
         }
 
-        return [];
+        return array_filter(
+            $event['markets'] ?? [],
+            fn ($m) => ! empty($m['outcomes'])
+        );
     }
 
     public function isExpired(): bool

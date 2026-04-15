@@ -28,7 +28,7 @@
         <div class="flex items-center justify-between">
             <span class="text-[10px] text-gray-500 uppercase tracking-widest font-medium">Paybill No.</span>
             <div class="flex items-center gap-2">
-                <span class="text-white font-black text-base tracking-widest font-mono">4151665</span>
+                <span class="text-white font-black text-base tracking-widest font-mono">XXXXXX</span>
                 <button
                     x-data="{ copied: false }"
                     @click="navigator.clipboard.writeText('247247'); copied = true; setTimeout(() => copied = false, 2000)"

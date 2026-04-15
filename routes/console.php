@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('sitemap:generate')->daily();
 Schedule::command('sportsbook:fetch-odds')->everyTwoHours();
+Schedule::command('odds:sync')->everyFiveMinutes();

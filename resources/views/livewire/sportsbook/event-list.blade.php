@@ -42,6 +42,38 @@
                 elseif ($dt->isTomorrow()) $timeLabel = 'Tomorrow ' . $dt->format('H:i');
                 else $timeLabel = $dt->format('D d/m H:i');
                 $isLiveStr = $isLive ? 'true' : 'false';
+
+                // Get all market odds
+                $h2hOdds = $this->getEventOdds($event['id']);
+                $spreadOdds = $this->getEventSpreads($event['id']);
+                $totalOdds = $this->getEventTotals($event['id']);
+
+                // Build H2H slots
+                $qHome = null; $qDraw = null; $qAway = null;
+                foreach ($h2hOdds as $o) {
+                    if (strtolower($o['name']) === 'draw') $qDraw = $o;
+                    elseif (!$qHome) $qHome = $o;
+                    else $qAway = $o;
+                }
+                $h2hSlots = [
+                    ['label' => '1', 'outcome' => $qHome],
+                    ['label' => 'X', 'outcome' => $qDraw],
+                    ['label' => '2', 'outcome' => $qAway],
+                ];
+
+                // Build Spread slots (Home/Away)
+                $spreadHome = null; $spreadAway = null;
+                foreach ($spreadOdds as $o) {
+                    if ($o['name'] === $event['home_team']) $spreadHome = $o;
+                    elseif ($o['name'] === $event['away_team']) $spreadAway = $o;
+                }
+
+                // Build Total slots (Over/Under)
+                $totalOver = null; $totalUnder = null;
+                foreach ($totalOdds as $o) {
+                    if (stripos($o['name'], 'over') !== false) $totalOver = $o;
+                    elseif (stripos($o['name'], 'under') !== false) $totalUnder = $o;
+                }
             @endphp
 
             <div class="border-b border-[#1a1a1a] hover:bg-[#0f0f0f] transition-colors">
@@ -67,26 +99,10 @@
                         <span class="text-white font-semibold text-sm flex-1 truncate text-right">{{ $event['away_team'] }}</span>
                     </div>
 
-                    {{-- Row 3: H2H odds buttons + chevron --}}
-                    <div class="flex items-center gap-2">
-                        {{-- H2H odds (1, X, 2) --}}
+                    {{-- Row 3: H2H odds buttons (1, X, 2) --}}
+                    <div class="flex items-center gap-2 mb-1.5">
                         <div class="flex gap-1.5 flex-1">
-                            @php
-                                $quickOdds = $this->getEventOdds($event['id']);
-                                $qHome = null; $qDraw = null; $qAway = null;
-                                foreach ($quickOdds as $o) {
-                                    if (strtolower($o['name']) === 'draw') $qDraw = $o;
-                                    elseif (!$qHome) $qHome = $o;
-                                    else $qAway = $o;
-                                }
-                                $mobileSlots = [
-                                    ['label' => '1', 'outcome' => $qHome],
-                                    ['label' => 'X', 'outcome' => $qDraw],
-                                    ['label' => '2', 'outcome' => $qAway],
-                                ];
-                            @endphp
-
-                            @foreach($mobileSlots as $slot)
+                            @foreach($h2hSlots as $slot)
                                 @if($slot['outcome'])
                                     @php
                                         $mTeam    = $slot['outcome']['name'];
@@ -122,48 +138,223 @@
                                 @endif
                             @endforeach
                         </div>
-
-                        {{-- More Markets chevron --}}
-                        <button
-                            wire:click.stop="openMarketsModal('{{ $event['id'] }}')"
-                            class="flex-shrink-0 w-9 h-9 rounded border border-[#333] bg-[#1a1a1a]
-                                   flex items-center justify-center
-                                   hover:border-[#f5c542]/50 hover:text-[#f5c542] text-gray-500
-                                   transition-colors duration-150"
-                            title="More markets"
-                        >
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </button>
                     </div>
+
+                    {{-- Row 4: Spread odds buttons --}}
+                    @if($spreadHome || $spreadAway)
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <div class="flex gap-1.5 flex-1">
+                                @if($spreadHome)
+                                    @php
+                                        $sPoint = $spreadHome['point'] > 0 ? '+' . $spreadHome['point'] : $spreadHome['point'];
+                                        $sSlipKey = $event['id'] . '_spreads';
+                                    @endphp
+                                    <button
+                                        @click.stop="$store.betSlip.add(
+                                        '{{ $event['id'] }}',
+                                        '{{ $sSlipKey }}',
+                                        '{{ addslashes($spreadHome['name']) }} {{ $sPoint }}',
+                                        {{ (float)$spreadHome['price'] }},
+                                        '{{ addslashes($event['home_team']) }}',
+                                        '{{ addslashes($event['away_team']) }}',
+                                        'spreads',
+                                        'Handicap',
+                                        '{{ $event['commence_time'] }}',
+                                        {{ $isLiveStr }}
+                                    )"
+                                        :class="$store.betSlip.isSelected('{{ $event['id'] }}', '{{ addslashes($spreadHome['name']) }} {{ $sPoint }}', 'spreads')
+                                        ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                        : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                        class="flex flex-col items-center flex-1 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                                    >
+                                        <span class="text-[8px] opacity-60 font-semibold">H {{ $sPoint }}</span>
+                                        <span class="text-xs font-bold leading-tight">{{ number_format($spreadHome['price'], 2) }}</span>
+                                    </button>
+                                @else
+                                    <div class="flex flex-col items-center flex-1 py-1.5 rounded border border-[#1a1a1a] bg-[#111]">
+                                        <span class="text-[8px] text-gray-700">H</span>
+                                        <span class="text-xs text-gray-700">—</span>
+                                    </div>
+                                @endif
+
+                                @if($spreadAway)
+                                    @php
+                                        $sPoint = $spreadAway['point'] > 0 ? '+' . $spreadAway['point'] : $spreadAway['point'];
+                                    @endphp
+                                    <button
+                                        @click.stop="$store.betSlip.add(
+                                        '{{ $event['id'] }}',
+                                        '{{ $sSlipKey }}',
+                                        '{{ addslashes($spreadAway['name']) }} {{ $sPoint }}',
+                                        {{ (float)$spreadAway['price'] }},
+                                        '{{ addslashes($event['home_team']) }}',
+                                        '{{ addslashes($event['away_team']) }}',
+                                        'spreads',
+                                        'Handicap',
+                                        '{{ $event['commence_time'] }}',
+                                        {{ $isLiveStr }}
+                                    )"
+                                        :class="$store.betSlip.isSelected('{{ $event['id'] }}', '{{ addslashes($spreadAway['name']) }} {{ $sPoint }}', 'spreads')
+                                        ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                        : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                        class="flex flex-col items-center flex-1 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                                    >
+                                        <span class="text-[8px] opacity-60 font-semibold">A {{ $sPoint }}</span>
+                                        <span class="text-xs font-bold leading-tight">{{ number_format($spreadAway['price'], 2) }}</span>
+                                    </button>
+                                @else
+                                    <div class="flex flex-col items-center flex-1 py-1.5 rounded border border-[#1a1a1a] bg-[#111]">
+                                        <span class="text-[8px] text-gray-700">A</span>
+                                        <span class="text-xs text-gray-700">—</span>
+                                    </div>
+                                @endif
+
+                                {{-- Spacer for 3rd slot to align with H2H row --}}
+                                <div class="flex flex-col items-center flex-1 py-1.5 rounded border border-transparent"></div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Row 5: Total odds buttons --}}
+                    @if($totalOver || $totalUnder)
+                        <div class="flex items-center gap-2">
+                            <div class="flex gap-1.5 flex-1">
+                                @if($totalOver)
+                                    @php
+                                        $tPoint = $totalOver['point'] ?? '';
+                                        $tSlipKey = $event['id'] . '_totals';
+                                    @endphp
+                                    <button
+                                        @click.stop="$store.betSlip.add(
+                                        '{{ $event['id'] }}',
+                                        '{{ $tSlipKey }}',
+                                        'Over {{ $tPoint }}',
+                                        {{ (float)$totalOver['price'] }},
+                                        '{{ addslashes($event['home_team']) }}',
+                                        '{{ addslashes($event['away_team']) }}',
+                                        'totals',
+                                        'Over / Under',
+                                        '{{ $event['commence_time'] }}',
+                                        {{ $isLiveStr }}
+                                    )"
+                                        :class="$store.betSlip.isSelected('{{ $event['id'] }}', 'Over {{ $tPoint }}', 'totals')
+                                        ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                        : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                        class="flex flex-col items-center flex-1 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                                    >
+                                        <span class="text-[8px] opacity-60 font-semibold">O {{ $tPoint }}</span>
+                                        <span class="text-xs font-bold leading-tight">{{ number_format($totalOver['price'], 2) }}</span>
+                                    </button>
+                                @else
+                                    <div class="flex flex-col items-center flex-1 py-1.5 rounded border border-[#1a1a1a] bg-[#111]">
+                                        <span class="text-[8px] text-gray-700">O</span>
+                                        <span class="text-xs text-gray-700">—</span>
+                                    </div>
+                                @endif
+
+                                @if($totalUnder)
+                                    @php
+                                        $tPoint = $totalUnder['point'] ?? '';
+                                    @endphp
+                                    <button
+                                        @click.stop="$store.betSlip.add(
+                                        '{{ $event['id'] }}',
+                                        '{{ $tSlipKey }}',
+                                        'Under {{ $tPoint }}',
+                                        {{ (float)$totalUnder['price'] }},
+                                        '{{ addslashes($event['home_team']) }}',
+                                        '{{ addslashes($event['away_team']) }}',
+                                        'totals',
+                                        'Over / Under',
+                                        '{{ $event['commence_time'] }}',
+                                        {{ $isLiveStr }}
+                                    )"
+                                        :class="$store.betSlip.isSelected('{{ $event['id'] }}', 'Under {{ $tPoint }}', 'totals')
+                                        ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                        : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                        class="flex flex-col items-center flex-1 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                                    >
+                                        <span class="text-[8px] opacity-60 font-semibold">U {{ $tPoint }}</span>
+                                        <span class="text-xs font-bold leading-tight">{{ number_format($totalUnder['price'], 2) }}</span>
+                                    </button>
+                                @else
+                                    <div class="flex flex-col items-center flex-1 py-1.5 rounded border border-[#1a1a1a] bg-[#111]">
+                                        <span class="text-[8px] text-gray-700">U</span>
+                                        <span class="text-xs text-gray-700">—</span>
+                                    </div>
+                                @endif
+
+                                {{-- More Markets chevron --}}
+                                <button
+                                    wire:click.stop="openMarketsModal('{{ $event['id'] }}')"
+                                    class="flex-shrink-0 flex-1 py-1.5 rounded border border-[#333] bg-[#1a1a1a]
+                                       flex items-center justify-center
+                                       hover:border-[#f5c542]/50 hover:text-[#f5c542] text-gray-500
+                                       transition-colors duration-150"
+                                    title="More markets"
+                                >
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    @else
+                        {{-- No totals, show chevron in its own row --}}
+                        <div class="flex items-center justify-end mt-1">
+                            <button
+                                wire:click.stop="openMarketsModal('{{ $event['id'] }}')"
+                                class="w-9 h-9 rounded border border-[#333] bg-[#1a1a1a]
+                                       flex items-center justify-center
+                                       hover:border-[#f5c542]/50 hover:text-[#f5c542] text-gray-500
+                                       transition-colors duration-150"
+                                title="More markets"
+                            >
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- ══ DESKTOP LAYOUT (hidden below md, shown md+) ══ --}}
-                <div class="hidden md:flex items-center gap-3 px-4 py-3 cursor-pointer"
+                <div class="hidden md:flex flex-col px-4 py-3 cursor-pointer"
                      wire:click="openMarketsModal('{{ $event['id'] }}')">
 
-                    {{-- LEFT: Meta --}}
-                    <div class="w-28 flex-shrink-0">
-                        <span class="text-xs bg-[#222] text-[#f5c542] px-2 py-0.5 rounded font-semibold truncate block max-w-[110px]">
-                            {{ $event['sport_title'] ?? '' }}
-                        </span>
-                        <div class="text-[10px] text-gray-500 mt-0.5">{{ $timeLabel }}</div>
-                        @if($isLive)
-                            <span class="inline-block mt-1 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded animate-pulse">LIVE</span>
-                        @endif
+                    {{-- Desktop Row 1: Meta + Teams --}}
+                    <div class="flex items-center gap-3 mb-2">
+                        {{-- LEFT: Meta --}}
+                        <div class="w-28 flex-shrink-0">
+                            <span class="text-xs bg-[#222] text-[#f5c542] px-2 py-0.5 rounded font-semibold truncate block max-w-[110px]">
+                                {{ $event['sport_title'] ?? '' }}
+                            </span>
+                            <div class="text-[10px] text-gray-500 mt-0.5">{{ $timeLabel }}</div>
+                            @if($isLive)
+                                <span class="inline-block mt-1 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded animate-pulse">LIVE</span>
+                            @endif
+                        </div>
+
+                        {{-- CENTER: Teams --}}
+                        <div class="flex-1 min-w-0">
+                            <div class="text-white font-semibold text-sm truncate">{{ $event['home_team'] }}</div>
+                            <div class="text-gray-600 text-[10px] my-0.5">vs</div>
+                            <div class="text-white font-semibold text-sm truncate">{{ $event['away_team'] }}</div>
+                        </div>
+
+                        {{-- RIGHT: Chevron only --}}
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
                     </div>
 
-                    {{-- CENTER: Teams --}}
-                    <div class="flex-1 min-w-0">
-                        <div class="text-white font-semibold text-sm truncate">{{ $event['home_team'] }}</div>
-                        <div class="text-gray-600 text-[10px] my-0.5">vs</div>
-                        <div class="text-white font-semibold text-sm truncate">{{ $event['away_team'] }}</div>
-                    </div>
-
-                    {{-- RIGHT: H2H Odds + Chevron --}}
-                    <div class="flex items-center gap-1.5 flex-shrink-0">
-                        @foreach($mobileSlots ?? [] as $slot)
+                    {{-- Desktop Row 2: All Markets (H2H, Spreads, Totals) --}}
+                    <div class="flex items-center gap-1.5 justify-end">
+                        {{-- H2H Odds --}}
+                        @foreach($h2hSlots as $slot)
                             @if($slot['outcome'])
                                 @php
                                     $mTeam    = $slot['outcome']['name'];
@@ -199,10 +390,143 @@
                             @endif
                         @endforeach
 
-                        <svg class="w-4 h-4 text-gray-600 ml-1 flex-shrink-0" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                        </svg>
+                        {{-- Divider --}}
+                        <div class="w-px h-8 bg-[#333] mx-1"></div>
+
+                        {{-- Spread Odds --}}
+                        @if($spreadHome)
+                            @php
+                                $sPoint = $spreadHome['point'] > 0 ? '+' . $spreadHome['point'] : $spreadHome['point'];
+                                $sSlipKey = $event['id'] . '_spreads';
+                            @endphp
+                            <button
+                                @click.stop="$store.betSlip.add(
+                                    '{{ $event['id'] }}',
+                                    '{{ $sSlipKey }}',
+                                    '{{ addslashes($spreadHome['name']) }} {{ $sPoint }}',
+                                    {{ (float)$spreadHome['price'] }},
+                                    '{{ addslashes($event['home_team']) }}',
+                                    '{{ addslashes($event['away_team']) }}',
+                                    'spreads',
+                                    'Handicap',
+                                    '{{ $event['commence_time'] }}',
+                                    {{ $isLiveStr }}
+                                )"
+                                :class="$store.betSlip.isSelected('{{ $event['id'] }}', '{{ addslashes($spreadHome['name']) }} {{ $sPoint }}', 'spreads')
+                                    ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                    : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                            >
+                                <span class="text-[9px] opacity-60 font-semibold">H {{ $sPoint }}</span>
+                                <span class="text-sm font-bold leading-tight">{{ number_format($spreadHome['price'], 2) }}</span>
+                            </button>
+                        @else
+                            <div class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border border-[#222] bg-[#111]">
+                                <span class="text-[9px] text-gray-700">H</span>
+                                <span class="text-sm text-gray-700">—</span>
+                            </div>
+                        @endif
+
+                        @if($spreadAway)
+                            @php
+                                $sPoint = $spreadAway['point'] > 0 ? '+' . $spreadAway['point'] : $spreadAway['point'];
+                            @endphp
+                            <button
+                                @click.stop="$store.betSlip.add(
+                                    '{{ $event['id'] }}',
+                                    '{{ $sSlipKey }}',
+                                    '{{ addslashes($spreadAway['name']) }} {{ $sPoint }}',
+                                    {{ (float)$spreadAway['price'] }},
+                                    '{{ addslashes($event['home_team']) }}',
+                                    '{{ addslashes($event['away_team']) }}',
+                                    'spreads',
+                                    'Handicap',
+                                    '{{ $event['commence_time'] }}',
+                                    {{ $isLiveStr }}
+                                )"
+                                :class="$store.betSlip.isSelected('{{ $event['id'] }}', '{{ addslashes($spreadAway['name']) }} {{ $sPoint }}', 'spreads')
+                                    ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                    : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                            >
+                                <span class="text-[9px] opacity-60 font-semibold">A {{ $sPoint }}</span>
+                                <span class="text-sm font-bold leading-tight">{{ number_format($spreadAway['price'], 2) }}</span>
+                            </button>
+                        @else
+                            <div class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border border-[#222] bg-[#111]">
+                                <span class="text-[9px] text-gray-700">A</span>
+                                <span class="text-sm text-gray-700">—</span>
+                            </div>
+                        @endif
+
+                        {{-- Divider --}}
+                        <div class="w-px h-8 bg-[#333] mx-1"></div>
+
+                        {{-- Total Odds --}}
+                        @if($totalOver)
+                            @php
+                                $tPoint = $totalOver['point'] ?? '';
+                                $tSlipKey = $event['id'] . '_totals';
+                            @endphp
+                            <button
+                                @click.stop="$store.betSlip.add(
+                                    '{{ $event['id'] }}',
+                                    '{{ $tSlipKey }}',
+                                    'Over {{ $tPoint }}',
+                                    {{ (float)$totalOver['price'] }},
+                                    '{{ addslashes($event['home_team']) }}',
+                                    '{{ addslashes($event['away_team']) }}',
+                                    'totals',
+                                    'Over / Under',
+                                    '{{ $event['commence_time'] }}',
+                                    {{ $isLiveStr }}
+                                )"
+                                :class="$store.betSlip.isSelected('{{ $event['id'] }}', 'Over {{ $tPoint }}', 'totals')
+                                    ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                    : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                            >
+                                <span class="text-[9px] opacity-60 font-semibold">O {{ $tPoint }}</span>
+                                <span class="text-sm font-bold leading-tight">{{ number_format($totalOver['price'], 2) }}</span>
+                            </button>
+                        @else
+                            <div class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border border-[#222] bg-[#111]">
+                                <span class="text-[9px] text-gray-700">O</span>
+                                <span class="text-sm text-gray-700">—</span>
+                            </div>
+                        @endif
+
+                        @if($totalUnder)
+                            @php
+                                $tPoint = $totalUnder['point'] ?? '';
+                            @endphp
+                            <button
+                                @click.stop="$store.betSlip.add(
+                                    '{{ $event['id'] }}',
+                                    '{{ $tSlipKey }}',
+                                    'Under {{ $tPoint }}',
+                                    {{ (float)$totalUnder['price'] }},
+                                    '{{ addslashes($event['home_team']) }}',
+                                    '{{ addslashes($event['away_team']) }}',
+                                    'totals',
+                                    'Over / Under',
+                                    '{{ $event['commence_time'] }}',
+                                    {{ $isLiveStr }}
+                                )"
+                                :class="$store.betSlip.isSelected('{{ $event['id'] }}', 'Under {{ $tPoint }}', 'totals')
+                                    ? 'bg-[#f5c542] border-[#f5c542] text-black'
+                                    : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
+                                class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border transition-colors duration-75 cursor-pointer"
+                            >
+                                <span class="text-[9px] opacity-60 font-semibold">U {{ $tPoint }}</span>
+                                <span class="text-sm font-bold leading-tight">{{ number_format($totalUnder['price'], 2) }}</span>
+                            </button>
+                        @else
+                            <div class="flex flex-col items-center min-w-[60px] px-2 py-1.5 rounded border border-[#222] bg-[#111]">
+                                <span class="text-[9px] text-gray-700">U</span>
+                                <span class="text-sm text-gray-700">—</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

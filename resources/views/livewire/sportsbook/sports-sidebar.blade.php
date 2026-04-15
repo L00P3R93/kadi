@@ -1,16 +1,21 @@
 @php
-$icons = [
-    'Soccer'             => '⚽',
-    'Basketball'         => '🏀',
-    'Tennis'             => '🎾',
-    'Cricket'            => '🏏',
-    'American Football'  => '🏈',
-    'Ice Hockey'         => '🏒',
-    'Mixed Martial Arts' => '🥊',
-    'Golf'               => '⛳',
-    'Baseball'           => '⚾',
-    'Rugby League'       => '🏉',
-    'Politics'           => '🗳️',
+$groupIcons = [
+    'Football'   => '⚽',
+    'Basketball' => '🏀',
+    'Boxing'     => '🥊',
+];
+
+$sportIcons = [
+    'EPL'                   => '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'La Liga'               => '🇪🇸',
+    'Bundesliga'            => '🇩🇪',
+    'Serie A'               => '🇮🇹',
+    'Ligue 1'               => '🇫🇷',
+    'UEFA Champions League' => '⭐',
+    'MLS'                   => '🇺🇸',
+    'NBA'                   => '🏀',
+    'WNBA'                  => '🏀',
+    'Boxing'                => '🥊',
 ];
 $selectedGroup = $this->getSelectedGroup();
 @endphp
@@ -49,7 +54,7 @@ $selectedGroup = $this->getSelectedGroup();
                     class="w-full flex items-center justify-between px-4 py-2.5 hover:bg-[#1a1a1a] transition cursor-pointer group"
                 >
                     <div class="flex items-center gap-2">
-                        <span class="text-base">{{ $icons[$group] ?? '🎮' }}</span>
+                        <span class="text-base">{{ $groupIcons[$group] ?? '🎮' }}</span>
                         <span class="text-xs font-bold uppercase tracking-wide text-gray-300 group-hover:text-white transition">
                             {{ $group }}
                         </span>
@@ -84,7 +89,7 @@ $selectedGroup = $this->getSelectedGroup();
                                     ? 'border-[#f5c542] text-[#f5c542] bg-[#1a1a1a] font-semibold'
                                     : 'border-transparent text-gray-400 hover:text-white hover:bg-[#161616]' }}"
                         >
-                            <span class="text-xs">{{ $icons[$group] ?? '🎮' }}</span>
+                            <span class="text-xs">{{ $sportIcons[$sport['title']] ?? $groupIcons[$group] ?? '🎮' }}</span>
                             <span class="truncate text-left">{{ $sport['title'] }}</span>
                             @if($isActive)
                                 <span class="ml-auto w-1.5 h-1.5 rounded-full bg-[#f5c542] flex-shrink-0"></span>
