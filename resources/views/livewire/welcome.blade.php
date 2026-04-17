@@ -76,7 +76,7 @@
 
                     {{-- CTAs --}}
                     <div class="flex flex-wrap gap-3">
-                        <a href="https://kadi-kings.co.ke/" target="_blank"
+                        <a href="{{ route('login') }}" wire:navigate
                            class="inline-flex items-center gap-2 bg-[#f5c542] text-black font-black
                                   px-6 py-3 rounded-xl hover:bg-[#ffde74] transition-all duration-200
                                   text-sm tracking-wide shadow-lg shadow-[#f5c542]/25
@@ -277,7 +277,7 @@
     <section class="py-10 bg-[#0d0d0d]">
         @php
             $popularGames = [
-                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'badge' => '🟢 Live Dealer',  'players' => rand(120, 850),  'link' => 'https://kadi-kings.co.ke'],
+                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'badge' => '🟢 Live Dealer',  'players' => rand(120, 850),  'link' => route('login')],
                 ['image' => asset('casino/slots.png'),         'title' => 'Golden Slots',    'badge' => '📊 RTP 97.4%',    'players' => rand(200, 1200), 'link' => 'https://kadi-kings.co.ke'],
                 ['image' => asset('casino/roulette.png'),      'title' => 'Roulette Noir',   'badge' => '👑 VIP Room',     'players' => rand(80, 600),   'link' => 'https://kadi-kings.co.ke'],
                 ['image' => asset('casino/poker.png'),         'title' => 'Royal Poker',     'badge' => '🏆 Prize Pool',   'players' => rand(50, 400),   'link' => 'https://kadi-kings.co.ke'],
@@ -312,7 +312,7 @@
                             <span class="text-[9px] text-gray-500">{{ $pg['players'] }} playing</span>
                         </div>
                         <h3 class="text-white font-semibold text-sm leading-tight mb-2">{{ $pg['title'] }}</h3>
-                        <a href="{{ $pg['link'] }}" target="_blank"
+                        <a href="{{ route('login') }}" wire:navigate
                            class="text-[#f5c542] text-xs font-bold hover:underline">
                             Play →
                         </a>
