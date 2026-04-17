@@ -274,49 +274,50 @@
     </section>
 
     {{-- ===================== POPULAR GAMES ===================== --}}
-    <section class="py-10 bg-[#0d0d0d]">
+    <section id="popular" class="py-10 bg-[#0d0d0d]">
         @php
-            $popularGames = [
-                ['image' => asset('casino/kadi.png'),          'title' => 'Kadi',            'badge' => '🟢 Live Dealer',  'players' => rand(120, 850),  'link' => route('login')],
-                ['image' => asset('casino/slots.png'),         'title' => 'Golden Slots',    'badge' => '📊 RTP 97.4%',    'players' => rand(200, 1200), 'link' => 'https://kadi-kings.co.ke'],
-                ['image' => asset('casino/roulette.png'),      'title' => 'Roulette Noir',   'badge' => '👑 VIP Room',     'players' => rand(80, 600),   'link' => 'https://kadi-kings.co.ke'],
-                ['image' => asset('casino/poker.png'),         'title' => 'Royal Poker',     'badge' => '🏆 Prize Pool',   'players' => rand(50, 400),   'link' => 'https://kadi-kings.co.ke'],
-                ['image' => asset('casino/crown.png'),         'title' => 'Royal BlackJack', 'badge' => '🃏 Classic',      'players' => rand(60, 500),   'link' => 'https://kadi-kings.co.ke'],
-                ['image' => asset('casino/king.png'),          'title' => 'Casino Royale',   'badge' => '✨ Featured',     'players' => rand(90, 700),   'link' => 'https://kadi-kings.co.ke'],
-            ];
+            $popularGames = app(\App\Services\GamesService::class)->all()->slice(-10)->values()->toArray();
         @endphp
 
         <x-carousel
             title="Popular Casino Games"
-            subtitle="Most played this week"
+            subtitle="Popular picks from our casino floor"
             view-all-link="{{ route('guest.games') }}"
         >
-            @foreach($popularGames as $pg)
-                <div class="group relative rounded-xl overflow-hidden flex-shrink-0 w-48 sm:w-56 h-60 bg-[#111]
-                            border border-[#222] hover:border-[#f5c542]/40 transition-all duration-300 snap-start">
+            @foreach($popularGames as $game)
+                <div class="group relative rounded-2xl overflow-hidden cursor-pointer
+                            flex-shrink-0 w-48 sm:w-56 h-64 bg-[#111]
+                            border border-[#222] hover:border-[#f5c542]/40 transition-all duration-300
+                            snap-start shadow-lg hover:shadow-[0_8px_30px_rgba(245,197,66,0.12)]">
 
                     <img
-                        src="{{ $pg['image'] }}"
-                        alt="{{ $pg['title'] }}"
-                        width="224"
-                        height="240"
+                        src="{{ asset($game['path']) }}"
+                        alt="{{ $game['name'] }}"
+                        width="{{ $game['width'] }}"
+                        height="{{ $game['height'] }}"
                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
+                        loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                        fetchpriority="{{ $loop->first ? 'high' : 'auto' }}"
                         decoding="async"
-                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1a1a 0%, #2a1f00 100%)';"
+                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1200 0%, #2a1f00 100%)';"
                     />
 
-                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent pt-10 pb-3 px-3">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-[9px] font-bold text-[#f5c542]">{{ $pg['badge'] }}</span>
-                            <span class="text-[9px] text-gray-500">{{ $pg['players'] }} playing</span>
-                        </div>
-                        <h3 class="text-white font-semibold text-sm leading-tight mb-2">{{ $pg['title'] }}</h3>
-                        <a href="{{ route('login') }}" wire:navigate
-                           class="text-[#f5c542] text-xs font-bold hover:underline">
-                            Play →
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-transparent"></div>
+
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pt-12 pb-4 px-4">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-[#f5c542] bg-[#f5c542]/10 border border-[#f5c542]/20 px-1.5 py-0.5 rounded block w-fit mb-1">
+                            Casino
+                        </span>
+                        <!--<h3 class="text-white font-bold text-sm leading-tight mb-2 line-clamp-1">{{ $game['name'] }}</h3>-->
+                        <a href="#" wire:navigate
+                           class="inline-flex items-center gap-1 text-[11px] font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-2.5 py-1.5 rounded transition-colors duration-150">
+                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            Play Now
                         </a>
                     </div>
+
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                                bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none"></div>
                 </div>
             @endforeach
         </x-carousel>
