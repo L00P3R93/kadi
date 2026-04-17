@@ -36,7 +36,7 @@ class EventList extends Component
         $cachedService = app(CachedSportsbookService::class);
         $sportsFlat = $cachedService->getSportsFlat();
         $firstFootball = collect($sportsFlat)->firstWhere('display_group', 'Football');
-        $this->sport = $firstFootball['key'] ?? 'soccer_epl';
+        $this->sport = 'soccer_epl'; // default selected group otherwise change to $firstFootball['key'] ?? 'soccer_epl' to select the first key
         $this->events = $cachedService->getEventsForSport($this->sport);
         $this->oddsMap = collect($this->events)->keyBy('id')->toArray();
     }
@@ -113,11 +113,6 @@ class EventList extends Component
         $this->modalActiveTab = $tab;
     }
 
-    /**
-     * Get H2H odds for the quick display row (1, X, 2)
-     * @param string $eventId
-     * @return array
-     */
     public function getEventOdds(string $eventId): array
     {
         $event = collect($this->events)->firstWhere('id', $eventId);
@@ -125,15 +120,9 @@ class EventList extends Component
             return [];
         }
 
-        // New structure: event['markets']['h2h']['outcomes']
-        return $event['markets']['h2h']['outcomes'] ?? [];
+        return $event['markets']['h2h'] ?? [];
     }
 
-    /**
-     * Get spreads for the quick display row (1, X, 2)
-     * @param string $eventId
-     * @return array
-     */
     public function getEventSpreads(string $eventId): array
     {
         $event = collect($this->events)->firstWhere('id', $eventId);
@@ -142,8 +131,8 @@ class EventList extends Component
         }
 
         $spreads = $event['markets']['spreads']['outcomes'] ?? [];
+        $title = $event['markets']['spreads']['title'] ?? 'Handicap';
 
-        // Return only the first linr for each team (primary spread)
         $byTeam = [];
         foreach ($spreads as $outcome) {
             $team = $outcome['name'];
@@ -152,14 +141,12 @@ class EventList extends Component
             }
         }
 
-        return array_values($byTeam);
+        return [
+            'spreads' => array_values($byTeam),
+            'title' => $title,
+        ];
     }
 
-    /**
-     * Get totals for the quick display row (Over, Under)
-     * @param string $eventId
-     * @return array
-     */
     public function getEventTotals(string $eventId): array
     {
         $event = collect($this->events)->firstWhere('id', $eventId);
@@ -167,20 +154,19 @@ class EventList extends Component
             return [];
         }
 
+        $title = $event['markets']['totals']['title'] ?? 'Over/Under';
         $totals = $event['markets']['totals']['outcomes'] ?? [];
 
-        // Return only the first line (primary total) - Over first, then Under
         $byPoint = [];
         foreach ($totals as $outcome) {
             $point = $outcome['point'] ?? 0;
             $isOver = stripos($outcome['name'], 'over') !== false;
-            $key = $point . ($isOver ? '_over' : '_under');
-            if (!isset($byPoint[$key])) {
+            $key = $point.($isOver ? '_over' : '_under');
+            if (! isset($byPoint[$key])) {
                 $byPoint[$key] = $outcome;
             }
         }
 
-        // Sort by point, Over first
         usort($byPoint, function ($a, $b) {
             $aPoint = $a['point'] ?? 0;
             $bPoint = $b['point'] ?? 0;
@@ -189,10 +175,10 @@ class EventList extends Component
             }
             $aOver = stripos($a['name'], 'over') !== false ? 0 : 1;
             $bOver = stripos($b['name'], 'over') !== false ? 0 : 1;
+
             return $aOver <=> $bOver;
         });
 
-        // Return first pair only
         $result = [];
         if (count($byPoint) >= 2) {
             $result = [$byPoint[0], $byPoint[1]];
@@ -200,7 +186,10 @@ class EventList extends Component
             $result = [$byPoint[0]];
         }
 
-        return $result;
+        return [
+            'results' => $result,
+            'title' => $title,
+        ];
     }
 
     public function render()

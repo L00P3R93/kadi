@@ -21,7 +21,8 @@
                     elseif ($dt->isTomorrow()) $timeLabel = 'Tomorrow ' . $dt->format('H:i');
                     else $timeLabel = $dt->format('D d M, H:i');
 
-                    $outcomes = $this->getEventOdds($event['id']);
+                    $h2h = $this->getEventOdds($event['id']);
+                    $outcomes = $h2h['outcomes'] ?? [];
                     $home = null; $draw = null; $away = null;
                     foreach ($outcomes as $o) {
                         if (strtolower($o['name']) === 'draw') $draw = $o;

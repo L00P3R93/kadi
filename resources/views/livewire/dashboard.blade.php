@@ -158,10 +158,10 @@
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             @php
                 $popularGames = [
-                    ['img'=>'/casino/kadi.png',         'name'=>'Kadi',          'desc'=>'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments.','badge1'=>'🟢 Live Dealer','badge2'=>rand(120,850).' Playing','btn'=>'Join Now'],
-                    ['img'=>'/casino/slot-machine-2.png','name'=>'Golden Slots',  'desc'=>'Luxury slot action with rich visuals, bonus rounds, and glittering jackpots.','badge1'=>'📊 RTP 97.4%','badge2'=>rand(200,1200).' Playing','btn'=>'Spin Now'],
-                    ['img'=>'/casino/roulette.png',     'name'=>'Roulette Noir', 'desc'=>'Spin the golden wheel and chase high-value wins in elegant style.','badge1'=>'👑 VIP Room','badge2'=>rand(80,600).' Playing','btn'=>'Spin Now'],
-                    ['img'=>'/casino/poker-1.png',      'name'=>'Royal Poker',   'desc'=>'Challenge top players in the crown room and build your tournament stack.','badge1'=>'🏆 Prize Pool','badge2'=>rand(50,400).' Playing','btn'=>'Enter Room'],
+                    ['img'=>'/casino/kadi.png',       'name'=>'Kadi',          'desc'=>'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments.','badge1'=>'🟢 Live Dealer','badge2'=>rand(120,850).' Playing','btn'=>'Join Now'],
+                    ['img'=>'/casino/slots.png',      'name'=>'Golden Slots',  'desc'=>'Luxury slot action with rich visuals, bonus rounds, and glittering jackpots.','badge1'=>'📊 RTP 97.4%','badge2'=>rand(200,1200).' Playing','btn'=>'Spin Now'],
+                    ['img'=>'/casino/roulette.png',   'name'=>'Roulette Noir', 'desc'=>'Spin the golden wheel and chase high-value wins in elegant style.','badge1'=>'👑 VIP Room','badge2'=>rand(80,600).' Playing','btn'=>'Spin Now'],
+                    ['img'=>'/casino/poker.png',      'name'=>'Royal Poker',   'desc'=>'Challenge top players in the crown room and build your tournament stack.','badge1'=>'🏆 Prize Pool','badge2'=>rand(50,400).' Playing','btn'=>'Enter Room'],
                 ];
             @endphp
             @foreach ($popularGames as $pg)
@@ -195,10 +195,9 @@
             @php
                 $quickPlayGames = [
                     ['img'=>'/casino/kadi.png',          'name'=>'Kadi'],
-                    ['img'=>'/casino/slot-machine-2.png','name'=>'Golden Slots'],
+                    ['img'=>'/casino/slots.png',         'name'=>'Golden Slots'],
                     ['img'=>'/casino/roulette.png',      'name'=>'Roulette'],
-                    ['img'=>'/casino/poker-1.png',       'name'=>'Royal Poker'],
-                    ['img'=>'/casino/blackjack-2.png',   'name'=>'BlackJack'],
+                    ['img'=>'/casino/poker.png',       'name'=>'Royal Poker'],
                     ['img'=>'/casino/dice.png',          'name'=>'Royal Dice'],
                 ];
             @endphp

@@ -28,7 +28,7 @@
 
                 {{-- Right side: auth button + hamburger --}}
                 <div class="flex items-center gap-3">
-                    <!--<div class="hidden md:block">
+                    <div class="hidden md:block">
                         @auth
                             <a href="{{ route('dashboard') }}" wire:navigate
                                class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
@@ -40,7 +40,7 @@
                                 Login
                             </a>
                         @endauth
-                    </div>-->
+                    </div>
 
                     {{-- Hamburger (mobile only) --}}
                     <button
@@ -80,7 +80,7 @@
                        class="py-3 text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>
 
                     {{-- Auth CTA — mobile only --}}
-                    <!--<div class="py-4">
+                    <div class="py-4">
                         @auth
                             <a href="{{ route('dashboard') }}" @click="menuOpen = false" wire:navigate
                                class="btn-casino-primary block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
@@ -98,7 +98,7 @@
                                 </a>
                             </div>
                         @endauth
-                    </div>-->
+                    </div>
                 </div>
             </div>
         </nav>

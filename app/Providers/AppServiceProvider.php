@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Listeners\HandleEmailVerified;
+use App\Listeners\HandleLogin;
 use App\Services\KadiApiService;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Event::listen(Verified::class, HandleEmailVerified::class);
+        Event::listen(Login::class, HandleLogin::class);
     }
 
     /**

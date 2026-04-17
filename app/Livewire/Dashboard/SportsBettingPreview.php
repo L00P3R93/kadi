@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Dashboard;
 
-use App\Services\OddsApiService;
+use App\Services\CachedSportsbookService;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -10,39 +10,30 @@ class SportsBettingPreview extends Component
 {
     public array $events = [];
 
-    public array $oddsMap = [];
+    public string $sport = 'soccer_epl';
 
-    public function mount(OddsApiService $service): void
+    public function mount(CachedSportsbookService $service): void
     {
-        $allEvents = $service->getEvents('soccer_epl');
-        $allOdds   = $service->getOdds('soccer_epl');
+        $sportsFlat = $service->getSportsFlat();
+        $firstFootball = collect($sportsFlat)->firstWhere('display_group', 'Football');
+        $this->sport = $firstFootball['key'] ?? 'soccer_epl';
 
-        $this->events = collect($allEvents)
+        $this->events = collect($service->getEventsForSport($this->sport))
             ->filter(fn ($e) => Carbon::parse($e['commence_time'])->isFuture())
             ->take(6)
             ->values()
             ->toArray();
-
-        $this->oddsMap = collect($allOdds)->keyBy('id')->toArray();
     }
 
     public function getEventOdds(string $eventId): array
     {
-        $event = $this->oddsMap[$eventId] ?? null;
+        $event = collect($this->events)->firstWhere('id', $eventId);
 
         if (! $event) {
             return [];
         }
 
-        foreach ($event['bookmakers'] ?? [] as $bookmaker) {
-            foreach ($bookmaker['markets'] ?? [] as $market) {
-                if ($market['key'] === 'h2h') {
-                    return $market['outcomes'] ?? [];
-                }
-            }
-        }
-
-        return [];
+        return $event['markets']['h2h'] ?? [];
     }
 
     public function render()

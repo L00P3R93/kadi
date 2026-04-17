@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Sportsbook;
 
-use App\Services\OddsApiService;
+use App\Services\CachedSportsbookService;
 use Livewire\Component;
 
 class SportsSidebar extends Component
@@ -11,11 +11,9 @@ class SportsSidebar extends Component
 
     public string $selectedSport = 'soccer_epl';
 
-    public function mount(OddsApiService $service): void
+    public function mount(CachedSportsbookService $service): void
     {
-        $this->sports = collect($service->getSports())
-            ->groupBy('group')
-            ->toArray();
+        $this->sports = $service->getSports();
     }
 
     public function selectSport(string $sportKey): void
