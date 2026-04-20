@@ -51,6 +51,21 @@ Route::get('/', Welcome::class)->name('home');
 Route::get('/lobby', GamesList::class)->name('guest.games');
 Route::get('/sportsbook', GuestSportsbookPage::class)->name('sportsbook');
 
+// Sportsbook data API — public, serves cache.json directly
+Route::get('/sportsbook/data', function () {
+    $path = storage_path('app/sportsbook/cache.json');
+    if (! file_exists($path)) {
+        return response()->json(['sports' => [], 'generated_at' => null, 'expires_at' => null]);
+    }
+    return response()->file($path, ['Content-Type' => 'application/json', 'Cache-Control' => 'public, max-age=300']);
+})->name('sportsbook.data');
+
+// Live event odds for the markets modal
+Route::get('/sportsbook/event-odds/{sport}/{eventId}', function (string $sport, string $eventId) {
+    $data = app(\App\Services\OddsApiService::class)->getSportEventOdds($sport, $eventId);
+    return response()->json($data);
+})->name('sportsbook.event-odds');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/dashboard/sportsbook', SportsbookPage::class)->name('dashboard.sportsbook');
