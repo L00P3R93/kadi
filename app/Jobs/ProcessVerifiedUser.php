@@ -76,8 +76,9 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
     private function insertIntoKadiDatabase(?string $plainPassword, ?int $customerId): void
     {
         try {
+            $userName = explode(' ', $this->user->name);
             DB::connection('kadi')->table('accounts')->insert([
-                'name' => $this->user->name,
+                'name' => $userName[0],
                 'phone' => $this->user->phone,
                 'email' => $this->user->email,
                 'password' => $plainPassword,

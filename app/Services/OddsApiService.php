@@ -33,7 +33,7 @@ class OddsApiService
      */
     public static array $allMarkets = [
         'h2h', 'btts', 'totals', 'draw_no_bet', 'alternate_totals',
-        'alternate_spreads', 'spreads', 'team_totals', 'h2h_3_way',
+        'alternate_spreads', 'spreads', 'team_totals',
     ];
 
     /**
