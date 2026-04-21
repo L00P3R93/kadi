@@ -17,7 +17,6 @@ class OddsAggregator
         'alternate_spreads',
         'spreads',
         'team_totals',
-        'h2h_3_way',
     ];
 
     /**
