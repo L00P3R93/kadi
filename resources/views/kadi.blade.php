@@ -137,7 +137,7 @@ console.log(window.GAME_AUTH);
 
 
 #status {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   right: 0;
@@ -147,7 +147,7 @@ console.log(window.GAME_AUTH);
   align-items: center;
   flex-direction: column;
   background: black;
-
+  z-index: 10000;
 }
 
 #rotate {
@@ -605,7 +605,7 @@ function handleStateChange() {
   const fullscreenPrompt = document.getElementById("fullscreenPrompt");
   const loader = document.getElementById("status");
 
-  if (!isIos() && !isFullscreen()) {
+  if (!isIos() && !isFullscreen() && !gameStarted) {
     fullscreenPrompt.classList.remove("hidden");
     rotate.classList.add("hidden");
     return;

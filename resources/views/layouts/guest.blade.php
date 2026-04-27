@@ -30,12 +30,21 @@
 
                 {{-- Right side: auth button + hamburger --}}
                 <div class="flex items-center gap-3">
-                    <div class="hidden md:block">
+                    <div class="hidden md:flex items-center gap-3">
                         @auth
-                            <a href="{{ route('dashboard') }}" wire:navigate
-                               class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
-                                Dashboard
+                            @php $navBalance = \Illuminate\Support\Facades\Cache::get('kadi.customer.'.auth()->id(), [])['balance'] ?? 0; @endphp
+                            <a href="{{ route('wallet') }}" wire:navigate
+                               class="flex items-center gap-2 rounded-full border border-[#f5c542]/40 bg-[#f5c542]/10 px-4 py-1.5 transition hover:border-[#f5c542]/70 hover:bg-[#f5c542]/20">
+                                <span class="text-sm">💰</span>
+                                <x-currency-amount :amount="$navBalance" class="text-sm font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
                             </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="btn-casino-ghost inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm">
+                                    <span>🚪</span>
+                                    <span>Logout</span>
+                                </button>
+                            </form>
                         @else
                             <a href="{{ route('login') }}" wire:navigate
                                class="btn-casino-ghost inline-block rounded-full px-5 py-2 text-sm no-underline">
@@ -84,10 +93,21 @@
                     {{-- Auth CTA — mobile only --}}
                     <div class="py-4">
                         @auth
-                            <a href="{{ route('dashboard') }}" @click="menuOpen = false" wire:navigate
-                               class="btn-casino-primary block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
-                                🎮 Go to Dashboard
-                            </a>
+                            @php $navBalance = \Illuminate\Support\Facades\Cache::get('kadi.customer.'.auth()->id(), [])['balance'] ?? 0; @endphp
+                            <div class="flex flex-col gap-3">
+                                <a href="{{ route('wallet') }}" @click="menuOpen = false" wire:navigate
+                                   class="flex items-center justify-center gap-2 rounded-xl border border-[#f5c542]/40 bg-[#f5c542]/10 py-3 text-sm font-semibold text-[#f5c542]">
+                                    <span>💰</span>
+                                    <x-currency-amount :amount="$navBalance" class="font-bold" style="font-family: 'Cinzel', serif;" />
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" @click="menuOpen = false"
+                                            class="btn-casino-ghost block w-full rounded-xl py-3 text-center text-sm font-semibold">
+                                        🚪 Logout
+                                    </button>
+                                </form>
+                            </div>
                         @else
                             <div class="flex flex-col gap-3">
                                 <a href="{{ route('login') }}" @click="menuOpen = false" wire:navigate
@@ -256,6 +276,8 @@
                 modalMarkets: {},
                 modalLoadingMore: false,
                 modalActiveTab: 'all',
+                eventTab: 'highlights',
+                upcomingSort: 'time',
 
                 async init() {
                     await this.loadData();
@@ -332,7 +354,88 @@
                     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
                     return `${days[dt.getUTCDay()]} ${dt.getUTCDate()} ${months[dt.getUTCMonth()]}, ${time}`;
                 },
-                isLive(ct) { return ct && new Date(ct) < new Date(); },
+                _gameDuration(sportKey) {
+                    if (!sportKey) return 105 * 60000;
+                    if (sportKey.startsWith('basketball')) return 180 * 60000;
+                    if (sportKey === 'boxing') return 90 * 60000;
+                    return 105 * 60000;
+                },
+                isExpired(ct, sportKey) {
+                    if (!ct) return true;
+                    return new Date(ct).getTime() + this._gameDuration(sportKey) < Date.now();
+                },
+                isLive(ct, sportKey) {
+                    if (!ct) return false;
+                    const start = new Date(ct).getTime();
+                    const now = Date.now();
+                    return start < now && (start + this._gameDuration(sportKey) > now);
+                },
+                getAllEventsFlat() {
+                    const all = [];
+                    for (const events of Object.values(this.events)) {
+                        for (const ev of events) all.push(ev);
+                    }
+                    return all;
+                },
+                getHighlightEvents() {
+                    const bySport = {};
+                    for (const ev of this.getAllEventsFlat()) {
+                        if (this.isExpired(ev.commence_time, ev.sport_key)) continue;
+                        (bySport[ev.sport_key] ??= []).push(ev);
+                    }
+                    for (const key of Object.keys(bySport)) {
+                        bySport[key].sort((a, b) => new Date(a.commence_time) - new Date(b.commence_time));
+                        bySport[key] = bySport[key].slice(0, 3);
+                    }
+                    const result = Object.values(bySport).flat();
+                    result.sort((a, b) => {
+                        const aL = this.isLive(a.commence_time, a.sport_key) ? 0 : 1;
+                        const bL = this.isLive(b.commence_time, b.sport_key) ? 0 : 1;
+                        if (aL !== bL) return aL - bL;
+                        return new Date(a.commence_time) - new Date(b.commence_time);
+                    });
+                    return result;
+                },
+                getUpcomingEvents() {
+                    const all = this.getAllEventsFlat().filter(ev => !this.isExpired(ev.commence_time, ev.sport_key));
+                    if (this.upcomingSort === 'league') {
+                        const priorityMap = {};
+                        for (const items of Object.values(this.sports)) {
+                            for (const s of items) priorityMap[s.key] = s.priority;
+                        }
+                        all.sort((a, b) => {
+                            const pa = priorityMap[a.sport_key] ?? 99;
+                            const pb = priorityMap[b.sport_key] ?? 99;
+                            if (pa !== pb) return pa - pb;
+                            return new Date(a.commence_time) - new Date(b.commence_time);
+                        });
+                    } else {
+                        all.sort((a, b) => new Date(a.commence_time) - new Date(b.commence_time));
+                    }
+                    return all;
+                },
+                getLiveEvents() {
+                    return this.getAllEventsFlat()
+                        .filter(ev => this.isLive(ev.commence_time, ev.sport_key))
+                        .sort((a, b) => new Date(a.commence_time) - new Date(b.commence_time));
+                },
+                getTabEvents() {
+                    if (this.eventTab === 'live') return this.getLiveEvents();
+                    if (this.eventTab === 'upcoming') return this.getUpcomingEvents();
+                    return this.getHighlightEvents();
+                },
+                setEventTab(tab) { this.eventTab = tab; },
+                setUpcomingSort(sort) { this.upcomingSort = sort; },
+                getListTitle() {
+                    if (this.eventTab === 'live') return 'Live Now';
+                    if (this.eventTab === 'upcoming') return 'Upcoming';
+                    return 'Highlights';
+                },
+                getEmptyMessage() {
+                    if (this.eventTab === 'live') return 'No live events right now.';
+                    if (this.eventTab === 'highlights') return 'No highlights available.';
+                    return 'No upcoming events available.';
+                },
 
                 h2h(event) {
                     const m = event.markets?.h2h ?? {};
@@ -415,7 +518,7 @@
                     const ev = this.modalEvent;
                     if (!ev) return;
                     const name = outcome.description ? `${outcome.name} ${outcome.description}` : outcome.name;
-                    Alpine.store('betSlip').add(ev.id, ev.id+'_'+marketKey, name, outcome.price, ev.home_team, ev.away_team, marketKey, this.marketLabel(marketKey, marketTitle), ev.commence_time, this.isLive(ev.commence_time));
+                    Alpine.store('betSlip').add(ev.id, ev.id+'_'+marketKey, name, outcome.price, ev.home_team, ev.away_team, marketKey, this.marketLabel(marketKey, marketTitle), ev.commence_time, this.isLive(ev.commence_time, ev.sport_key));
                 },
                 isModalOutcomeSelected(outcome, marketKey) {
                     const ev = this.modalEvent;

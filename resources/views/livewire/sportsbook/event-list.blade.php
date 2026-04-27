@@ -1,32 +1,62 @@
 <div class="flex flex-col h-full">
 
     {{-- Top Bar --}}
-    <div class="sticky top-0 z-10 bg-[#111] border-b border-[#222] px-4 py-3 flex justify-between items-center flex-shrink-0">
-        <div class="flex items-center gap-2">
-            <button
-                @click="sidenavOpen = !sidenavOpen"
-                class="lg:hidden flex items-center justify-center w-7 h-7 text-gray-400 hover:text-[#f5c542] transition-colors"
-                aria-label="Open sports menu"
-            >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
-                </svg>
-            </button>
-            <span class="text-white font-bold" x-text="$store.sportsbook.getSportTitle()"></span>
-        </div>
-        <div class="flex items-center gap-3">
-            <div x-data="{ tab: 'upcoming' }" class="flex gap-2">
+    <div class="sticky top-0 z-10 bg-[#111] border-b border-[#222] flex-shrink-0">
+        <div class="px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
                 <button
-                    @click="tab = 'upcoming'"
-                    :class="tab === 'upcoming' ? 'bg-[#f5c542] text-black font-bold' : 'bg-[#222] text-gray-400 hover:bg-[#333]'"
+                    @click="sidenavOpen = !sidenavOpen"
+                    class="lg:hidden flex items-center justify-center w-7 h-7 text-gray-400 hover:text-[#f5c542] transition-colors"
+                    aria-label="Open sports menu"
+                >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
+                    </svg>
+                </button>
+                <span class="text-white font-bold" x-text="$store.sportsbook.getListTitle()"></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button
+                    @click="$store.sportsbook.setEventTab('highlights')"
+                    :class="$store.sportsbook.eventTab === 'highlights' ? 'bg-[#f5c542] text-black font-bold' : 'bg-[#222] text-gray-400 hover:bg-[#333]'"
+                    class="rounded px-3 py-1 text-xs transition"
+                >Highlights</button>
+                <button
+                    @click="$store.sportsbook.setEventTab('upcoming')"
+                    :class="$store.sportsbook.eventTab === 'upcoming' ? 'bg-[#f5c542] text-black font-bold' : 'bg-[#222] text-gray-400 hover:bg-[#333]'"
                     class="rounded px-3 py-1 text-xs transition"
                 >Upcoming</button>
                 <button
-                    @click="tab = 'live'"
-                    :class="tab === 'live' ? 'bg-[#f5c542] text-black font-bold' : 'bg-[#222] text-gray-400 hover:bg-[#333]'"
-                    class="rounded px-3 py-1 text-xs transition"
-                >Live</button>
+                    @click="$store.sportsbook.setEventTab('live')"
+                    :class="$store.sportsbook.eventTab === 'live' ? 'bg-[#f5c542] text-black font-bold' : 'bg-[#222] text-gray-400 hover:bg-[#333]'"
+                    class="rounded px-3 py-1 text-xs transition flex items-center gap-1"
+                >
+                    Live
+                    <span
+                        x-show="$store.sportsbook.getLiveEvents().length > 0"
+                        x-text="$store.sportsbook.getLiveEvents().length"
+                        class="bg-red-600 text-white text-[8px] font-black px-1 py-0.5 rounded-full leading-none animate-pulse"
+                    ></span>
+                </button>
             </div>
+        </div>
+        {{-- Upcoming sort options --}}
+        <div
+            x-show="$store.sportsbook.eventTab === 'upcoming'"
+            x-cloak
+            class="px-4 pb-2 flex items-center gap-2"
+        >
+            <span class="text-[10px] text-gray-600">Sort:</span>
+            <button
+                @click="$store.sportsbook.setUpcomingSort('time')"
+                :class="$store.sportsbook.upcomingSort === 'time' ? 'bg-[#333] text-[#f5c542] font-bold' : 'text-gray-500 hover:text-gray-300'"
+                class="text-[10px] px-2 py-0.5 rounded transition"
+            >By Time</button>
+            <button
+                @click="$store.sportsbook.setUpcomingSort('league')"
+                :class="$store.sportsbook.upcomingSort === 'league' ? 'bg-[#333] text-[#f5c542] font-bold' : 'text-gray-500 hover:text-gray-300'"
+                class="text-[10px] px-2 py-0.5 rounded transition"
+            >Top Leagues</button>
         </div>
     </div>
 
@@ -38,7 +68,7 @@
     {{-- Event list --}}
     <div x-show="$store.sportsbook.loaded" class="flex-1 overflow-y-auto">
 
-        <template x-for="event in $store.sportsbook.getEvents()" :key="event.id">
+        <template x-for="event in $store.sportsbook.getTabEvents()" :key="event.id">
             <div
                 class="border-b border-[#1a1a1a]"
                 x-data="{
@@ -60,7 +90,7 @@
                             <span class="text-[9px] bg-[#222] text-[#f5c542] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide truncate max-w-[90px]"
                                   x-text="event.sport_title"></span>
                             <span class="text-[10px] text-gray-500" x-text="$store.sportsbook.formatTime(event.commence_time)"></span>
-                            <span x-show="$store.sportsbook.isLive(event.commence_time)"
+                            <span x-show="$store.sportsbook.isLive(event.commence_time, event.sport_key)"
                                   class="bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded animate-pulse">LIVE</span>
                         </div>
                         <div class="flex items-center gap-1.5">
@@ -80,7 +110,7 @@
                                 <template x-for="slot in [{label:'Home',outcome:h2h.home},{label:'Draw',outcome:h2h.draw},{label:'Away',outcome:h2h.away}]" :key="slot.label">
                                     <template x-if="slot.outcome">
                                         <button
-                                            @click.stop="$store.betSlip.add(event.id, event.id+'_h2h', slot.outcome.name, slot.outcome.price, event.home_team, event.away_team, 'h2h', h2h.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                            @click.stop="$store.betSlip.add(event.id, event.id+'_h2h', slot.outcome.name, slot.outcome.price, event.home_team, event.away_team, 'h2h', h2h.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                             :class="$store.betSlip.isSelected(event.id, slot.outcome.name, 'h2h') ? 'bg-[#f5c542] text-black' : 'bg-[#111] text-white hover:bg-[#1e1e2e]'"
                                             class="flex flex-col items-center flex-1 py-2 border-r border-[#222] last:border-r-0 transition-colors duration-75 cursor-pointer"
                                         >
@@ -110,7 +140,7 @@
                             <div class="flex">
                                 <template x-if="sp.home">
                                     <button
-                                        @click.stop="$store.betSlip.add(event.id, event.id+'_spreads', sp.home.name+' '+$store.sportsbook.pt(sp.home.point), sp.home.price, event.home_team, event.away_team, 'spreads', sp.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                        @click.stop="$store.betSlip.add(event.id, event.id+'_spreads', sp.home.name+' '+$store.sportsbook.pt(sp.home.point), sp.home.price, event.home_team, event.away_team, 'spreads', sp.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                         :class="$store.betSlip.isSelected(event.id, sp.home.name+' '+$store.sportsbook.pt(sp.home.point), 'spreads') ? 'bg-[#f5c542] text-black' : 'bg-[#111] text-white hover:bg-[#1e1e2e]'"
                                         class="flex flex-col items-center flex-1 py-2 border-r border-[#222] transition-colors duration-75 cursor-pointer"
                                     >
@@ -128,7 +158,7 @@
                                 </template>
                                 <template x-if="sp.away">
                                     <button
-                                        @click.stop="$store.betSlip.add(event.id, event.id+'_spreads', sp.away.name+' '+$store.sportsbook.pt(sp.away.point), sp.away.price, event.home_team, event.away_team, 'spreads', sp.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                        @click.stop="$store.betSlip.add(event.id, event.id+'_spreads', sp.away.name+' '+$store.sportsbook.pt(sp.away.point), sp.away.price, event.home_team, event.away_team, 'spreads', sp.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                         :class="$store.betSlip.isSelected(event.id, sp.away.name+' '+$store.sportsbook.pt(sp.away.point), 'spreads') ? 'bg-[#f5c542] text-black' : 'bg-[#111] text-white hover:bg-[#1e1e2e]'"
                                         class="flex flex-col items-center flex-1 py-2 transition-colors duration-75 cursor-pointer"
                                     >
@@ -157,7 +187,7 @@
                             <div class="flex">
                                 <template x-if="tot.over">
                                     <button
-                                        @click.stop="$store.betSlip.add(event.id, event.id+'_totals', 'Over '+$store.sportsbook.pt(tot.over.point), tot.over.price, event.home_team, event.away_team, 'totals', tot.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                        @click.stop="$store.betSlip.add(event.id, event.id+'_totals', 'Over '+$store.sportsbook.pt(tot.over.point), tot.over.price, event.home_team, event.away_team, 'totals', tot.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                         :class="$store.betSlip.isSelected(event.id, 'Over '+$store.sportsbook.pt(tot.over.point), 'totals') ? 'bg-[#f5c542] text-black' : 'bg-[#111] text-white hover:bg-[#1e1e2e]'"
                                         class="flex flex-col items-center flex-1 py-2 border-r border-[#222] transition-colors duration-75 cursor-pointer"
                                     >
@@ -175,7 +205,7 @@
                                 </template>
                                 <template x-if="tot.under">
                                     <button
-                                        @click.stop="$store.betSlip.add(event.id, event.id+'_totals', 'Under '+$store.sportsbook.pt(tot.under.point), tot.under.price, event.home_team, event.away_team, 'totals', tot.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                        @click.stop="$store.betSlip.add(event.id, event.id+'_totals', 'Under '+$store.sportsbook.pt(tot.under.point), tot.under.price, event.home_team, event.away_team, 'totals', tot.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                         :class="$store.betSlip.isSelected(event.id, 'Under '+$store.sportsbook.pt(tot.under.point), 'totals') ? 'bg-[#f5c542] text-black' : 'bg-[#111] text-white hover:bg-[#1e1e2e]'"
                                         class="flex flex-col items-center flex-1 py-2 border-r border-[#222] transition-colors duration-75 cursor-pointer"
                                     >
@@ -230,7 +260,7 @@
                             <span class="text-[9px] bg-[#222] text-[#f5c542] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide truncate max-w-[90px]"
                                   x-text="event.sport_title"></span>
                             <span class="text-[9px] text-gray-500" x-text="$store.sportsbook.formatTime(event.commence_time)"></span>
-                            <span x-show="$store.sportsbook.isLive(event.commence_time)"
+                            <span x-show="$store.sportsbook.isLive(event.commence_time, event.sport_key)"
                                   class="bg-red-600 text-white text-[8px] font-bold px-1 py-0.5 rounded animate-pulse">LIVE</span>
                         </div>
                         <div class="text-white font-semibold text-xs leading-snug truncate" x-text="event.home_team"></div>
@@ -252,7 +282,7 @@
                                             <span class="text-[7px] uppercase text-gray-600 w-11 text-center truncate" x-text="slot.label"></span>
                                             <template x-if="slot.o">
                                                 <button
-                                                    @click.stop="$store.betSlip.add(event.id, event.id+'_h2h', slot.o.name, slot.o.price, event.home_team, event.away_team, 'h2h', h2h.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                                    @click.stop="$store.betSlip.add(event.id, event.id+'_h2h', slot.o.name, slot.o.price, event.home_team, event.away_team, 'h2h', h2h.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                                     :class="$store.betSlip.isSelected(event.id, slot.o.name, 'h2h') ? 'bg-[#f5c542] border-[#f5c542] text-black' : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
                                                     class="w-11 py-1.5 rounded border text-sm font-black text-center transition-colors duration-75 cursor-pointer"
                                                     x-text="parseFloat(slot.o.price).toFixed(2)"
@@ -278,7 +308,7 @@
                                             <span class="text-[7px] uppercase text-gray-600 w-11 text-center" x-text="slot.label"></span>
                                             <template x-if="slot.o">
                                                 <button
-                                                    @click.stop="$store.betSlip.add(event.id, event.id+'_spreads', slot.o.name+' '+$store.sportsbook.pt(slot.o.point), slot.o.price, event.home_team, event.away_team, 'spreads', sp.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                                    @click.stop="$store.betSlip.add(event.id, event.id+'_spreads', slot.o.name+' '+$store.sportsbook.pt(slot.o.point), slot.o.price, event.home_team, event.away_team, 'spreads', sp.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                                     :class="$store.betSlip.isSelected(event.id, slot.o.name+' '+$store.sportsbook.pt(slot.o.point), 'spreads') ? 'bg-[#f5c542] border-[#f5c542] text-black' : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
                                                     class="w-11 py-1.5 rounded border text-sm font-black text-center transition-colors duration-75 cursor-pointer"
                                                     x-text="parseFloat(slot.o.price).toFixed(2)"
@@ -304,7 +334,7 @@
                                             <span class="text-[7px] uppercase text-gray-600 w-11 text-center" x-text="slot.label"></span>
                                             <template x-if="slot.o">
                                                 <button
-                                                    @click.stop="$store.betSlip.add(event.id, event.id+'_totals', slot.label+' '+$store.sportsbook.pt(slot.o.point), slot.o.price, event.home_team, event.away_team, 'totals', tot.title, event.commence_time, $store.sportsbook.isLive(event.commence_time))"
+                                                    @click.stop="$store.betSlip.add(event.id, event.id+'_totals', slot.label+' '+$store.sportsbook.pt(slot.o.point), slot.o.price, event.home_team, event.away_team, 'totals', tot.title, event.commence_time, $store.sportsbook.isLive(event.commence_time, event.sport_key))"
                                                     :class="$store.betSlip.isSelected(event.id, slot.label+' '+$store.sportsbook.pt(slot.o.point), 'totals') ? 'bg-[#f5c542] border-[#f5c542] text-black' : 'bg-[#1e1e2e] border-[#2a2a3e] text-white hover:bg-[#f5c542] hover:border-[#f5c542] hover:text-black'"
                                                     class="w-11 py-1.5 rounded border text-sm font-black text-center transition-colors duration-75 cursor-pointer"
                                                     x-text="parseFloat(slot.o.price).toFixed(2)"
@@ -333,10 +363,10 @@
         </template>
 
         {{-- Empty state --}}
-        <div x-show="$store.sportsbook.loaded && $store.sportsbook.getEvents().length === 0"
+        <div x-show="$store.sportsbook.loaded && $store.sportsbook.getTabEvents().length === 0"
              class="flex flex-col items-center justify-center py-20 text-gray-600">
             <div class="text-4xl mb-3">📭</div>
-            <div class="text-sm">No events available for this sport.</div>
+            <div class="text-sm" x-text="$store.sportsbook.getEmptyMessage()"></div>
         </div>
 
     </div>
@@ -393,9 +423,9 @@
                             <div class="flex items-center gap-2 mt-1">
                                 <span class="text-[10px] text-gray-500"
                                       x-text="$store.sportsbook.formatModalTime($store.sportsbook.modalEvent.commence_time)"></span>
-                                <span x-show="$store.sportsbook.isLive($store.sportsbook.modalEvent.commence_time)"
+                                <span x-show="$store.sportsbook.isLive($store.sportsbook.modalEvent.commence_time, $store.sportsbook.modalEvent.sport_key)"
                                       class="text-[9px] font-bold text-red-400 animate-pulse">● LIVE</span>
-                                <span x-show="!$store.sportsbook.isLive($store.sportsbook.modalEvent.commence_time)"
+                                <span x-show="!$store.sportsbook.isLive($store.sportsbook.modalEvent.commence_time, $store.sportsbook.modalEvent.sport_key)"
                                       class="text-[9px] text-gray-600 uppercase tracking-wide">Upcoming</span>
                             </div>
                         </div>
