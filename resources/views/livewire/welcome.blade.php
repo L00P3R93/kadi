@@ -76,7 +76,8 @@
 
                     {{-- CTAs --}}
                     <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('kadi') }}" wire:navigate
+                        <a href="{{ $playKadiUrl }}"
+                           @auth target="_blank" rel="noopener noreferrer" @endauth
                            class="inline-flex items-center gap-2 bg-[#f5c542] text-black font-black
                                   px-6 py-3 rounded-xl hover:bg-[#ffde74] transition-all duration-200
                                   text-sm tracking-wide shadow-lg shadow-[#f5c542]/25
