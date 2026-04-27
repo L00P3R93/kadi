@@ -2,9 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Facades\KadiApi;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -16,6 +21,7 @@ class Welcome extends Component
 
     public function mount(): void
     {
+        /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
@@ -23,23 +29,48 @@ class Welcome extends Component
             return;
         }
 
-        $profile  = Cache::get("kadi.customer.{$user->id}", []);
+        $cacheKey = "kadi.customer.{$user->id}";
+        $profile  = Cache::get($cacheKey);
+
+        if ($profile === null) {
+            $profile = $this->refreshProfile($user, $cacheKey);
+        }
+
         $googleId = $profile['google_id'] ?? null;
 
-        if (! $googleId) {
+        $this->playKadiUrl = 'https://play.kadikings.co.ke'
+            . ($googleId ? '?ggid=' . $googleId : '');
+    }
+
+    private function refreshProfile(User $user, string $cacheKey): array
+    {
+        if (! $user->linked_id) {
+            return [];
+        }
+
+        try {
+            $response = KadiApi::getCustomer($user->linked_id);
+            $profile  = $response['data'] ?? $response;
+
             $googleId = DB::connection('kadi')
                 ->table('accounts')
                 ->where('email', $user->email)
                 ->value('google_id');
 
-            if ($googleId) {
+            if ($googleId !== null) {
                 $profile['google_id'] = $googleId;
-                Cache::put("kadi.customer.{$user->id}", $profile, now()->addHour());
             }
+
+            Cache::put($cacheKey, $profile, now()->addHour());
+
+            return $profile;
+        } catch (RequestException|ConnectionException $e) {
+            Log::error("Welcome: KadiApi fetch failed for user {$user->id}: " . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error("Welcome: Failed to refresh profile for user {$user->id}: " . $e->getMessage());
         }
 
-        $this->playKadiUrl = 'https://play.kadikings.co.ke'
-            . ($googleId ? '?ggid=' . $googleId : '');
+        return [];
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View
