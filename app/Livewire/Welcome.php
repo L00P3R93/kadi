@@ -13,8 +13,7 @@ class Welcome extends Component
 {
     public function render(): Factory|\Illuminate\Contracts\View\View|View
     {
-        $kadiUserProfile = Cache::get('kadi.customer.'.auth()->id(), []);
-        return view('livewire.welcome', compact('kadiUserProfile'))
+        return view('livewire.welcome')
             ->layout('layouts.guest')
             ->layoutData([
                 'description' => 'Experience world-class casino games at Angel Palace. Slots, live tables & more. Play now in Kenya.',

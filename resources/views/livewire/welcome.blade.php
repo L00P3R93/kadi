@@ -76,7 +76,7 @@
 
                     {{-- CTAs --}}
                     <div class="flex flex-wrap gap-3">
-                        <a @auth href="https://play.kadikings.co.ke?ggid={{ $user }}" @else @endauth wire:navigate
+                        <a href="{{ route('kadi') }}" wire:navigate
                            class="inline-flex items-center gap-2 bg-[#f5c542] text-black font-black
                                   px-6 py-3 rounded-xl hover:bg-[#ffde74] transition-all duration-200
                                   text-sm tracking-wide shadow-lg shadow-[#f5c542]/25
