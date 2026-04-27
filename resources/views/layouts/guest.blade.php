@@ -34,13 +34,13 @@
                         @auth
                             @php $navBalance = \Illuminate\Support\Facades\Cache::get('kadi.customer.'.auth()->id(), [])['balance'] ?? 0; @endphp
                             <a href="{{ route('wallet') }}" wire:navigate
-                               class="flex items-center gap-2 rounded-full border border-[#f5c542]/40 bg-[#f5c542]/10 px-4 py-1.5 transition hover:border-[#f5c542]/70 hover:bg-[#f5c542]/20">
-                                <span class="text-sm">💰</span>
-                                <x-currency-amount :amount="$navBalance" class="text-sm font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
+                               class="flex items-center gap-1.5 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74]">
+                                <span>💰</span>
+                                <x-currency-amount :amount="$navBalance" style="font-family: 'Cinzel', serif;" />
                             </a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="btn-casino-ghost inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-sm">
+                                <button type="submit" class="flex items-center gap-1.5 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0">
                                     <span>🚪</span>
                                     <span>Logout</span>
                                 </button>
@@ -94,17 +94,17 @@
                     <div class="py-4">
                         @auth
                             @php $navBalance = \Illuminate\Support\Facades\Cache::get('kadi.customer.'.auth()->id(), [])['balance'] ?? 0; @endphp
-                            <div class="flex flex-col gap-3">
+                            <div class="flex flex-col gap-1">
                                 <a href="{{ route('wallet') }}" @click="menuOpen = false" wire:navigate
-                                   class="flex items-center justify-center gap-2 rounded-xl border border-[#f5c542]/40 bg-[#f5c542]/10 py-3 text-sm font-semibold text-[#f5c542]">
+                                   class="flex items-center gap-2 py-3 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74]">
                                     <span>💰</span>
-                                    <x-currency-amount :amount="$navBalance" class="font-bold" style="font-family: 'Cinzel', serif;" />
+                                    <x-currency-amount :amount="$navBalance" style="font-family: 'Cinzel', serif;" />
                                 </a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" @click="menuOpen = false"
-                                            class="btn-casino-ghost block w-full rounded-xl py-3 text-center text-sm font-semibold">
-                                        🚪 Logout
+                                            class="flex items-center gap-2 py-3 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0 w-full">
+                                        <span>🚪</span><span>Logout</span>
                                     </button>
                                 </form>
                             </div>

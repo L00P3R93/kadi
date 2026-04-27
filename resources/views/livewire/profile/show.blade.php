@@ -56,13 +56,12 @@
                     </div>
 
                     <div>
-                        <flux:input wire:model="phoneNo" :label="__('Phone Number')" type="tel" placeholder="+254 7XX XXX XXX" />
-                        @error('phoneNo') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <flux:input wire:model="idNo" :label="__('ID Number')" type="text" placeholder="National ID or Passport No" />
-                        @error('idNo') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        <label class="block text-xs font-semibold uppercase tracking-widest text-[#6b6b6b] mb-1.5" style="font-family: 'Outfit', sans-serif;">
+                            Phone Number
+                        </label>
+                        <div class="rounded-lg border border-yellow-800/20 bg-[#111111] px-4 py-3 font-mono text-sm text-[#f5c542]">
+                            {{ $phoneNo ?: '—' }}
+                        </div>
                     </div>
 
                     {{-- Account No: read-only --}}
