@@ -154,7 +154,7 @@ console.log(window.GAME_AUTH);
 
 
 #status {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   right: 0;
@@ -164,7 +164,7 @@ console.log(window.GAME_AUTH);
   align-items: center;
   flex-direction: column;
   background: black;
-
+  z-index: 10000;
 }
 
 #rotate {
@@ -673,7 +673,7 @@ function handleStateChange() {
   const fullscreenPrompt = document.getElementById("fullscreenPrompt");
   const loader = document.getElementById("status");
 
-  if (!isIos() && !isFullscreen()) {
+  if (!isIos() && !isFullscreen() && !gameStarted) {
     fullscreenPrompt.classList.remove("hidden");
     rotate.classList.add("hidden");
     return;
@@ -739,7 +739,7 @@ iosBtn.addEventListener("click", () => {
     return;
   }
   if (isIos()) {
-    alert('To install: Tap the Share icon ? then “Add to Home Screen”.');
+    alert('To install: Tap the Share icon ? then ï¿½Add to Home Screenï¿½.');
   } else {
     alert("This option is only for iPhone or iPad.");
   }
