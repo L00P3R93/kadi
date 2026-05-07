@@ -86,6 +86,7 @@
                             </svg>
                             Play Kadi
                         </a>
+                        {{-- Sports CTA commented out (Kadi-only focus)
                         <a href="{{ route('sportsbook') }}"
                            class="inline-flex items-center gap-2 bg-transparent border border-[#f5c542]/40
                                   text-[#f5c542] font-bold px-6 py-3 rounded-xl
@@ -93,6 +94,7 @@
                                   text-sm tracking-wide hover:-translate-y-0.5">
                             🏆 Sports
                         </a>
+                        --}}
                     </div>
 
                     {{-- Trust badges --}}
@@ -223,7 +225,7 @@
 
     </section>
 
-    {{-- ===================== FEATURED GAMES ===================== --}}
+    {{-- ===================== FEATURED GAMES (commented out: Kadi-only focus) =====================
     <section id="games" class="py-10 bg-[#0a0a0a]">
         @php
             $featuredGames = app(\App\Services\GamesService::class)->all()->take(10)->values()->toArray();
@@ -239,41 +241,23 @@
                             flex-shrink-0 w-48 sm:w-56 h-64 bg-[#111]
                             border border-[#222] hover:border-[#f5c542]/40 transition-all duration-300
                             snap-start shadow-lg hover:shadow-[0_8px_30px_rgba(245,197,66,0.12)]">
-
-                    <img
-                        src="{{ asset($game['path']) }}"
-                        alt="{{ $game['name'] }}"
-                        width="{{ $game['width'] }}"
-                        height="{{ $game['height'] }}"
-                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="{{ $loop->first ? 'eager' : 'lazy' }}"
-                        fetchpriority="{{ $loop->first ? 'high' : 'auto' }}"
-                        decoding="async"
-                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1200 0%, #2a1f00 100%)';"
-                    />
-
+                    <img src="{{ asset($game['path']) }}" alt="{{ $game['name'] }}"
+                         width="{{ $game['width'] }}" height="{{ $game['height'] }}"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                         loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                         fetchpriority="{{ $loop->first ? 'high' : 'auto' }}"
+                         decoding="async" />
                     <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-transparent"></div>
-
                     <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pt-12 pb-4 px-4">
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-[#f5c542] bg-[#f5c542]/10 border border-[#f5c542]/20 px-1.5 py-0.5 rounded block w-fit mb-1">
-                            Casino
-                        </span>
-                        <!--<h3 class="text-white font-bold text-sm leading-tight mb-2 line-clamp-1">{{ $game['name'] }}</h3>-->
-                        <a href="#" wire:navigate
-                           class="inline-flex items-center gap-1 text-[11px] font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-2.5 py-1.5 rounded transition-colors duration-150">
-                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                            Play Now
-                        </a>
+                        <a href="#" class="inline-flex items-center gap-1 text-[11px] font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-2.5 py-1.5 rounded">Play Now</a>
                     </div>
-
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                                bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none"></div>
                 </div>
             @endforeach
         </x-carousel>
     </section>
+    --}}
 
-    {{-- ===================== POPULAR GAMES ===================== --}}
+    {{-- ===================== POPULAR GAMES (commented out: Kadi-only focus) =====================
     <section id="popular" class="py-10 bg-[#0d0d0d]">
         @php
             $popularGames = app(\App\Services\GamesService::class)->all()->slice(-10)->values()->toArray();
@@ -289,47 +273,29 @@
                             flex-shrink-0 w-48 sm:w-56 h-64 bg-[#111]
                             border border-[#222] hover:border-[#f5c542]/40 transition-all duration-300
                             snap-start shadow-lg hover:shadow-[0_8px_30px_rgba(245,197,66,0.12)]">
-
-                    <img
-                        src="{{ asset($game['path']) }}"
-                        alt="{{ $game['name'] }}"
-                        width="{{ $game['width'] }}"
-                        height="{{ $game['height'] }}"
-                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="{{ $loop->first ? 'eager' : 'lazy' }}"
-                        fetchpriority="{{ $loop->first ? 'high' : 'auto' }}"
-                        decoding="async"
-                        onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, #1a1200 0%, #2a1f00 100%)';"
-                    />
-
+                    <img src="{{ asset($game['path']) }}" alt="{{ $game['name'] }}"
+                         width="{{ $game['width'] }}" height="{{ $game['height'] }}"
+                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                         loading="{{ $loop->first ? 'eager' : 'lazy' }}"
+                         fetchpriority="{{ $loop->first ? 'high' : 'auto' }}"
+                         decoding="async" />
                     <div class="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-transparent"></div>
-
                     <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pt-12 pb-4 px-4">
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-[#f5c542] bg-[#f5c542]/10 border border-[#f5c542]/20 px-1.5 py-0.5 rounded block w-fit mb-1">
-                            Casino
-                        </span>
-                        <!--<h3 class="text-white font-bold text-sm leading-tight mb-2 line-clamp-1">{{ $game['name'] }}</h3>-->
-                        <a href="#" wire:navigate
-                           class="inline-flex items-center gap-1 text-[11px] font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-2.5 py-1.5 rounded transition-colors duration-150">
-                            <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                            Play Now
-                        </a>
+                        <a href="#" class="inline-flex items-center gap-1 text-[11px] font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-2.5 py-1.5 rounded">Play Now</a>
                     </div>
-
-                    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                                bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none"></div>
                 </div>
             @endforeach
         </x-carousel>
     </section>
+    --}}
 
-    {{-- ===================== SPORTS BETTING ===================== --}}
+    {{-- ===================== SPORTS BETTING (commented out: Kadi-only focus) =====================
     <section class="py-10 bg-[#0a0a0a]">
         @php
             $sportsbookCards = [
                 ['league' => 'Premier League', 'time' => 'Today 20:00',    'home' => 'Manchester City', 'away' => 'Arsenal',       'odds' => ['2.10', '3.40', '3.20']],
                 ['league' => 'La Liga',        'time' => 'Tomorrow 21:00', 'home' => 'Barcelona',       'away' => 'Real Madrid',   'odds' => ['2.50', '3.10', '2.80']],
-                ['league' => 'NBA',            'time' => 'Today 02:30',    'home' => 'LA Lakers',       'away' => 'Boston Celtics','odds' => ['1.85', '—',    '1.95']],
+                ['league' => 'NBA',            'time' => 'Today 02:30',    'home' => 'LA Lakers',       'away' => 'Boston Celtics','odds' => ['1.85', '1.95']],
                 ['league' => 'Serie A',        'time' => 'Sat 19:45',      'home' => 'AC Milan',        'away' => 'Juventus',      'odds' => ['2.30', '3.20', '2.90']],
                 ['league' => 'Bundesliga',     'time' => 'Sat 17:30',      'home' => 'Bayern Munich',   'away' => 'Dortmund',      'odds' => ['1.75', '3.80', '4.50']],
             ];
@@ -342,12 +308,9 @@
             view-all-text="Full Sportsbook"
         >
             @foreach($sportsbookCards as $card)
-                <div class="flex-shrink-0 w-64 snap-start bg-[#111] border border-[#222] rounded-xl p-4
-                            hover:border-[#f5c542]/40 transition-all duration-200">
+                <div class="flex-shrink-0 w-64 snap-start bg-[#111] border border-[#222] rounded-xl p-4 hover:border-[#f5c542]/40 transition-all duration-200">
                     <div class="flex justify-between items-center mb-3">
-                        <span class="text-[10px] text-[#f5c542] font-bold uppercase tracking-wide bg-[#1a1200] px-2 py-0.5 rounded">
-                            {{ $card['league'] }}
-                        </span>
+                        <span class="text-[10px] text-[#f5c542] font-bold uppercase tracking-wide bg-[#1a1200] px-2 py-0.5 rounded">{{ $card['league'] }}</span>
                         <span class="text-[10px] text-gray-500">{{ $card['time'] }}</span>
                     </div>
                     <div class="text-center mb-3">
@@ -355,33 +318,17 @@
                         <div class="text-gray-600 text-xs my-1">vs</div>
                         <div class="text-white font-bold text-sm">{{ $card['away'] }}</div>
                     </div>
-                    <div class="grid grid-cols-3 gap-1.5 mb-3">
-                        @foreach([['1', $card['odds'][0]], ['X', $card['odds'][1]], ['2', $card['odds'][2]]] as [$label, $price])
-                            <div class="bg-[#1e1e2e] text-center py-2 rounded border border-[#2a2a3e] hover:border-[#f5c542] transition cursor-pointer">
-                                <div class="text-[10px] text-gray-500">{{ $label }}</div>
-                                <div class="text-[#f5c542] font-bold text-sm">{{ $price }}</div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <a href="{{ route('sportsbook') }}" wire:navigate
-                       class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-xs">
-                        Bet Now
-                    </a>
+                    <a href="{{ route('sportsbook') }}" class="block w-full text-center bg-[#f5c542] text-black font-bold py-2 rounded hover:bg-[#ffde74] transition text-xs">Bet Now</a>
                 </div>
             @endforeach
-
-            {{-- "View All" end card --}}
-            <div class="flex-shrink-0 w-48 snap-start flex flex-col items-center justify-center
-                        bg-[#111] border border-dashed border-[#333] rounded-xl p-6 text-center">
+            <div class="flex-shrink-0 w-48 snap-start flex flex-col items-center justify-center bg-[#111] border border-dashed border-[#333] rounded-xl p-6 text-center">
                 <div class="text-3xl mb-2">🏆</div>
                 <div class="text-gray-400 text-sm font-semibold mb-3">More Sports</div>
-                <a href="{{ route('sportsbook') }}" wire:navigate
-                   class="text-xs font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-4 py-2 rounded transition">
-                    View All
-                </a>
+                <a href="{{ route('sportsbook') }}" class="text-xs font-bold text-black bg-[#f5c542] hover:bg-[#ffde74] px-4 py-2 rounded transition">View All</a>
             </div>
         </x-carousel>
     </section>
+    --}}
 
     {{-- ===================== WHY CHOOSE US ===================== --}}
     <section id="about" class="py-24" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">

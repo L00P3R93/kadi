@@ -22,8 +22,8 @@
                 {{-- Desktop nav links --}}
                 <div class="hidden items-center gap-8 md:flex">
                     <a href="{{ route('home') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Home</a>
-                    <a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Casino</a>
-                    <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>
+                    <!--<a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Casino</a>
+                    <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>-->
                     <a href="#about" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
                     <a href="#promotions" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
                 </div>
@@ -76,10 +76,10 @@
                 <div class="flex flex-col divide-y divide-[#f5c542]/10 px-6 py-2">
                     <a href="{{ route('home') }}" @click="menuOpen = false" wire:navigate
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Home</a>
-                    <a href="{{ route('guest.games') }}" @click="menuOpen = false" wire:navigate
+                    <!--<a href="{{ route('guest.games') }}" @click="menuOpen = false" wire:navigate
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Casino</a>
                     <a href="{{ route('sportsbook') }}" @click="menuOpen = false" wire:navigate
-                       class="py-3 text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>
+                       class="py-3 text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a> -->
 
                     {{-- Auth CTA — mobile only --}}
                     <div class="py-4">
@@ -124,7 +124,7 @@
                     <div>
                         <h4 class="mb-4 text-sm font-semibold uppercase tracking-widest text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Quick Links</h4>
                         <ul class="space-y-2">
-                            <li><a href="#games" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Games</a></li>
+                            {{--<li><a href="#games" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Games</a></li>--}}
                             <li><a href="#promotions" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Promotions</a></li>
                             <li><a href="{{ route('register') }}" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]" wire:navigate>Register</a></li>
                             <li><a href="{{ route('login') }}" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]" wire:navigate>Login</a></li>
@@ -154,20 +154,17 @@
         <x-structured-data :page="$page ?? 'home'" />
         <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
         @fluxScripts
+        {{-- Sportsbook bet-slip store commented out (client focus: Kadi only)
         <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('betSlip', {
                 selections: {},
 
                 add(eventId, selectionKey, team, price, homeTeam, awayTeam, marketKey, marketLabel, commenceTime, isLive) {
-                    // Always key by eventId — only one selection per event allowed
                     const existing = this.selections[eventId];
-
-                    // Toggle: if clicking the EXACT same team + market, remove it
                     if (existing && existing.team === team && existing.marketKey === (marketKey || 'h2h')) {
                         delete this.selections[eventId];
                     } else {
-                        // Replace any existing selection for this event
                         this.selections[eventId] = {
                             team,
                             price:        parseFloat(price),
@@ -213,7 +210,6 @@
 
                 formatTime(iso) {
                     if (!iso) return '';
-                    // Convert UTC to EAT (UTC+3)
                     const d = new Date(new Date(iso).getTime() + (3 * 60 * 60 * 1000));
                     const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
                     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -227,5 +223,6 @@
             });
         });
         </script>
+        --}}
     </body>
 </html>

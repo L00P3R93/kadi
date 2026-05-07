@@ -16,8 +16,8 @@
             </h2>
             <p class="mb-6 text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">Ready to play? Your luck starts now.</p>
             <div class="flex flex-wrap gap-3">
-                <a href="#" class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
-                    🎮 Play Games
+                <a href="{{ route('kadi') }}" wire:navigate class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
+                    🎮 Play Kadi
                 </a>
                 <a href="{{ route('wallet') }}" wire:navigate
                    class="btn-casino-ghost inline-block rounded-full px-5 py-2 text-sm no-underline">
@@ -81,10 +81,10 @@
                            class="btn-casino-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm no-underline">
                             🎁 Claim Bonus
                         </a>
-                        <a href="#"
+                        {{--<a href="#"
                            class="btn-casino-ghost inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm no-underline">
                             Explore Games
-                        </a>
+                        </a>--}}
                     </div>
                 </div>
             </div>
@@ -158,10 +158,12 @@
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             @php
                 $popularGames = [
-                    ['img'=>'/casino/kadi.png',       'name'=>'Kadi',          'desc'=>'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments.','badge1'=>'🟢 Live Dealer','badge2'=>rand(120,850).' Playing','btn'=>'Join Now'],
+                    ['img'=>'/casino/kadi.png', 'name'=>'Kadi', 'desc'=>'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments.', 'badge1'=>'🟢 Live Dealer', 'badge2'=>rand(120,850).' Playing', 'btn'=>'Join Now'],
+                    {{-- Non-Kadi games commented out (client focus: Kadi only)
                     ['img'=>'/casino/slots.png',      'name'=>'Golden Slots',  'desc'=>'Luxury slot action with rich visuals, bonus rounds, and glittering jackpots.','badge1'=>'📊 RTP 97.4%','badge2'=>rand(200,1200).' Playing','btn'=>'Spin Now'],
                     ['img'=>'/casino/roulette.png',   'name'=>'Roulette Noir', 'desc'=>'Spin the golden wheel and chase high-value wins in elegant style.','badge1'=>'👑 VIP Room','badge2'=>rand(80,600).' Playing','btn'=>'Spin Now'],
                     ['img'=>'/casino/poker.png',      'name'=>'Royal Poker',   'desc'=>'Challenge top players in the crown room and build your tournament stack.','badge1'=>'🏆 Prize Pool','badge2'=>rand(50,400).' Playing','btn'=>'Enter Room'],
+                    --}}
                 ];
             @endphp
             @foreach ($popularGames as $pg)
@@ -177,8 +179,7 @@
                         </div>
                         <h3 class="mb-1 font-bold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $pg['name'] }}</h3>
                         <p class="mb-3 flex-1 text-xs text-[#f5f5f0]/50 line-clamp-2" style="font-family: 'Outfit', sans-serif;">{{ $pg['desc'] }}</p>
-                        <a
-                           @if($pg['name'] === 'Kadi') href="{{ route('kadi') }}" @else wire:click="$set('showComingSoonModal', true)" @endif
+                        <a href="{{ route('kadi') }}" wire:navigate
                            class="btn-casino-primary block w-full rounded-xl py-2 text-center text-xs no-underline">
                             {{ $pg['btn'] }}
                         </a>
@@ -194,33 +195,29 @@
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             @php
                 $quickPlayGames = [
-                    ['img'=>'/casino/kadi.png',          'name'=>'Kadi'],
-                    ['img'=>'/casino/slots.png',         'name'=>'Golden Slots'],
-                    ['img'=>'/casino/roulette.png',      'name'=>'Roulette'],
-                    ['img'=>'/casino/poker.png',       'name'=>'Royal Poker'],
-                    ['img'=>'/casino/dice.png',          'name'=>'Royal Dice'],
+                    ['img'=>'/casino/kadi.png', 'name'=>'Kadi'],
+                    {{-- Non-Kadi games commented out (client focus: Kadi only)
+                    ['img'=>'/casino/slots.png',    'name'=>'Golden Slots'],
+                    ['img'=>'/casino/roulette.png', 'name'=>'Roulette'],
+                    ['img'=>'/casino/poker.png',    'name'=>'Royal Poker'],
+                    ['img'=>'/casino/dice.png',     'name'=>'Royal Dice'],
+                    --}}
                 ];
             @endphp
             @foreach ($quickPlayGames as $game)
-                @if($game['name'] === 'Kadi')
-                    <a href="{{ route('kadi') }}" class="group flex flex-col items-center gap-3 rounded-xl border border-yellow-900/30 bg-[#1a1a1a] p-5 text-center transition hover:-translate-y-1 hover:border-[#f5c542]/50">
-                        <img src="{{ $game['img'] }}" class="w-10 h-10 object-contain" alt="{{ $game['name'] }}" />
-                        <span class="text-xs font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $game['name'] }}</span>
-                        <span class="text-xs text-[#6b6b6b] group-hover:text-[#f5c542]">Play →</span>
-                    </a>
-                @else
-                    <a wire:click="$set('showComingSoonModal', true)" class="group flex flex-col items-center gap-3 rounded-xl border border-yellow-900/30 bg-[#1a1a1a] p-5 text-center transition hover:-translate-y-1 hover:border-[#f5c542]/50">
-                        <img src="{{ $game['img'] }}" class="w-10 h-10 object-contain" alt="{{ $game['name'] }}" />
-                        <span class="text-xs font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $game['name'] }}</span>
-                        <span class="text-xs text-[#6b6b6b] group-hover:text-[#f5c542]">Play →</span>
-                    </a>
-                @endif
+                <a href="{{ route('kadi') }}" wire:navigate
+                   class="group flex flex-col items-center gap-3 rounded-xl border border-yellow-900/30 bg-[#1a1a1a] p-5 text-center transition hover:-translate-y-1 hover:border-[#f5c542]/50">
+                    <img src="{{ $game['img'] }}" class="w-10 h-10 object-contain" alt="{{ $game['name'] }}" />
+                    <span class="text-xs font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $game['name'] }}</span>
+                    <span class="text-xs text-[#6b6b6b] group-hover:text-[#f5c542]">Play →</span>
+                </a>
             @endforeach
         </div>
     </section>
 
-    {{-- ── Sports Betting Preview ── --}}
+    {{-- Sports Betting Preview commented out (client focus: Kadi only)
     <livewire:dashboard.sports-betting-preview />
+    --}}
 
     {{-- ── Recent Transactions ── --}}
     <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">

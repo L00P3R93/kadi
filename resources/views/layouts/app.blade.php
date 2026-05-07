@@ -76,9 +76,9 @@
                     </a>
 
                     {{-- Games --}}
-                    <a href="{{ route('games') }}" wire:navigate
+                    <!--<a href="{{ route('games') }}" wire:navigate
                        :class="expanded ? 'justify-start' : 'justify-center px-0'"
-                       :title="!expanded ? 'Games' : ''"
+                       :title="!expanded ? 'Casino' : ''"
                        @class([
                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
                            'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('games'),
@@ -107,7 +107,7 @@
                         <span x-show="expanded" x-transition:enter="transition-opacity duration-200"
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               class="text-sm font-medium whitespace-nowrap">Sportsbook</span>
-                    </a>
+                    </a> -->
 
                     {{-- Profile --}}
                     <a href="{{ route('profile') }}" wire:navigate
@@ -207,20 +207,17 @@
 
         <x-structured-data :page="$page ?? 'dashboard'" :noindex="true" />
         @fluxScripts
+        {{-- Sportsbook bet-slip store commented out (client focus: Kadi only)
         <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('betSlip', {
                 selections: {},
 
                 add(eventId, selectionKey, team, price, homeTeam, awayTeam, marketKey, marketLabel, commenceTime, isLive) {
-                    // Always key by eventId — only one selection per event allowed
                     const existing = this.selections[eventId];
-
-                    // Toggle: if clicking the EXACT same team + market, remove it
                     if (existing && existing.team === team && existing.marketKey === (marketKey || 'h2h')) {
                         delete this.selections[eventId];
                     } else {
-                        // Replace any existing selection for this event
                         this.selections[eventId] = {
                             team,
                             price:        parseFloat(price),
@@ -266,7 +263,6 @@
 
                 formatTime(iso) {
                     if (!iso) return '';
-                    // Convert UTC to EAT (UTC+3)
                     const d = new Date(new Date(iso).getTime() + (3 * 60 * 60 * 1000));
                     const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
                     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -280,5 +276,6 @@
             });
         });
         </script>
+        --}}
     </body>
 </html>
