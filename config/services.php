@@ -36,8 +36,9 @@ return [
     ],
 
     'kadi_api' => [
-        'url' => env('API_URL'),
-        'key' => env('API_KEY'),
+        'url'       => env('API_URL'),
+        'key'       => env('API_KEY'),
+        'image_url' => env('KADI_IMAGE_URL', 'https://gameapi.kadikings.co.ke/kadi/images'),
     ],
 
     'odds_api' => [

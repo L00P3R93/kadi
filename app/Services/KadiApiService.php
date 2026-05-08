@@ -130,6 +130,21 @@ class KadiApiService
     }
 
     /**
+     * Upload a profile picture for a customer.
+     * Stores the image at kadi/images/{accounts_id}/{filename} on the API server.
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function uploadProfilePic(int $customerId, string $filePath, string $filename): array
+    {
+        return $this->http
+            ->attach('pic', fopen($filePath, 'r'), $filename)
+            ->post('customers/'.encryptOpenSSL($customerId).'/pic')
+            ->throw()
+            ->json() ?? [];
+    }
+
+    /**
      * Make a DELETE request
      *
      * @throws RequestException|ConnectionException
