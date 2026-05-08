@@ -43,22 +43,28 @@
             <div x-show="tab === 'info'" class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
                 <h2 class="mb-6 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Personal Information</h2>
 
-                {{-- Profile Picture Upload --}}
-                <div class="mb-8 flex items-center gap-6 pb-6 border-b border-yellow-800/20">
-                    {{-- Avatar / preview --}}
+                {{-- Profile Picture Upload (plain multipart form — avoids Livewire temp-upload issues) --}}
+                <form action="{{ route('profile.picture') }}" method="POST" enctype="multipart/form-data"
+                      class="mb-8 flex items-center gap-6 pb-6 border-b border-yellow-800/20"
+                      x-data="profilePic()">
+                    @csrf
+
+                    {{-- Avatar / JS preview --}}
                     <div class="relative flex-shrink-0">
-                        @if ($profilePicUrl && ! $photo)
-                            <img src="{{ $profilePicUrl }}" alt="Profile picture"
+                        @if ($profilePicUrl)
+                            <img id="pic-preview" :src="preview || '{{ $profilePicUrl }}'" alt="Profile picture"
                                  class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]/40" />
-                        @elseif ($photo)
-                            <img src="{{ $photo->temporaryUrl() }}" alt="Preview"
-                                 class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]" />
-                            <span class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c542] text-[10px] text-black font-bold">✓</span>
                         @else
-                            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-[#f5c542] text-2xl font-bold text-black" style="font-family: 'Cinzel', serif;">
+                            <div x-show="!preview"
+                                 class="flex h-20 w-20 items-center justify-center rounded-full bg-[#f5c542] text-2xl font-bold text-black"
+                                 style="font-family: 'Cinzel', serif;">
                                 {{ auth()->user()->initials() }}
                             </div>
+                            <img x-show="preview" :src="preview" alt="Preview"
+                                 class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]" />
                         @endif
+                        <span x-show="preview"
+                              class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c542] text-[10px] text-black font-bold">✓</span>
                     </div>
 
                     <div class="flex-1 min-w-0">
@@ -67,8 +73,9 @@
 
                         <div class="flex flex-wrap items-center gap-3">
                             <label class="cursor-pointer">
-                                <input type="file" wire:model="photo" accept="image/jpeg,image/png,image/webp" class="sr-only" />
-                                <span class="inline-flex items-center gap-2 rounded-lg border border-[#f5c542]/40 bg-[#f5c542]/5 px-4 py-2 text-xs font-semibold text-[#f5c542] transition hover:bg-[#f5c542]/10">
+                                <input type="file" name="photo" accept="image/jpeg,image/png,image/webp"
+                                       class="sr-only" @change="onFile($event)" />
+                                <span class="inline-flex items-center gap-2 rounded-lg border border-[#f5c542]/40 bg-[#f5c542]/5 px-4 py-2 text-xs font-semibold text-[#f5c542] transition hover:bg-[#f5c542]/10 cursor-pointer">
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                     </svg>
@@ -76,25 +83,40 @@
                                 </span>
                             </label>
 
-                            @if ($photo)
-                                <button wire:click="uploadProfilePic" type="button"
-                                        wire:loading.attr="disabled"
-                                        class="inline-flex items-center gap-2 rounded-lg bg-[#f5c542] px-4 py-2 text-xs font-bold text-black transition hover:bg-[#ffde74] disabled:opacity-50">
-                                    <span wire:loading wire:target="uploadProfilePic" class="animate-spin">⟳</span>
-                                    <span wire:loading.remove wire:target="uploadProfilePic">Upload Photo</span>
-                                    <span wire:loading wire:target="uploadProfilePic">Uploading...</span>
-                                </button>
-                                <button wire:click="$set('photo', null)" type="button"
-                                        class="text-xs text-[#6b6b6b] transition hover:text-red-400">
-                                    Cancel
-                                </button>
-                            @endif
+                            <button x-show="preview" type="submit" :disabled="uploading"
+                                    @click="uploading = true"
+                                    class="inline-flex items-center gap-2 rounded-lg bg-[#f5c542] px-4 py-2 text-xs font-bold text-black transition hover:bg-[#ffde74] disabled:opacity-50">
+                                <span x-show="uploading" class="animate-spin inline-block">⟳</span>
+                                <span x-text="uploading ? 'Uploading…' : 'Upload Photo'">Upload Photo</span>
+                            </button>
+
+                            <button x-show="preview" type="button" @click="preview = null; uploading = false"
+                                    class="text-xs text-[#6b6b6b] transition hover:text-red-400">
+                                Cancel
+                            </button>
                         </div>
 
-                        <div wire:loading wire:target="photo" class="mt-2 text-xs text-[#6b6b6b]">Preparing preview…</div>
-                        @error('photo') <p class="mt-2 text-xs text-red-400">{{ $message }}</p> @enderror
+                        @if ($errors->has('photo'))
+                            <p class="mt-2 text-xs text-red-400">{{ $errors->first('photo') }}</p>
+                        @endif
                     </div>
-                </div>
+                </form>
+
+                <script>
+                function profilePic() {
+                    return {
+                        preview: null,
+                        uploading: false,
+                        onFile(e) {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = ev => { this.preview = ev.target.result; };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                }
+                </script>
 
                 <form wire:submit="updateProfile" class="space-y-5">
 

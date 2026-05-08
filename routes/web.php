@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\KadiGameController;
+use App\Http\Controllers\ProfilePictureController;
 use App\Livewire\Dashboard;
 use App\Livewire\Games;
 use App\Livewire\Guest\GamesList;
@@ -71,6 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/sportsbook', SportsbookPage::class)->name('dashboard.sportsbook');
     Route::get('/play', Games::class)->name('games');
     Route::get('/profile', Show::class)->name('profile');
+    Route::post('/profile/picture', [ProfilePictureController::class, 'upload'])->name('profile.picture');
     Route::get('/wallet', Index::class)->name('wallet');
     Route::get('/admin/sportsbook', fn () => view('admin.sportsbook'))->name('admin.sportsbook');
     Route::get('/kadi', KadiGameController::class)->name('kadi');

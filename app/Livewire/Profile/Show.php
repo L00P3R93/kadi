@@ -10,12 +10,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 class Show extends Component
 {
-    use WithFileUploads;
-
     public string $name = '';
 
     public string $email = '';
@@ -33,8 +30,6 @@ class Show extends Component
     public string $newPassword = '';
 
     public string $newPasswordConfirmation = '';
-
-    public $photo = null;
 
     public string $profilePicUrl = '';
 
@@ -83,44 +78,6 @@ class Show extends Component
         }
 
         session()->flash('profile_success', 'Profile updated successfully.');
-    }
-
-    public function uploadProfilePic(): void
-    {
-        $this->validate([
-            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
-
-        $user = auth()->user();
-
-        if (! $user->linked_id) {
-            $this->addError('photo', 'Account is not linked to Kadi.');
-
-            return;
-        }
-
-        try {
-            $ext      = $this->photo->getClientOriginalExtension() ?: 'jpg';
-            $filename = 'profile_'.$user->linked_id.'_'.time().'.'.$ext;
-
-            $response = KadiApi::uploadProfilePic(
-                $user->linked_id,
-                $this->photo->getRealPath(),
-                $filename
-            );
-
-            if (isset($response['data'])) {
-                Cache::put('kadi.customer.'.$user->id, $response['data'], now()->addHour());
-                $this->kadiCustomer  = $response['data'];
-                $this->profilePicUrl = $this->buildProfilePicUrl();
-            }
-
-            $this->reset('photo');
-            session()->flash('profile_success', 'Profile picture updated successfully.');
-        } catch (\Throwable $e) {
-            Log::error('Profile pic upload failed: '.$e->getMessage());
-            $this->addError('photo', 'Upload failed. Please try again.');
-        }
     }
 
     public function updatePassword(): void
