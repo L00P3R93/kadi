@@ -196,12 +196,12 @@
             @php
                 $quickPlayGames = [
                     ['img'=>'/casino/kadi.png', 'name'=>'Kadi'],
-                    {{-- Non-Kadi games commented out (client focus: Kadi only)
+                    /* Non-Kadi games commented out (client focus: Kadi only)
                     ['img'=>'/casino/slots.png',    'name'=>'Golden Slots'],
                     ['img'=>'/casino/roulette.png', 'name'=>'Roulette'],
                     ['img'=>'/casino/poker.png',    'name'=>'Royal Poker'],
                     ['img'=>'/casino/dice.png',     'name'=>'Royal Dice'],
-                    --}}
+                    */
                 ];
             @endphp
             @foreach ($quickPlayGames as $game)
