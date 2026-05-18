@@ -159,11 +159,11 @@
             @php
                 $popularGames = [
                     ['img'=>'/casino/kadi.png', 'name'=>'Kadi', 'desc'=>'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments.', 'badge1'=>'🟢 Live Dealer', 'badge2'=>rand(120,850).' Playing', 'btn'=>'Join Now'],
-                    {{-- Non-Kadi games commented out (client focus: Kadi only)
+                    /* Non-Kadi games commented out (client focus: Kadi only)
                     ['img'=>'/casino/slots.png',      'name'=>'Golden Slots',  'desc'=>'Luxury slot action with rich visuals, bonus rounds, and glittering jackpots.','badge1'=>'📊 RTP 97.4%','badge2'=>rand(200,1200).' Playing','btn'=>'Spin Now'],
                     ['img'=>'/casino/roulette.png',   'name'=>'Roulette Noir', 'desc'=>'Spin the golden wheel and chase high-value wins in elegant style.','badge1'=>'👑 VIP Room','badge2'=>rand(80,600).' Playing','btn'=>'Spin Now'],
                     ['img'=>'/casino/poker.png',      'name'=>'Royal Poker',   'desc'=>'Challenge top players in the crown room and build your tournament stack.','badge1'=>'🏆 Prize Pool','badge2'=>rand(50,400).' Playing','btn'=>'Enter Room'],
-                    --}}
+                    */
                 ];
             @endphp
             @foreach ($popularGames as $pg)
