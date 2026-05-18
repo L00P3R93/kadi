@@ -49,7 +49,7 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
     {
         try {
             $userArr = [
-                'google_id' => $this->user->account_no,
+                'google_id' => $this->user->google_id ?? $this->user->account_no,
                 'account_no' => $this->user->account_no,
                 'name' => $this->user->name,
                 'email' => $this->user->email,
@@ -83,7 +83,7 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
                 'email' => $this->user->email,
                 'password' => $plainPassword,
                 'outh' => $customerId,
-                'google_id' => $this->user->account_no,
+                'google_id' => $this->user->google_id ?? $this->user->account_no,
             ]);
             Cache::forget("user.plain_password.{$this->user->id}");
         } catch (\Throwable $e) {

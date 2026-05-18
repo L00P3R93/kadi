@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\KadiGameController;
 use App\Http\Controllers\ProfilePictureController;
 use App\Livewire\Dashboard;
@@ -47,6 +48,9 @@ Route::get('/kadig/index.pck', function () {
     ]);
 });
 Route::get('/kadig/version.php', fn () => response('1.0.0', 200, ['Content-Type' => 'text/plain']));
+
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
 Route::get('/', Welcome::class)->name('home');
 Route::get('/lobby', GamesList::class)->name('guest.games');

@@ -36,8 +36,8 @@ return [
     ],
 
     'kadi_api' => [
-        'url'       => env('API_URL'),
-        'key'       => env('API_KEY'),
+        'url' => env('API_URL'),
+        'key' => env('API_KEY'),
         'image_url' => env('KADI_IMAGE_URL', 'https://gameapi.kadikings.co.ke/kadi/images'),
     ],
 
@@ -46,5 +46,11 @@ return [
         'base_url' => env('ODDS_API_BASE_URL', 'https://api.the-odds-api.com/v4'),
         'region' => env('ODDS_API_REGION', 'uk'),
         'odds_format' => env('ODDS_API_ODDS_FORMAT', 'decimal'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 ];
