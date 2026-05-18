@@ -33,6 +33,8 @@ class Show extends Component
 
     public string $profilePicUrl = '';
 
+    public string $resolvedAvatarUrl = '';
+
     public function mount(): void
     {
         $user = auth()->user();
@@ -41,7 +43,8 @@ class Show extends Component
         $this->email   = $user->email;
         $this->idNo    = $this->kadiCustomer['id_no'] ?? '';
         $this->phoneNo = $this->kadiCustomer['phone_no'] ?? '';
-        $this->profilePicUrl = $this->buildProfilePicUrl();
+        $this->profilePicUrl      = $this->buildProfilePicUrl();
+        $this->resolvedAvatarUrl  = $this->resolveAvatarUrl();
     }
 
     public function updateProfile(): void
@@ -99,6 +102,27 @@ class Show extends Component
 
         $this->reset('currentPassword', 'newPassword', 'newPasswordConfirmation');
         session()->flash('password_success', 'Password updated successfully.');
+    }
+
+    private function resolveAvatarUrl(): string
+    {
+        // 1. Kadi-uploaded profile picture (highest priority)
+        $uploaded = $this->buildProfilePicUrl();
+        if ($uploaded !== '') {
+            return $uploaded;
+        }
+
+        $user = auth()->user();
+
+        // 2. Google avatar (linked account)
+        if ($user->avatar) {
+            return $user->avatar;
+        }
+
+        // 3. Gravatar with robohash fallback
+        $hash = md5(strtolower(trim($user->email)));
+
+        return "https://www.gravatar.com/avatar/{$hash}?d=robohash&r=pg&s=200";
     }
 
     private function buildProfilePicUrl(): string

@@ -1,4 +1,15 @@
 <div x-data="{ tab: 'info' }" class="mx-auto max-w-5xl space-y-6">
+{{-- google-linked session flash --}}
+@if (session('status') === 'google-linked')
+    <div class="rounded-lg border border-green-700 bg-green-900/30 p-4 text-sm text-green-400">
+        Google account linked successfully.
+    </div>
+@endif
+@if ($errors->has('google'))
+    <div class="rounded-lg border border-red-700 bg-red-900/30 p-4 text-sm text-red-400">
+        {{ $errors->first('google') }}
+    </div>
+@endif
 
     {{-- Flash messages --}}
     @if (session('profile_success'))
@@ -37,6 +48,14 @@
                 >
                     Change Password
                 </button>
+                <button
+                    @click="tab = 'connected'"
+                    :class="tab === 'connected' ? 'bg-[#f5c542] text-black' : 'text-[#6b6b6b] hover:text-[#f5f5f0]'"
+                    class="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition"
+                    style="font-family: 'Cinzel', serif;"
+                >
+                    Connected Accounts
+                </button>
             </div>
 
             {{-- Tab 1: Personal Info --}}
@@ -51,18 +70,10 @@
 
                     {{-- Avatar / JS preview --}}
                     <div class="relative flex-shrink-0">
-                        @if ($profilePicUrl)
-                            <img id="pic-preview" :src="preview || '{{ $profilePicUrl }}'" alt="Profile picture"
-                                 class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]/40" />
-                        @else
-                            <div x-show="!preview"
-                                 class="flex h-20 w-20 items-center justify-center rounded-full bg-[#f5c542] text-2xl font-bold text-black"
-                                 style="font-family: 'Cinzel', serif;">
-                                {{ auth()->user()->initials() }}
-                            </div>
-                            <img x-show="preview" :src="preview" alt="Preview"
-                                 class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]" />
-                        @endif
+                        <img id="pic-preview"
+                             :src="preview || '{{ $resolvedAvatarUrl }}'"
+                             alt="Profile picture"
+                             class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]/40" />
                         <span x-show="preview"
                               class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c542] text-[10px] text-black font-bold">✓</span>
                     </div>
@@ -163,6 +174,13 @@
                 </form>
             </div>
 
+            {{-- Tab 3: Connected Accounts --}}
+            <div x-show="tab === 'connected'" x-cloak class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
+                <h2 class="mb-2 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Connected Accounts</h2>
+                <p class="mb-6 text-sm text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">Link your Google account for one-click sign-in.</p>
+                <livewire:settings.link-google-account />
+            </div>
+
             {{-- Tab 2: Change Password --}}
             <div x-show="tab === 'password'" x-cloak class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
                 <h2 class="mb-6 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Change Password</h2>
@@ -199,14 +217,8 @@
             <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-6 text-center">
                 {{-- Avatar --}}
                 <div class="mx-auto mb-4 h-20 w-20">
-                    @if ($profilePicUrl)
-                        <img src="{{ $profilePicUrl }}" alt="Profile picture"
-                             class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]/40" />
-                    @else
-                        <div class="flex h-20 w-20 items-center justify-center rounded-full bg-[#f5c542] text-2xl font-bold text-black" style="font-family: 'Cinzel', serif;">
-                            {{ auth()->user()->initials() }}
-                        </div>
-                    @endif
+                    <img src="{{ $resolvedAvatarUrl }}" alt="Profile picture"
+                         class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]/40" />
                 </div>
 
                 <h3 class="mb-0.5 font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">{{ auth()->user()->name }}</h3>

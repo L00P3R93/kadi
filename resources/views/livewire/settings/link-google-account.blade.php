@@ -1,16 +1,4 @@
 <div>
-    @if (session('status') === 'google-linked')
-        <flux:callout variant="success" icon="check-circle" class="mb-4">
-            {{ __('Google account linked successfully.') }}
-        </flux:callout>
-    @endif
-
-    @if ($errors->has('google'))
-        <flux:callout variant="danger" icon="x-circle" class="mb-4">
-            {{ $errors->first('google') }}
-        </flux:callout>
-    @endif
-
     @if (auth()->user()->google_id)
         <div class="flex items-center gap-3">
             <span class="inline-flex items-center gap-1.5 text-sm text-green-500">

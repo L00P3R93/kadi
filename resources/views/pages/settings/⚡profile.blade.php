@@ -119,14 +119,6 @@ new #[Title('Profile settings')] class extends Component {
             </div>
         </form>
 
-        <div class="mt-8 pt-6 border-t border-zinc-700">
-            <flux:heading size="sm">{{ __('Connected Accounts') }}</flux:heading>
-            <flux:subheading>{{ __('Link your Google account for one-click sign-in') }}</flux:subheading>
-            <div class="mt-4">
-                <livewire:settings.link-google-account />
-            </div>
-        </div>
-
         @if ($this->showDeleteUser)
             <livewire:pages::settings.delete-user-form />
         @endif
