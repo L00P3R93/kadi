@@ -29,6 +29,10 @@ class GoogleAuthController extends Controller
         $user = User::where('google_id', $googleUser->getId())->first();
 
         if ($user) {
+            if (is_null($user->email_verified_at)) {
+                $user->update(['email_verified_at' => now()]);
+            }
+
             Auth::login($user, remember: true);
 
             return redirect()->intended(route('dashboard'));
@@ -38,10 +42,16 @@ class GoogleAuthController extends Controller
         $user = User::where('email', $googleUser->getEmail())->first();
 
         if ($user) {
-            $user->update([
+            $updateData = [
                 'google_id' => $googleUser->getId(),
                 'avatar'    => $googleUser->getAvatar(),
-            ]);
+            ];
+
+            if (is_null($user->email_verified_at)) {
+                $updateData['email_verified_at'] = now();
+            }
+
+            $user->update($updateData);
 
             Auth::login($user, remember: true);
 
