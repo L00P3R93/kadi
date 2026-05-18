@@ -5,6 +5,7 @@ namespace App\Livewire\Profile;
 use App\Facades\KadiApi;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
@@ -42,7 +43,7 @@ class Show extends Component
         $this->name    = $user->name;
         $this->email   = $user->email;
         $this->idNo    = $this->kadiCustomer['id_no'] ?? '';
-        $this->phoneNo = $this->kadiCustomer['phone_no'] ?? '';
+        $this->phoneNo = $this->kadiCustomer['phone_no'] ?? $user->phone ?? '';
         $this->profilePicUrl      = $this->buildProfilePicUrl();
         $this->resolvedAvatarUrl  = $this->resolveAvatarUrl();
     }
@@ -56,12 +57,16 @@ class Show extends Component
             'phoneNo' => ['nullable', 'string'],
         ]);
 
-        auth()->user()->update([
-            'name'  => $this->name,
-            'email' => $this->email,
-        ]);
+        $user = auth()->user();
 
-        $customerId = auth()->user()->linked_id;
+        $userUpdate = ['name' => $this->name, 'email' => $this->email];
+        // Only allow setting phone when it isn't already on record
+        if (empty($user->phone) && $this->phoneNo !== '') {
+            $userUpdate['phone'] = $this->phoneNo;
+        }
+        $user->update($userUpdate);
+
+        $customerId = $user->linked_id;
 
         if ($customerId) {
             try {
@@ -77,6 +82,18 @@ class Show extends Component
                 }
             } catch (\Throwable $e) {
                 Log::error('KadiApi profile update failed: '.$e->getMessage());
+            }
+        }
+
+        // Sync phone to kadi database when setting it for the first time
+        if (isset($userUpdate['phone'])) {
+            try {
+                DB::connection('kadi')
+                    ->table('accounts')
+                    ->where('email', $user->email)
+                    ->update(['phone' => $this->phoneNo]);
+            } catch (\Throwable $e) {
+                Log::error('Kadi DB phone sync failed: '.$e->getMessage());
             }
         }
 

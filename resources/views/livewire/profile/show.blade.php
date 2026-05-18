@@ -141,14 +141,25 @@
                         @error('email') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
+                    @if (empty(auth()->user()->phone))
+                    <div>
+                        <flux:input wire:model="phoneNo" :label="__('Phone Number')" type="tel" required
+                                    placeholder="+254 7XX XXX XXX" />
+                        @error('phoneNo') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        <p class="mt-1 text-xs text-[#f5c542]/60" style="font-family: 'Outfit', sans-serif;">
+                            Required to play games and make transactions.
+                        </p>
+                    </div>
+                    @else
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-widest text-[#6b6b6b] mb-1.5" style="font-family: 'Outfit', sans-serif;">
                             Phone Number
                         </label>
                         <div class="rounded-lg border border-yellow-800/20 bg-[#111111] px-4 py-3 font-mono text-sm text-[#f5c542]">
-                            {{ $phoneNo ?: '—' }}
+                            {{ $phoneNo }}
                         </div>
                     </div>
+                    @endif
 
                     {{-- Account No: read-only --}}
                     <div>

@@ -206,6 +206,9 @@
         </div>
 
         <x-structured-data :page="$page ?? 'dashboard'" :noindex="true" />
+        @auth
+            <livewire:phone-required />
+        @endauth
         @fluxScripts
         {{-- Sportsbook bet-slip store commented out (client focus: Kadi only)
         <script>

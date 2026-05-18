@@ -12,6 +12,11 @@ class KadiGameController extends Controller
     {
         $user = $request->user();
 
+        if (empty($user->phone)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Please add your phone number before playing.');
+        }
+
         $profile = Cache::get("kadi.customer.{$user->id}", []);
         $googleId = $profile['google_id'] ?? DB::connection('kadi')
             ->table('accounts')

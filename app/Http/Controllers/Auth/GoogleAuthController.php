@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessVerifiedUser;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +26,7 @@ class GoogleAuthController extends Controller
                 ->withErrors(['email' => 'Google authentication failed. Please try again.']);
         }
 
-        // Case a: existing user matched by google_id
+        // Case a: existing user matched by google_id — already processed, just log in
         $user = User::where('google_id', $googleUser->getId())->first();
 
         if ($user) {
@@ -38,7 +39,9 @@ class GoogleAuthController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        // Case b: existing user matched by email — link the account
+        // Case b: existing user matched by email — link the Google account.
+        // Dispatch ProcessVerifiedUser in case this user never verified their email
+        // (and therefore never triggered the job through the normal Verified event).
         $user = User::where('email', $googleUser->getEmail())->first();
 
         if ($user) {
@@ -53,12 +56,17 @@ class GoogleAuthController extends Controller
 
             $user->update($updateData);
 
+            if (! $user->isLinked()) {
+                ProcessVerifiedUser::dispatch($user);
+            }
+
             Auth::login($user, remember: true);
 
             return redirect()->intended(route('dashboard'));
         }
 
-        // Case c: no user found — create a new account
+        // Case c: brand-new Google user — create account and kick off onboarding.
+        // No plain-password cache entry; ProcessVerifiedUser handles null password gracefully.
         $user = User::create([
             'name'              => $googleUser->getName(),
             'email'             => $googleUser->getEmail(),
@@ -68,6 +76,8 @@ class GoogleAuthController extends Controller
             'account_no'        => 'KK-' . strtoupper(uniqid()),
             'email_verified_at' => now(),
         ]);
+
+        ProcessVerifiedUser::dispatch($user);
 
         Auth::login($user, remember: true);
 
