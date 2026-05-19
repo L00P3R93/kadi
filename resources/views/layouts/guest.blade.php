@@ -172,6 +172,9 @@
         </footer>
 
         <x-structured-data :page="$page ?? 'home'" />
+        @auth
+            <livewire:phone-required />
+        @endauth
         <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
         @fluxScripts
         {{-- Sportsbook bet-slip store commented out (client focus: Kadi only)

@@ -36,7 +36,7 @@ class GoogleAuthController extends Controller
 
             Auth::login($user, remember: true);
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('home'));
         }
 
         // Case b: existing user matched by email — link the Google account.
@@ -62,7 +62,7 @@ class GoogleAuthController extends Controller
 
             Auth::login($user, remember: true);
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('home'));
         }
 
         // Case c: brand-new Google user — create account and kick off onboarding.
@@ -81,6 +81,6 @@ class GoogleAuthController extends Controller
 
         Auth::login($user, remember: true);
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended(route('home'));
     }
 }
