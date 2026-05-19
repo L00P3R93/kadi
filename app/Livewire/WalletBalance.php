@@ -26,13 +26,24 @@ class WalletBalance extends Component
             return;
         }
 
+        // Try dedicated balance cache first
         $cached = Cache::get("wallet_balance_{$user->id}");
-
-        if ($cached !== null && (float) $cached > 0) {
+        if ($cached !== null) {
             $this->balance = (float) $cached;
-        } else {
-            $this->needsLoad = true;
+
+            return;
         }
+
+        // Fall back to the customer profile cache populated by HandleLogin
+        $profile = Cache::get("kadi.customer.{$user->id}");
+        if ($profile && array_key_exists('balance', $profile)) {
+            $this->balance = (float) $profile['balance'];
+            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addMinutes(5));
+
+            return;
+        }
+
+        $this->needsLoad = true;
     }
 
     public function loadBalance(): void
@@ -44,10 +55,20 @@ class WalletBalance extends Component
             return;
         }
 
-        // Return early if a valid non-zero balance is already cached
+        // Check dedicated balance cache
         $cached = Cache::get("wallet_balance_{$user->id}");
-        if ($cached !== null && (float) $cached > 0) {
+        if ($cached !== null) {
             $this->balance = (float) $cached;
+            $this->needsLoad = false;
+
+            return;
+        }
+
+        // Check the shared customer profile cache before hitting the API
+        $profile = Cache::get("kadi.customer.{$user->id}");
+        if ($profile && array_key_exists('balance', $profile)) {
+            $this->balance = (float) $profile['balance'];
+            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addMinutes(5));
             $this->needsLoad = false;
 
             return;
@@ -68,9 +89,10 @@ class WalletBalance extends Component
 
         $this->hasError = false;
 
-        // Force fresh fetch — bypass both balance caches
+        // Bust all caches so doFetch always hits the API fresh
         Cache::forget("wallet_balance_{$user->id}");
         Cache::forget("wallet_last_checked_{$user->id}");
+        Cache::forget("kadi.customer.{$user->id}");
 
         $this->doFetch($user);
     }
@@ -103,6 +125,7 @@ class WalletBalance extends Component
             Cache::put("wallet_last_checked_{$user->id}", now()->toISOString(), now()->addMinutes(5));
 
             $this->balance = $balance;
+            $this->dispatch('wallet-refreshed');
         } catch (\Throwable $e) {
             Log::warning("WalletBalance: KadiApi fetch failed for user {$user->id}: ".$e->getMessage());
             $this->hasError = true;

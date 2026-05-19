@@ -6,6 +6,7 @@ use App\Facades\KadiApi;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Index extends Component
@@ -26,6 +27,15 @@ class Index extends Component
     {
         $this->kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
         $this->loadTransactions();
+    }
+
+    #[On('wallet-refreshed')]
+    public function syncCustomer(): void
+    {
+        $profile = Cache::get('kadi.customer.'.auth()->id());
+        if ($profile) {
+            $this->kadiCustomer = $profile;
+        }
     }
 
     public function loadTransactions(): void
