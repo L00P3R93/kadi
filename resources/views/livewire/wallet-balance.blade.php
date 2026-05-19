@@ -1,7 +1,7 @@
 @auth
 <div
+    @if($needsLoad) wire:init="loadBalance" @endif
     x-data="{ cooldown: false }"
-    x-init="if ($wire.needsLoad) $wire.loadBalance()"
     class="flex items-center gap-1"
 >
     {{-- Balance pill — links to wallet page --}}
@@ -12,11 +12,11 @@
     >
         <span class="text-sm leading-none select-none">💰</span>
 
-        {{-- Spinner shown while fetching --}}
+        {{-- Spinner: hidden by default, shown while loading --}}
         <span
-            wire:loading
+            class="hidden"
+            wire:loading.class.remove="hidden"
             wire:target="loadBalance,refresh"
-            class="inline-flex items-center justify-center w-[4.5rem]"
         >
             <svg class="h-3.5 w-3.5 animate-spin text-[#f5c542]" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -24,12 +24,12 @@
             </svg>
         </span>
 
-        {{-- Balance or error text shown when not loading --}}
+        {{-- Balance text: visible by default, hidden while loading --}}
         <span
-            wire:loading.remove
-            wire:target="loadBalance,refresh"
             class="text-sm font-semibold text-[#f5c542]"
             style="font-family: 'Cinzel', serif;"
+            wire:loading.class="hidden"
+            wire:target="loadBalance,refresh"
         >
             @if ($hasError)
                 <span class="text-[#f5f5f0]/40 font-normal tracking-normal text-xs">unavailable</span>
@@ -54,20 +54,9 @@
             ? 'opacity-40 cursor-not-allowed'
             : 'hover:text-[#f5c542] hover:bg-[#f5c542]/10 cursor-pointer'"
     >
-        {{-- Spinning icon during refresh --}}
+        {{-- Single SVG: animate-spin class is added/removed by Livewire while refresh runs --}}
         <svg
-            wire:loading
-            wire:target="refresh"
-            class="h-3.5 w-3.5 animate-spin"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
-        >
-            <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-
-        {{-- Static icon when idle --}}
-        <svg
-            wire:loading.remove
+            wire:loading.class="animate-spin"
             wire:target="refresh"
             class="h-3.5 w-3.5"
             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"

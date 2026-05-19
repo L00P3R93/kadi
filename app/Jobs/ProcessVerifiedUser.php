@@ -48,14 +48,14 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
     private function registerWithKadiApi(): ?int
     {
         try {
-            $userArr = [
+            $userArr = array_filter([
                 'google_id' => $this->user->google_id ?? $this->user->account_no,
                 'account_no' => $this->user->account_no,
                 'name' => $this->user->name,
                 'email' => $this->user->email,
                 'id_no' => (string) $this->user->account_no,
-                'phone_no' => $this->user->phone,
-            ];
+                'phone_no' => $this->user->phone ?: null,
+            ], fn ($v) => $v !== null);
             $response = KadiApi::createCustomer($userArr);
 
             if (isset($response['customer_id'])) {
