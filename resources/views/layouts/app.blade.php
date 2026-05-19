@@ -181,12 +181,8 @@
                     </div>
 
                     <div class="flex items-center gap-4">
-                        {{-- Balance badge --}}
-                        @php $navBalance = \Illuminate\Support\Facades\Cache::get('kadi.customer.'.auth()->id(), [])['balance'] ?? 0; @endphp
-                        <div class="flex items-center gap-2 rounded-full border border-[#f5c542]/40 bg-[#f5c542]/10 px-4 py-1.5">
-                            <span class="text-sm">💰</span>
-                            <x-currency-amount :amount="$navBalance" class="text-sm font-semibold text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
-                        </div>
+                        {{-- Balance widget --}}
+                        <livewire:wallet-balance />
                         {{-- Logout --}}
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

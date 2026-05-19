@@ -32,12 +32,7 @@
                 <div class="flex items-center gap-3">
                     <div class="hidden md:flex items-center gap-3">
                         @auth
-                            @php $navBalance = \Illuminate\Support\Facades\Cache::get('kadi.customer.'.auth()->id(), [])['balance'] ?? 0; @endphp
-                            <a href="{{ route('wallet') }}" wire:navigate
-                               class="flex items-center gap-1.5 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74]">
-                                <span>💰</span>
-                                <x-currency-amount :amount="$navBalance" style="font-family: 'Cinzel', serif;" />
-                            </a>
+                            <livewire:wallet-balance />
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="flex items-center gap-1.5 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0">
@@ -93,13 +88,10 @@
                     {{-- Auth CTA — mobile only --}}
                     <div class="py-4">
                         @auth
-                            @php $navBalance = \Illuminate\Support\Facades\Cache::get('kadi.customer.'.auth()->id(), [])['balance'] ?? 0; @endphp
                             <div class="flex flex-col gap-1">
-                                <a href="{{ route('wallet') }}" @click="menuOpen = false" wire:navigate
-                                   class="flex items-center gap-2 py-3 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74]">
-                                    <span>💰</span>
-                                    <x-currency-amount :amount="$navBalance" style="font-family: 'Cinzel', serif;" />
-                                </a>
+                                <div class="py-1.5">
+                                    <livewire:wallet-balance />
+                                </div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" @click="menuOpen = false"
