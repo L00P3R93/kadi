@@ -78,6 +78,7 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
         try {
             $userName = explode(' ', $this->user->name);
             DB::connection('kadi')->table('accounts')->insert([
+                'id' => $customerId,
                 'name' => $userName[0],
                 'phone' => $this->user->phone,
                 'email' => $this->user->email,
