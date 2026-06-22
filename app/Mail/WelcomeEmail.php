@@ -15,7 +15,6 @@ class WelcomeEmail extends Mailable
 
     public function __construct(
         public User $user,
-        public ?string $plainPassword,
     ) {}
 
     public function envelope(): Envelope
@@ -31,7 +30,6 @@ class WelcomeEmail extends Mailable
             view: 'mail.welcome',
             with: [
                 'user'          => $this->user,
-                'plainPassword' => $this->plainPassword,
                 'appName'       => config('app.name'),
                 'appUrl'        => config('app.url'),
             ],

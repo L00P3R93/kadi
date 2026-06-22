@@ -2,9 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Facades\BrevoMail;
 use App\Facades\KadiApi;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
+use App\Services\BrevoEmailService;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -39,7 +41,7 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
         $customerId = $this->registerWithKadiApi();
         $this->fetchAndCacheCustomerProfile($customerId);
         $this->insertIntoKadiDatabase($plainPassword, $customerId);
-        $this->sendWelcomeEmail($plainPassword);
+        $this->sendWelcomeEmail();
     }
 
     /**
@@ -92,9 +94,9 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
         }
     }
 
-    private function sendWelcomeEmail(?string $plainPassword): void
+    private function sendWelcomeEmail(): void
     {
-        Mail::to($this->user->email)->send(new WelcomeEmail($this->user, $plainPassword));
+        Mail::to($this->user->email)->send(new WelcomeEmail($this->user));
     }
 
     /**

@@ -51,7 +51,7 @@
                                 </tr>
                                 <tr style="background-color:#1a1a1a;">
                                     <td style="padding:12px 16px;font-size:12px;color:#6b6b6b;font-family:Arial,sans-serif;border-bottom:1px solid rgba(245,197,66,0.08);">Password</td>
-                                    <td style="padding:12px 16px;font-size:13px;color:#f5c542;font-family:'Courier New',monospace;border-bottom:1px solid rgba(245,197,66,0.08);">{{ $plainPassword ?? '••••••••' }}</td>
+                                    <td style="padding:12px 16px;font-size:13px;color:#f5c542;font-family:'Courier New',monospace;border-bottom:1px solid rgba(245,197,66,0.08);">{{ '••••••••' }}</td>
                                 </tr>
                                 <tr style="background-color:#111111;">
                                     <td style="padding:12px 16px;font-size:12px;color:#6b6b6b;font-family:Arial,sans-serif;">Account No</td>
