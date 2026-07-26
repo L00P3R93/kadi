@@ -13,9 +13,16 @@ class ProfilePictureController extends Controller
 {
     public function upload(Request $request): RedirectResponse
     {
-        $request->validate([
-            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-        ]);
+        $request->validate(
+            [
+                'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            ],
+            [
+                'photo.max' => 'The photo must not exceed 2MB.',
+                'photo.mimes' => 'The photo must be a JPG, JPEG, PNG, or WEBP file.',
+                'photo.image' => 'The file must be an image.',
+            ]
+        );
 
         $user = $request->user();
 
@@ -44,7 +51,7 @@ class ProfilePictureController extends Controller
                 ]);
 
             if (isset($response['data'])) {
-                $customer = Cache::get('kadi.customer.'.$user->id);
+                $customer = Cache::get('kadi.customer.'.$user->id, []);
                 $customer['pic'] = $pic;
 
                 Cache::put('kadi.customer.'.$user->id, $customer, now()->addHour());
