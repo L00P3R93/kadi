@@ -27,14 +27,14 @@ class HandleLogin implements ShouldQueue
             $response = KadiApi::getCustomer($user->linked_id);
             $profile = $response['data'] ?? $response;
 
-            $googleId = DB::connection('kadi')
+            $account = DB::connection('kadi')
                 ->table('accounts')
+                ->select('google_id', 'pic')
                 ->where('email', $user->email)
-                ->value('google_id');
+                ->first();
 
-            if ($googleId !== null) {
-                $profile['google_id'] = $googleId;
-            }
+            $profile['google_id'] = $account?->google_id;
+            $profile['pic'] = $account?->pic;
 
             Cache::put("kadi.customer.{$user->id}", $profile, now()->addHour());
         } catch (RequestException|ConnectionException $e) {

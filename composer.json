@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "intervention/image": "^4.2",
         "laravel/fortify": "^1.34",
         "laravel/framework": "^13.0",
         "laravel/socialite": "^5.27",

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Facades\KadiApi;
+use App\Services\KadiProfileImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProfilePictureController extends Controller
@@ -27,14 +29,20 @@ class ProfilePictureController extends Controller
             $ext      = $file->getClientOriginalExtension() ?: 'jpg';
             $filename = 'profile_'.$user->linked_id.'_'.time().'.'.$ext;
 
-            $response = KadiApi::uploadProfilePic(
-                $user->linked_id,
-                $file->getRealPath(),
-                $filename
-            );
+            $response = app(KadiProfileImageService::class)
+                ->upload($user->linked_id, $file);
+
+            // Update record in accounts table in kadi database
+            DB::connection('kadi')
+                ->table('accounts')
+                ->where('id', $user->linked_id)
+                ->update([
+                    'pic' => $response['data']['filename'],
+                    // or 'pic' => $response['data']['path'],
+                ]);
 
             if (isset($response['data'])) {
-                Cache::put('kadi.customer.'.$user->id, $response['data'], now()->addHour());
+                Cache::b('kadi.customer.'.$user->id, $response['data'], now()->addHour());
             }
 
             return back()->with('profile_success', 'Profile picture updated successfully.');

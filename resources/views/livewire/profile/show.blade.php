@@ -63,7 +63,7 @@
                 <h2 class="mb-6 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Personal Information</h2>
 
                 {{-- Profile Picture Upload (plain multipart form — avoids Livewire temp-upload issues) --}}
-                <form action="{{ route('profile.picture') }}" method="POST" enctype="multipart/form-data"
+                <form wire:ignore action="{{ route('profile.picture') }}" method="POST" enctype="multipart/form-data"
                       class="mb-8 flex items-center gap-6 pb-6 border-b border-yellow-800/20"
                       x-data="profilePic()">
                     @csrf
@@ -95,7 +95,7 @@
                             </label>
 
                             <button x-show="preview" type="submit" :disabled="uploading"
-                                    @click="uploading = true"
+                                    @submit="uploading = true"
                                     class="inline-flex items-center gap-2 rounded-lg bg-[#f5c542] px-4 py-2 text-xs font-bold text-black transition hover:bg-[#ffde74] disabled:opacity-50">
                                 <span x-show="uploading" class="animate-spin inline-block">⟳</span>
                                 <span x-text="uploading ? 'Uploading…' : 'Upload Photo'">Upload Photo</span>
@@ -136,9 +136,20 @@
                         @error('name') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
-                    <div>
+                     {{--
+                     <div>
                         <flux:input wire:model="email" :label="__('Email Address')" type="email" required />
                         @error('email') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                    </div>
+                    --}}
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-widest text-[#6b6b6b] mb-1.5" style="font-family: 'Outfit', sans-serif;">
+                            Email Address
+                        </label>
+                        <div class="rounded-lg border border-yellow-800/20 bg-[#111111] px-4 py-3 font-mono text-sm text-[#f5c542]">
+                            {{ $email }}
+                        </div>
                     </div>
 
                     @if (empty(auth()->user()->phone))
