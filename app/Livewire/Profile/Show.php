@@ -153,7 +153,7 @@ class Show extends Component
 
         $base = rtrim(config('services.kadi_api.image_url'), '/');
 
-        return "{$base}/{$accountId}/{$pic}";
+        return "{$base}{$pic}";
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View
