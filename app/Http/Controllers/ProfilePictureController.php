@@ -32,12 +32,14 @@ class ProfilePictureController extends Controller
             $response = app(KadiProfileImageService::class)
                 ->upload($user->linked_id, $file);
 
+            $pic = "/{$user->linked_id}/".$response['data']['filename'];
+
             // Update record in accounts table in kadi database
             DB::connection('kadi')
                 ->table('accounts')
                 ->where('id', $user->linked_id)
                 ->update([
-                    'pic' => $response['data']['filename'],
+                    'pic' => $pic,
                     // or 'pic' => $response['data']['path'],
                 ]);
 
