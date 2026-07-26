@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
+use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Exceptions\DriverException;
 use Intervention\Image\Exceptions\ImageDecoderException;
 use Intervention\Image\Exceptions\InvalidArgumentException;
 use Intervention\Image\Image;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class KadiProfileImageService
 {
@@ -26,67 +27,68 @@ class KadiProfileImageService
     }
 
     /**
-     * @throws ImageDecoderException
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     * @throws ConnectionException
-     * @throws RequestException
+     * @throws Exception
      */
     public function upload(int $accountId, $file): array
     {
-        // Resize Main Image
-        $image = $this->manager
-            ->decode($file)
-            ->scaleDown(
-                width: 800
+        try {
+            // Resize Main Image
+            $image = $this->manager
+                ->decode($file)
+                ->scaleDown(
+                    width: 800
+                );
+
+            $mainPath = tempnam(
+                sys_get_temp_dir(),
+                'profile_'
+            ).'.webp';
+
+            $image->save(
+                $mainPath,
+                quality: 80
             );
 
-        $mainPath = tempnam(
-            sys_get_temp_dir(),
-            'profile_'
-        ).'.webp';
+            // Thumbnail
+            $thumbnail = $this->manager
+                ->decode($file)
+                ->cover(
+                    width: 200,
+                    height: 200
+                );
 
-        $image->save(
-            $mainPath,
-            quality: 80
-        );
+            $thumbPath = tempnam(
+                sys_get_temp_dir(),
+                'thumb_'
+            ).'.webp';
 
-        // Thumbnail
-        $thumbnail = $this->manager
-            ->decode($file)
-            ->cover(
-                width: 200,
-                height: 200
+            $thumbnail->save(
+                $thumbPath,
+                quality: 70
             );
 
-        $thumbPath = tempnam(
-            sys_get_temp_dir(),
-            'thumb_'
-        ).'.webp';
+            // Upload to game.kadikings.co.ke
+            $response = Http::attach(
+                'pic', fopen($mainPath, 'r'), basename($mainPath)
+            )->attach(
+                'thumb', fopen($thumbPath, 'r'), basename($thumbPath)
+            )->post(
+                config('services.kadi.image_upload_url'),
+                [
+                    'api_key' => config('services.kadi.image_upload_key'),
+                    'account_id' => $accountId,
+                ]
+            )
+                ->throw()
+                ->json();
 
-        $thumbnail->save(
-            $thumbPath,
-            quality: 70
-        );
+            unlink($mainPath);
+            unlink($thumbPath);
 
-        // Upload to game.kadikings.co.ke
-        $response = Http::attach(
-            'pic', fopen($mainPath, 'r'), basename($mainPath)
-        )->attach(
-            'thumb', fopen($thumbPath, 'r'), basename($thumbPath)
-        )->post(
-            config('services.kadi.image_upload_url'),
-            [
-                'api_key' => config('services.kadi.image_upload_key'),
-                'account_id' => $accountId
-            ]
-        )
-        ->throw()
-        ->json();
-
-        unlink($mainPath);
-        unlink($thumbPath);
-
-        return $response;
+            return $response;
+        } catch (\Throwable $e) {
+            Log::error("Error Uploading to gamesapi: {$e->getMessage()}");
+            throw new Exception($e->getMessage());
+        }
     }
 }
