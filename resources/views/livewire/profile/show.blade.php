@@ -80,7 +80,7 @@
 
                     <div class="flex-1 min-w-0">
                         <p class="mb-1 text-sm font-semibold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Profile Picture</p>
-                        <p class="mb-3 text-xs text-[#6b6b6b]">JPG, PNG or WebP · max 2 MB</p>
+                        <p class="mb-3 text-xs text-[#6b6b6b]">JPG, PNG or WebP · The photo must not exceed 2MB</p>
 
                         <div class="flex flex-wrap items-center gap-3">
                             <label class="cursor-pointer">
@@ -110,6 +110,7 @@
                         @if ($errors->has('photo'))
                             <p class="mt-2 text-xs text-red-400">{{ $errors->first('photo') }}</p>
                         @endif
+                        <p x-show="error" x-text="error" class="mt-2 text-xs text-red-400"></p>
                     </div>
                 </form>
 
@@ -118,9 +119,30 @@
                     return {
                         preview: null,
                         uploading: false,
+                        error: null,
                         onFile(e) {
                             const file = e.target.files[0];
                             if (!file) return;
+
+                            // Validate file type
+                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                            if (!allowedTypes.includes(file.type)) {
+                                this.error = 'The photo must be a JPG, JPEG, PNG, or WEBP file.';
+                                this.preview = null;
+                                e.target.value = '';
+                                return;
+                            }
+
+                            // Validate file size (2MB = 2 * 1024 * 1024 bytes)
+                            const maxSize = 2 * 1024 * 1024;
+                            if (file.size > maxSize) {
+                                this.error = 'The photo must not exceed 2MB.';
+                                this.preview = null;
+                                e.target.value = '';
+                                return;
+                            }
+
+                            this.error = null;
                             const reader = new FileReader();
                             reader.onload = ev => { this.preview = ev.target.result; };
                             reader.readAsDataURL(file);
