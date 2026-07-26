@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Facades\KadiApi;
 use App\Services\KadiProfileImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,8 +24,8 @@ class ProfilePictureController extends Controller
         }
 
         try {
-            $file     = $request->file('photo');
-            $ext      = $file->getClientOriginalExtension() ?: 'jpg';
+            $file = $request->file('photo');
+            $ext = $file->getClientOriginalExtension() ?: 'jpg';
             $filename = 'profile_'.$user->linked_id.'_'.time().'.'.$ext;
 
             $response = app(KadiProfileImageService::class)
@@ -44,7 +43,7 @@ class ProfilePictureController extends Controller
                 ]);
 
             if (isset($response['data'])) {
-                Cache::b('kadi.customer.'.$user->id, $response['data'], now()->addHour());
+                Cache::put('kadi.customer.'.$user->id, $response['data'], now()->addHour());
             }
 
             return back()->with('profile_success', 'Profile picture updated successfully.');
