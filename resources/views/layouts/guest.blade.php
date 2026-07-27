@@ -16,7 +16,7 @@
             <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;" wire:navigate>
-                    ♠ ANGEL PALACE
+                    ♠ {{ strtoupper(config('app.name')) }}
                 </a>
 
                 {{-- Desktop nav links --}}

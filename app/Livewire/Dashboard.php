@@ -9,7 +9,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Dashboard | Angel Palace')]
+#[Title('Dashboard | Kadi Kings')]
 class Dashboard extends Component
 {
     public bool $showComingSoonModal = false;

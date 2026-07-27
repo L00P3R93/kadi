@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Title('Wallet | Kadi Kings')]
 class Index extends Component
 {
     public string $filter = 'all';
