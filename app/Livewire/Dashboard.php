@@ -43,8 +43,10 @@ class Dashboard extends Component
             ->get();
 
         $kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
+        $googleId = $kadiCustomer['google_id'] ?? null;
+        $playKadiUrl = 'https://play.kadikings.co.ke'.($googleId ? '?ggid='.$googleId : '');
 
-        return view('livewire.dashboard', compact('recentTransactions') + [
+        return view('livewire.dashboard', compact('recentTransactions', 'playKadiUrl') + [
             'liveTables' => 24,
             'activeGames' => 138,
             'onlineUsers' => rand(1200, 4800),
@@ -54,7 +56,7 @@ class Dashboard extends Component
             ->layout('layouts.app')
             ->layoutData([
                 'noindex' => true,
-                'page'    => 'dashboard',
+                'page' => 'dashboard',
             ]);
     }
 }

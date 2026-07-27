@@ -16,12 +16,12 @@
             </h2>
             <p class="mb-6 text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">Ready to play? Your luck starts now.</p>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('kadi') }}" wire:navigate class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
-                    🎮 Play Kadi
+                <a href="{{ $playKadiUrl }}" wire:navigate class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
+                    Play Kadi
                 </a>
                 <a href="{{ route('wallet') }}" wire:navigate
                    class="btn-casino-ghost inline-block rounded-full px-5 py-2 text-sm no-underline">
-                    💰 View Wallet
+                    View Wallet
                 </a>
             </div>
         </div>
@@ -32,26 +32,24 @@
             <x-currency-amount :amount="$kadiBalance" class="mb-1 block text-5xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
             <div class="mb-6">
                 <span class="rounded-full border border-[#f5c542]/30 bg-[#f5c542]/10 px-3 py-1 text-xs text-[#f5c542]">
-                    {{ session('currency.code', 'KES') }} · Active
+                    {{-- session('currency.code', 'KES') --}} Coins · Active
                 </span>
             </div>
-            <div class="flex flex-wrap gap-3">
+
+             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('wallet') }}" wire:navigate
                    class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
-                    + Deposit
-                </a>
-                <a href="{{ route('wallet') }}" wire:navigate
-                   class="btn-casino-ghost inline-block rounded-full px-5 py-2 text-sm no-underline">
-                    - Withdraw
+                    <span></span>
+                    Buy Coins
                 </a>
             </div>
+
         </div>
     </div>
 
     {{-- ── Featured Bonus + Live Jackpot row ── --}}
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-        {{-- Featured Bonus (col-8) --}}
+    {{--
+     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section class="flex flex-col">
             <div class="mb-4">
                 <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f5c542]/10 border border-[#f5c542]/30 text-[#f5c542] text-xs tracking-[0.25em] uppercase" style="font-family: 'Outfit', sans-serif;">
@@ -81,16 +79,15 @@
                            class="btn-casino-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm no-underline">
                             🎁 Claim Bonus
                         </a>
-                        {{--<a href="#"
+                        <a href="#"
                            class="btn-casino-ghost inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm no-underline">
                             Explore Games
-                        </a>--}}
+                        </a>
                     </div>
                 </div>
             </div>
         </section>
 
-        {{-- Live Jackpot (col-4) --}}
         <section class="flex flex-col" wire:poll.900000ms="pollJackpot">
             <div class="mb-4">
                 <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-900/20 border border-red-500/30 text-red-400 text-xs tracking-[0.25em] uppercase" style="font-family: 'Outfit', sans-serif;">
@@ -145,8 +142,8 @@
                 </div>
             </div>
         </section>
-
     </div>
+     --}}
 
     {{-- ── Popular Games ── --}}
     <section>
@@ -179,7 +176,7 @@
                         </div>
                         <h3 class="mb-1 font-bold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $pg['name'] }}</h3>
                         <p class="mb-3 flex-1 text-xs text-[#f5f5f0]/50 line-clamp-2" style="font-family: 'Outfit', sans-serif;">{{ $pg['desc'] }}</p>
-                        <a href="{{ route('kadi') }}" wire:navigate
+                        <a href="{{ $playKadiUrl }}" wire:navigate
                            class="btn-casino-primary block w-full rounded-xl py-2 text-center text-xs no-underline">
                             {{ $pg['btn'] }}
                         </a>
@@ -190,6 +187,7 @@
     </section>
 
     {{-- ── Games Grid ── --}}
+    {{--
     <section>
         <h3 class="mb-6 text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Quick Play</h3>
         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
@@ -214,6 +212,8 @@
             @endforeach
         </div>
     </section>
+    --}}
+
 
     {{-- Sports Betting Preview commented out (client focus: Kadi only)
     <livewire:dashboard.sports-betting-preview />

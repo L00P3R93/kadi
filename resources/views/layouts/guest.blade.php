@@ -32,11 +32,10 @@
                 <div class="flex items-center gap-3">
                     <div class="hidden md:flex items-center gap-3">
                         @auth
-                            <livewire:wallet-balance />
+                            <livewire:wallet-balance wire:key="wallet-balance-desktop" />
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="flex items-center gap-1.5 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0">
-                                    <span>🚪</span>
                                     <span>Logout</span>
                                 </button>
                             </form>
@@ -90,13 +89,14 @@
                         @auth
                             <div class="flex flex-col gap-1">
                                 <div class="py-1.5">
-                                    <livewire:wallet-balance />
+                                    <livewire:wallet-balance wire:key="wallet-balance-mobile" />
                                 </div>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button type="submit" @click="menuOpen = false"
-                                            class="flex items-center gap-2 py-3 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0 w-full">
-                                        <span>🚪</span><span>Logout</span>
+                                    <button
+                                        type="submit"
+                                        @click="menuOpen = false"
+                                        class="flex items-center gap-2 py-3 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0 w-full">
                                     </button>
                                 </form>
                             </div>

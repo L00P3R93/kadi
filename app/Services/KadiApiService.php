@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class KadiApiService
 {
@@ -154,5 +156,46 @@ class KadiApiService
         return $this->http->delete($endpoint)
             ->throw()
             ->json('data') ?? [];
+    }
+
+    public function stkDeposit(User $user, int $amount): bool
+    {
+        try {
+            $response = $this->http
+                ->post('deposits/'.encryptOpenSSL($user->linked_id), [
+                    'amount' => (string) $amount,
+                ])
+                ->throw()
+                ->json() ?? [];
+
+            Log::info("StkPush Deposit Response for user {$user->id}: {$response['status']}");
+
+            return $response['status'] === 'success';
+        } catch (\Throwable $e) {
+            Log::error("StkPush Deposit Error for user {$user->id}: {$e->getMessage()}");
+
+            return false;
+        }
+    }
+
+    public function stkLoad(User $user, array $options): bool
+    {
+        try {
+            $response = $this->http
+                ->post('load/'.encryptOpenSSL($user->linked_id), [
+                    'amount' => (string) $options['price'],
+                    'type' => $options['type'],
+                ])
+                ->throw()
+                ->json() ?? [];
+
+            Log::info("StkPush Deposit Response for user {$user->id}: {$response['status']}");
+
+            return $response['status'] === 'success';
+        } catch (\Throwable $e) {
+            Log::error("StkPush Load Error for user {$user->id}: {$e->getMessage()}");
+
+            return false;
+        }
     }
 }

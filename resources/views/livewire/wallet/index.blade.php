@@ -7,6 +7,12 @@
         </div>
     @endif
 
+    @if ($purchaseError)
+        <div class="rounded-lg border border-red-700 bg-red-900/30 p-4 text-sm text-red-400">
+           {{ $purchaseError }}
+        </div>
+    @endif
+
     <h1 class="text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Wallet</h1>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -18,44 +24,115 @@
             <div class="rounded-xl border border-[#f5c542]/40 bg-[#1a1a1a] p-6 shadow-[0_0_30px_rgba(245,197,66,0.08)]">
                 <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]">Wallet Balance</div>
                 <div class="mb-1 text-4xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
-                    {{ session('currency.code', 'KES') }} {{ number_format($kadiCustomer['balance'] ?? 0, 2) }}
+                    {{ $walletCurrencyLabel }} {{ number_format($balance ?? 0, 2) }}
                 </div>
                 <div class="mb-4 text-xs text-[#6b6b6b]">
                     Account No: <span class="text-[#f5f5f0]/60 font-mono">{{ $kadiCustomer['account_no'] ?? '—' }}</span>
                 </div>
 
-                <div class="mb-2 h-px bg-yellow-800/20"></div>
+                @if($depositWithdrawEnabled)
+                    <div class="mb-2 h-px bg-yellow-800/20"></div>
 
-                <div class="mt-4 space-y-3">
-                    <button
-                        wire:click="$set('showDepositModal', true)"
-                        class="btn-casino-primary flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
-                    >
-                        + Deposit Funds
-                    </button>
-                    <button
-                        wire:click="$set('showWithdrawModal', true)"
-                        class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
-                    >
-                        - Withdraw Funds
-                    </button>
-                </div>
+                    <div class="mt-4 space-y-3">
+                        <button
+                            wire:click="$set('showDepositModal', true)"
+                            class="btn-casino-primary flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
+                        >
+                            + Deposit Funds
+                        </button>
+                        <button
+                            wire:click="$set('showWithdrawModal', true)"
+                            class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
+                        >
+                            - Withdraw Funds
+                        </button>
+                    </div>
 
-                <p class="mt-4 text-center text-xs text-[#6b6b6b]">Minimum deposit/withdrawal: KES 10</p>
+                    <p class="mt-4 text-center text-xs text-[#6b6b6b]">Minimum deposit/withdrawal: KES 10</p>
+                @endif
             </div>
 
             {{-- Card 2: Coins Wallet --}}
-            <div class="rounded-xl border border-amber-600/30 bg-[#1a1a1a] p-6 shadow-[0_0_20px_rgba(251,191,36,0.05)]">
-                <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-amber-600/70">Coins Balance</div>
-                <div class="mb-1 text-3xl font-black text-amber-400" style="font-family: 'Cinzel', serif;">
-                    {{ number_format($kadiCustomer['coins'] ?? 0, 2) }}
-                    <span class="text-base font-semibold text-amber-600/60">Coins</span>
+            @if($coinsWalletCardEnabled)
+                <div class="rounded-xl border border-amber-600/30 bg-[#1a1a1a] p-6 shadow-[0_0_20px_rgba(251,191,36,0.05)]">
+                    <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-amber-600/70">Coins Balance</div>
+                    <div class="mb-1 text-3xl font-black text-amber-400" style="font-family: 'Cinzel', serif;">
+                        {{ number_format($kadiCustomer['coins'] ?? 0, 2) }}
+                        <span class="text-base font-semibold text-amber-600/60">Coins</span>
+                    </div>
+                    <div class="text-xs text-[#6b6b6b]">
+                        Coin Wallet ID: <span class="text-[#f5f5f0]/60 font-mono">{{ $kadiCustomer['coin_wallet_id'] ?? '—' }}</span>
+                    </div>
                 </div>
-                <div class="text-xs text-[#6b6b6b]">
-                    Coin Wallet ID: <span class="text-[#f5f5f0]/60 font-mono">{{ $kadiCustomer['coin_wallet_id'] ?? '—' }}</span>
+            @endif
+
+            {{-- Card 3: Load Wallet / Purchases --}}
+            <div class="load-wallet-card rounded-xl border border-[#f5c542]/30 bg-[#1a1a1a] p-6">
+                <div class="mb-1 flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Load Wallet</h3>
+                    <span class="stat-badge">
+                        <span class="mpesa-dot"></span>
+                        M-Pesa
+                    </span>
+                </div>
+                <p class="mb-5 text-xs text-[#6b6b6b]">Tap a pack to pay instantly via M-Pesa STK push.</p>
+
+                <div
+                    wire:loading
+                    wire:target="initiatePurchase"
+                    class="mb-4 flex items-center justify-center gap-2 rounded-lg border border-orange-700 bg-orange-900/30 p-4 text-xs text-orange-400"
+                >
+                    <span class="animate-spin inline-block">⟳</span> Sending STK push to your phone...
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    @foreach ($purchaseOptions as $index => $option)
+                        <button
+                            type="button"
+                            wire:click="initiatePurchase({{ $index }})"
+                            wire:loading.attr="disabled"
+                            wire:target="initiatePurchase"
+                            class="purchase-tile purchase-tile--{{ $option['type'] === 'coins' ? 'coins' : 'perk' }}"
+                        >
+                            @if ($option['best'] ?? false)
+                                <span class="purchase-tile__ribbon">Best Value</span>
+                            @endif
+
+                            <span class="purchase-tile__shine"></span>
+
+                            <span class="purchase-tile__icon-wrap">
+                                <span class="purchase-tile__icon">
+                                    @if ($option['type'] === 'emoji')
+                                        😊
+                                    @elseif ($option['type'] === 'gift')
+                                        🎁
+                                    @else
+                                        🪙
+                                    @endif
+                                </span>
+                            </span>
+
+                            <span class="purchase-tile__body">
+                                @if ($option['type'] === 'emoji')
+                                    <span class="purchase-tile__amount">Emojis</span>
+                                    <span class="purchase-tile__meta">Pack</span>
+                                @elseif ($option['type'] === 'gift')
+                                    <span class="purchase-tile__amount">Gifts</span>
+                                    <span class="purchase-tile__meta">Pack</span>
+                                @else
+                                    <span class="purchase-tile__amount">+{{ number_format($option['coins']) }}</span>
+                                    <span class="purchase-tile__meta">Coins</span>
+                                @endif
+                            </span>
+
+                            <span class="purchase-tile__footer">
+                                <span class="purchase-tile__price">KSH {{ number_format($option['price']) }}</span>
+                                <span class="purchase-tile__arrow">→</span>
+                            </span>
+                        </button>
+                    @endforeach
                 </div>
             </div>
-
         </div>
 
         {{-- Right panel: Transaction History --}}
@@ -66,6 +143,7 @@
                 {{-- Filter tabs --}}
                 <div class="mb-6 flex gap-2">
                     @foreach (['all' => 'All', 'deposits' => 'Deposits', 'withdrawals' => 'Withdrawals'] as $key => $label)
+                        @continue($key === 'withdrawals' && ! $withdrawalsTabEnabled)
                         <button
                             wire:click="setFilter('{{ $key }}')"
                             @class([

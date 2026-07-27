@@ -187,7 +187,6 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
-                                <span>🚪</span>
                                 <span>Logout</span>
                             </button>
                         </form>

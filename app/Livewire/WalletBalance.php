@@ -78,12 +78,15 @@ class WalletBalance extends Component
         $this->doFetch($user);
     }
 
-    public function refresh(): void
+    public function refreshWallet(): void
     {
+        Log::info('WalletBalance: Refreshing balance');
         /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
+            Log::error('WalletBalance: User not authenticated');
+
             return;
         }
 

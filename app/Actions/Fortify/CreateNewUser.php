@@ -22,23 +22,23 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
-            'phone'    => ['required', 'string', 'min:9'],
+            'phone' => ['required', 'string', 'min:9'],
             'password' => $this->passwordRules(),
         ])->validate();
 
-        $accountNo = 'KK-' . strtoupper(uniqid());
+        $accountNo = 'KK-'.strtoupper(uniqid());
 
         $user = User::create([
-            'name'       => $input['name'],
-            'email'      => $input['email'],
-            'phone'      => $input['phone'],
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'phone' => $input['phone'],
             'account_no' => $accountNo,
-            'password'   => $input['password'],
+            'password' => $input['password'],
         ]);
 
         Cache::put("user.plain_password.{$user->id}", $input['password'], now()->addHours(24));
 
-        //$user->sendEmailVerificationNotification();
+        // $user->sendEmailVerificationNotification();
 
         return $user;
     }
