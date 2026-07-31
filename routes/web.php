@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\GoogleLinkController;
 use App\Http\Controllers\KadiGameController;
 use App\Http\Controllers\ProfilePictureController;
+use App\Livewire\Coins\BuyCoins;
+use App\Livewire\Coins\EarnCoins;
 use App\Livewire\Dashboard;
 use App\Livewire\Games;
 use App\Livewire\Guest\GamesList;
@@ -12,12 +14,14 @@ use App\Livewire\Sportsbook\GuestSportsbookPage;
 use App\Livewire\Sportsbook\SportsbookPage;
 use App\Livewire\Wallet\Index;
 use App\Livewire\Welcome;
+use App\Services\OddsApiService;
 use Illuminate\Support\Facades\Route;
 
 // Serve brotli-compressed Godot game assets (Nginx doesn't process .htaccess)
 Route::get('/kadig/index.js', function () {
     $path = public_path('kadig/index.js.br');
     abort_unless(file_exists($path), 404);
+
     return response()->stream(fn () => readfile($path), 200, [
         'Content-Type' => 'application/javascript',
         'Content-Encoding' => 'br',
@@ -29,6 +33,7 @@ Route::get('/kadig/index.js', function () {
 Route::get('/kadig/index.wasm', function () {
     $path = public_path('kadig/index.wasm.br');
     abort_unless(file_exists($path), 404);
+
     return response()->stream(fn () => readfile($path), 200, [
         'Content-Type' => 'application/wasm',
         'Content-Encoding' => 'br',
@@ -40,6 +45,7 @@ Route::get('/kadig/index.wasm', function () {
 Route::get('/kadig/index.pck', function () {
     $path = public_path('kadig/index.pck.br');
     abort_unless(file_exists($path), 404);
+
     return response()->stream(fn () => readfile($path), 200, [
         'Content-Type' => 'application/octet-stream',
         'Content-Encoding' => 'br',
@@ -63,12 +69,14 @@ Route::get('/sportsbook/data', function () {
     if (! file_exists($path)) {
         return response()->json(['sports' => [], 'generated_at' => null, 'expires_at' => null]);
     }
+
     return response()->file($path, ['Content-Type' => 'application/json', 'Cache-Control' => 'public, max-age=300']);
 })->name('sportsbook.data');
 
 // Live event odds for the markets modal
 Route::get('/sportsbook/event-odds/{sport}/{eventId}', function (string $sport, string $eventId) {
-    $data = app(\App\Services\OddsApiService::class)->getSportEventOdds($sport, $eventId);
+    $data = app(OddsApiService::class)->getSportEventOdds($sport, $eventId);
+
     return response()->json($data);
 })->name('sportsbook.event-odds');
 
@@ -84,6 +92,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', Show::class)->name('profile');
     Route::post('/profile/picture', [ProfilePictureController::class, 'upload'])->name('profile.picture');
     Route::get('/wallet', Index::class)->name('wallet');
+    Route::get('/buy-coins', BuyCoins::class)->name('buy-coins');
+    Route::get('/earn-coins', EarnCoins::class)->name('earn-coins');
     Route::get('/admin/sportsbook', fn () => view('admin.sportsbook'))->name('admin.sportsbook');
     Route::get('/kadi', KadiGameController::class)->name('kadi');
 });
@@ -93,5 +103,6 @@ require __DIR__.'/settings.php';
 Route::get('/sitemap.xml', function () {
     $path = public_path('sitemap.xml');
     abort_unless(file_exists($path), 404);
+
     return response()->file($path, ['Content-Type' => 'application/xml']);
 });

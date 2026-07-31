@@ -13,7 +13,7 @@
         </div>
     @endif
 
-    <h1 class="text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Wallet</h1>
+    <h1 class="text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Vault</h1>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
@@ -22,17 +22,33 @@
 
             {{-- Card 1: Main Wallet Balance --}}
             <div class="rounded-xl border border-[#f5c542]/40 bg-[#1a1a1a] p-6 shadow-[0_0_30px_rgba(245,197,66,0.08)]">
-                <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]">Wallet Balance</div>
+                <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]">Vault Balance</div>
                 <div class="mb-1 text-4xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
-                    {{ $walletCurrencyLabel }} {{ number_format($balance ?? 0, 2) }}
+                    {{ $walletCurrencyLabel }} {{ number_format($balance) }}
                 </div>
                 <div class="mb-4 text-xs text-[#6b6b6b]">
                     Account No: <span class="text-[#f5f5f0]/60 font-mono">{{ $kadiCustomer['account_no'] ?? '—' }}</span>
                 </div>
 
-                @if($depositWithdrawEnabled)
-                    <div class="mb-2 h-px bg-yellow-800/20"></div>
 
+                <div class="mb-2 h-px bg-yellow-800/20"></div>
+                <div class="mt-4 space-y-3">
+                    <a
+                        href="{{ route('buy-coins') }}"
+                        wire:navigate
+                        class="btn-casino-primary flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
+                    >
+                        + Buy Coins
+                    </a>
+                    <a
+                        href="{{ route('earn-coins') }}"
+                        wire:navigate
+                        class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
+                    >
+                        + Earn Coins
+                    </a>
+                </div>
+                @if($depositWithdrawEnabled)
                     <div class="mt-4 space-y-3">
                         <button
                             wire:click="$set('showDepositModal', true)"
@@ -66,7 +82,7 @@
                 </div>
             @endif
 
-            {{-- Card 3: Load Wallet / Purchases --}}
+            {{-- Card 3: Load Wallet / Purchases
             <div class="load-wallet-card rounded-xl border border-[#f5c542]/30 bg-[#1a1a1a] p-6">
                 <div class="mb-1 flex items-center justify-between">
                     <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Load Wallet</h3>
@@ -107,7 +123,7 @@
                                     @elseif ($option['type'] === 'gift')
                                         🎁
                                     @else
-                                        🪙
+                                        💰
                                     @endif
                                 </span>
                             </span>
@@ -133,6 +149,7 @@
                     @endforeach
                 </div>
             </div>
+            --}}
         </div>
 
         {{-- Right panel: Transaction History --}}

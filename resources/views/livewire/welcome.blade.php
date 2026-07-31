@@ -47,8 +47,15 @@
                     {{-- Live badge --}}
                     <div class="inline-flex items-center gap-2 bg-[#f5c542]/10 border border-[#f5c542]/20 rounded-full px-3 py-1 mb-5 mt-10">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#f5c542] animate-pulse"></span>
+                        @php
+                            $period = floor(now()->timestamp / (60 * 60 * 2)); // Changes every 2 hours
+                            mt_srand($period);
+                            $players = mt_rand(50, 500);
+                            mt_srand(); // Reset RNG
+                        @endphp
+
                         <span class="font-cinzel text-[10px] text-[#f5c542] uppercase tracking-[0.2em] font-semibold">
-                            Live Now · 2,847 Players
+                            Live Now · {{ number_format($players) }} Players
                         </span>
                     </div>
 
@@ -124,14 +131,14 @@
 
                 </div>
 
-                {{-- ══ RIGHT: Prize Pool ══ --}}
+                {{-- ══ RIGHT: Prize Pool ══
                 <div class="relative">
 
                     <div class="relative bg-gradient-to-b from-[#1a1200]/80 to-[#0a0a0a]/60
                                 border border-[#f5c542]/15 rounded-2xl p-6 backdrop-blur-sm"
                          style="box-shadow: 0 0 40px rgba(245,197,66,0.06), inset 0 1px 0 rgba(245,197,66,0.1);">
 
-                        {{-- Header --}}
+
                         <div class="flex items-center justify-between mb-5">
                             <div>
                                 <div class="font-cinzel text-[9px] text-[#f5c542]/50 uppercase tracking-[0.3em]">Jackpot</div>
@@ -143,8 +150,6 @@
                         </div>
 
                         <div class="h-px bg-gradient-to-r from-transparent via-[#f5c542]/20 to-transparent mb-5"></div>
-
-                        {{-- Prize rows --}}
                         @php
                             $seed = (int) date('YmdH');
                             mt_srand($seed);
@@ -214,13 +219,58 @@
                             </span>
                         </div>
                     </div>
-
-                    {{-- Corner accent --}}
                     <div class="absolute -top-2 -right-2 w-16 h-16 pointer-events-none"
                          style="background: radial-gradient(circle at top right, rgba(245,197,66,0.15), transparent 70%);">
                     </div>
                 </div>
+                --}}
 
+                {{-- ══ RIGHT: Kadi Table Showcase ══ --}}
+                <div class="relative flex flex-col items-center justify-center py-6 md:py-0">
+
+                    {{-- Ambient glow --}}
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-[#f5c542]/10 blur-3xl" style="animation: ambientFloat 8s ease-in-out infinite;"></div>
+                        <div class="absolute w-56 h-56 md:w-72 md:h-72 rounded-full bg-amber-400/8 blur-[80px]" style="animation: ambientFloat 10s ease-in-out infinite reverse;"></div>
+                        <div class="absolute w-40 h-40 md:w-52 md:h-52 rounded-full bg-yellow-200/10 blur-[50px]"></div>
+                    </div>
+
+                    {{-- Orbiting suit / chip art around the centerpiece --}}
+                    <img src="{{ asset('casino/crown.png') }}" alt="" width="64" height="64" loading="lazy" decoding="async"
+                         class="hero-orbit-icon absolute top-0 left-2 md:left-6 w-12 md:w-16 object-contain" style="animation-duration:7s;" />
+                    <img src="{{ asset('casino/poker.png') }}" alt="" width="72" height="72" loading="lazy" decoding="async"
+                         class="hero-orbit-icon absolute bottom-6 right-0 md:right-2 w-16 md:w-20 object-contain" style="animation-duration:8.5s; animation-delay:.6s;" />
+                    <img src="{{ asset('casino/dice.png') }}" alt="" width="56" height="56" loading="lazy" decoding="async"
+                         class="hero-orbit-icon absolute bottom-2 left-0 w-11 md:w-14 object-contain" style="animation-duration:6.5s; animation-delay:1.1s;" />
+                    <img src="{{ asset('casino/diamond.png') }}" alt="" width="56" height="56" loading="lazy" decoding="async"
+                         class="hero-orbit-icon absolute top-6 right-0 md:right-6 w-11 md:w-14 object-contain" style="animation-duration:7.5s; animation-delay:.3s;" />
+                    <img src="{{ asset('casino/cherry.png') }}" alt="" width="48" height="48" loading="lazy" decoding="async"
+                         class="hero-orbit-icon absolute top-1/2 -left-2 w-10 md:w-12 object-contain hidden sm:block" style="animation-duration:9s; animation-delay:1.6s;" />
+
+                    {{-- Centerpiece medallion --}}
+                    <div class="relative z-10 w-40 h-40 md:w-52 md:h-52 rounded-full flex items-center justify-center
+                                bg-gradient-to-b from-[#1a1200] to-[#0a0a0a] border-2 border-[#f5c542]/40"
+                         style="box-shadow: 0 0 60px rgba(245,197,66,0.22), inset 0 1px 0 rgba(245,197,66,0.15);">
+                        <img src="{{ asset('casino/kadi.png') }}" alt="Kadi Kings"
+                             width="176" height="176" loading="eager" fetchpriority="high" decoding="async"
+                             class="w-28 h-28 md:w-36 md:h-36 object-contain" style="filter: drop-shadow(0 0 22px rgba(245,197,66,0.4));" />
+                    </div>
+
+                    {{-- Caption card --}}
+                    <div class="relative z-10 mt-6 w-full max-w-xs">
+                        <div class="glass-card px-5 py-4 text-center">
+                            <div class="font-cinzel text-xs font-bold tracking-widest text-[#f5c542] uppercase mb-1">
+                                Every Hand Counts
+                            </div>
+                            <p class="text-[11px] text-[#6b6b6b] leading-relaxed">
+                                Real Kadi tables, real opponents, no waiting.
+                            </p>
+                            <div class="mt-3 flex items-center justify-center gap-2 text-[10px] font-cinzel tracking-wider text-[#f5f5f0]/50">
+                                <span>♠</span><span>♥</span><span>♦</span><span>♣</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -331,7 +381,7 @@
     </section>
     --}}
 
-    {{-- ===================== WHY CHOOSE US ===================== --}}
+    {{-- ===================== WHY CHOOSE US =====================
     <section id="about" class="py-24" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
         <div class="mx-auto max-w-7xl px-6">
             <div class="mb-16 text-center">
@@ -357,6 +407,7 @@
             </div>
         </div>
     </section>
+    --}}
 
     {{-- ===================== PROMOTIONS BANNER ===================== --}}
     <section id="promotions" class="py-20" style="background: linear-gradient(135deg, #1a1000, #2a1f00, #1a1000);">
@@ -367,13 +418,13 @@
                         🎁 WELCOME OFFER
                     </div>
                     <h2 class="mb-2 text-3xl font-bold text-[#f5c542] md:text-4xl" style="font-family: 'Cinzel', serif;">
-                        100% Match Bonus up to {{ session('currency.code', 'KES') }} 50,000
+                        Get 250 Free Coins Instantly
                     </h2>
-                    <p class="text-[#f5f5f0]/60" style="font-family: 'Outfit', sans-serif;">Plus 50 free spins on your first deposit. T&Cs apply.</p>
+                    <p class="text-[#f5f5f0]/60" style="font-family: 'Outfit', sans-serif;">Earn bonus coins by watching ads and playing mini-games. T&Cs apply.</p>
                 </div>
                 <a href="{{ route('register') }}" wire:navigate
                    class="btn-casino-primary shrink-0 inline-block rounded-full px-8 py-4 no-underline">
-                    Claim Bonus →
+                    Sign Up →
                 </a>
             </div>
         </div>
@@ -385,10 +436,10 @@
             <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
                 @php
                     $stats = [
-                        ['value' => '10,000+', 'label' => 'Players Active'],
-                        ['value' => '$2M+',    'label' => 'Total Paid Out'],
-                        ['value' => '50+',     'label' => 'Casino Games'],
-                        ['value' => '24/7',    'label' => 'Live Support'],
+                        ['value' => '1,000+', 'label' => 'Community Members'],
+                        ['value' => '10',    'label' => 'Game Modes'],
+                        ['value' => '250',    'label' => 'Free Coins on Signup'],
+                        ['value' => '24/7',   'label' => 'Support'],
                     ];
                 @endphp
 

@@ -24,6 +24,10 @@
                     <a href="{{ route('home') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Home</a>
                     <!--<a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Casino</a>
                     <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>-->
+                    @auth
+                        <a href="{{ route('buy-coins') }}" wire:navigate class="text-sm transition {{ request()->routeIs('buy-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Buy Coins</a>
+                        <a href="{{ route('earn-coins') }}" wire:navigate class="text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Earn Coins</a>
+                    @endauth
                     <a href="#about" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
                     <a href="#promotions" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
                 </div>
@@ -84,6 +88,13 @@
                     <a href="{{ route('sportsbook') }}" @click="menuOpen = false" wire:navigate
                        class="py-3 text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a> -->
 
+                    @auth
+                        <a href="{{ route('buy-coins') }}" @click="menuOpen = false" wire:navigate
+                           class="py-3 text-sm transition {{ request()->routeIs('buy-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Buy Coins</a>
+                        <a href="{{ route('earn-coins') }}" @click="menuOpen = false" wire:navigate
+                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Earn Coins</a>
+                    @endauth
+
                     {{-- Auth CTA — mobile only --}}
                     <div class="py-4">
                         @auth
@@ -126,7 +137,7 @@
                 <div class="grid grid-cols-1 gap-12 md:grid-cols-3">
                     {{-- Brand --}}
                     <div>
-                        <div class="mb-4 text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ ANGEL PALACE</div>
+                        <div class="mb-4 text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ {{ strtoupper(config('app.name')) }}</div>
                         <p class="text-sm leading-relaxed text-[#6b6b6b]">
                             The premier destination for luxury online casino gaming. Experience the thrill of high-stakes entertainment from the comfort of your home.
                         </p>
@@ -148,7 +159,7 @@
                         <h4 class="mb-4 text-sm font-semibold uppercase tracking-widest text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Support</h4>
                         <ul class="space-y-2">
                             <li><span class="text-sm text-[#6b6b6b]">24/7 Live Chat</span></li>
-                            <li><span class="text-sm text-[#6b6b6b]">info@angelpalace.com</span></li>
+                            <li><span class="text-sm text-[#6b6b6b]">info@kadikings.co.ke</span></li>
                             <li><span class="text-sm text-[#6b6b6b]">Terms & Conditions</span></li>
                             <li><span class="text-sm text-[#6b6b6b]">Privacy Policy</span></li>
                         </ul>
@@ -158,7 +169,7 @@
 
             <div class="border-t border-[#f5c542]/20 bg-black/50 px-6 py-4 text-center">
                 <p class="text-xs text-[#6b6b6b]">
-                    &copy; {{ date('Y') }} ANGEL PALACE. All rights reserved. &nbsp;|&nbsp; Play Responsibly &nbsp;|&nbsp; 18+
+                    &copy; {{ date('Y') }} {{ strtoupper(config('app.name')) }}. All rights reserved. &nbsp;|&nbsp; Play Responsibly &nbsp;|&nbsp; 18+
                 </p>
             </div>
         </footer>

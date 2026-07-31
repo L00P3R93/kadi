@@ -13,6 +13,9 @@
                 toggle() {
                     this.expanded = !this.expanded;
                     localStorage.setItem('sidebar_expanded', JSON.stringify(this.expanded));
+                },
+                showLabels() {
+                    return this.expanded || window.innerWidth < 1024;
                 }
             }"
         >
@@ -33,9 +36,11 @@
 
             {{-- Sidebar --}}
             <aside
+                x-cloak
                 :class="{
                     'translate-x-0': sidebarOpen,
                     '-translate-x-full': !sidebarOpen,
+                    'w-64': true,
                     'lg:w-56': expanded,
                     'lg:w-16': !expanded
                 }"
@@ -43,14 +48,16 @@
             >
                 {{-- Logo --}}
                 <div class="flex h-16 items-center border-b border-yellow-800/20 overflow-hidden flex-shrink-0"
-                     :class="expanded ? 'px-6 justify-start' : 'px-0 justify-center'">
+                     :class="showLabels() ? 'px-6 justify-start' : 'px-0 justify-center'">
                     <a href="{{ route('home') }}"
                        class="text-lg tracking-widest text-[#f5c542] flex-shrink-0"
                        style="font-family: 'Cinzel', serif;"
                        wire:navigate>
-                        <span x-show="expanded" x-transition:enter="transition-opacity duration-200"
-                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                              class="whitespace-nowrap">♠ {{ strtoupper(config('app.name')) }}</span>
+                        <span
+                            x-show="showLabels()"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                            class="whitespace-nowrap">♠ {{ strtoupper(config('app.name')) }}</span>
                         <span x-show="!expanded">♠</span>
                     </a>
                 </div>
@@ -60,7 +67,7 @@
 
                     {{-- Dashboard --}}
                     <a href="{{ route('dashboard') }}" wire:navigate
-                       :class="expanded ? 'justify-start' : 'justify-center px-0'"
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
                        :title="!expanded ? 'Dashboard' : ''"
                        @class([
                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
@@ -70,13 +77,15 @@
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
-                        <span x-show="expanded" x-transition:enter="transition-opacity duration-200"
-                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                              class="text-sm font-medium whitespace-nowrap">Dashboard</span>
+                        <span
+                            x-show="showLabels()"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                            class="text-sm font-medium whitespace-nowrap">Dashboard</span>
                     </a>
 
-                    {{-- Games --}}
-                    <!--<a href="{{ route('games') }}" wire:navigate
+                    {{-- Games
+                    <a href="{{ route('games') }}" wire:navigate
                        :class="expanded ? 'justify-start' : 'justify-center px-0'"
                        :title="!expanded ? 'Casino' : ''"
                        @class([
@@ -91,8 +100,8 @@
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               class="text-sm font-medium whitespace-nowrap">Games</span>
                     </a>
-
-                    {{-- Sportsbook --}}
+                    --}}
+                    {{-- Sportsbook
                     <a href="{{ route('dashboard.sportsbook') }}" wire:navigate
                        :class="expanded ? 'justify-start' : 'justify-center px-0'"
                        :title="!expanded ? 'Sportsbook' : ''"
@@ -107,11 +116,12 @@
                         <span x-show="expanded" x-transition:enter="transition-opacity duration-200"
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               class="text-sm font-medium whitespace-nowrap">Sportsbook</span>
-                    </a> -->
+                    </a>
+                    --}}
 
                     {{-- Profile --}}
                     <a href="{{ route('profile') }}" wire:navigate
-                       :class="expanded ? 'justify-start' : 'justify-center px-0'"
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
                        :title="!expanded ? 'Profile' : ''"
                        @class([
                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
@@ -121,26 +131,71 @@
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <span x-show="expanded" x-transition:enter="transition-opacity duration-200"
-                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                              class="text-sm font-medium whitespace-nowrap">Profile</span>
+                        <span
+                            x-show="showLabels()"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="text-sm font-medium whitespace-nowrap">Profile</span>
                     </a>
 
-                    {{-- Wallet --}}
+                    {{-- Vault --}}
                     <a href="{{ route('wallet') }}" wire:navigate
-                       :class="expanded ? 'justify-start' : 'justify-center px-0'"
-                       :title="!expanded ? 'Wallet' : ''"
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                       :title="!expanded ? 'Vault' : ''"
                        @class([
                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
                            'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('wallet'),
                            'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('wallet'),
                        ])>
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M6 9a6 6 0 1112 0v5a4 4 0 01-4 4H9a4 4 0 01-4-4V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M10 6h4"/>
+                            <circle cx="12" cy="12" r="2.5"/>
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M12 10.5v3M10.5 12H13.5"/>
                         </svg>
-                        <span x-show="expanded" x-transition:enter="transition-opacity duration-200"
+                        <span x-show="showLabels()" x-transition:enter="transition-opacity duration-200"
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                              class="text-sm font-medium whitespace-nowrap">Wallet</span>
+                              class="text-sm font-medium whitespace-nowrap">Vault</span>
+                    </a>
+
+                    {{-- Buy Coins --}}
+                    <a href="{{ route('buy-coins') }}" wire:navigate
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                       :title="!expanded ? 'Buy Coins' : ''"
+                        @class([
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                            'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('buy-coins'),
+                            'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('buy-coins'),
+                        ])>
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="8"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8M8 12h8"/>
+                        </svg>
+                        <span x-show="showLabels()" x-transition:enter="transition-opacity duration-200"
+                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                              class="text-sm font-medium whitespace-nowrap">Buy Coins</span>
+                    </a>
+
+                    {{-- Earn Coins --}}
+                    <a href="{{ route('earn-coins') }}" wire:navigate
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                       :title="!expanded ? 'Earn Coins' : ''"
+                        @class([
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                            'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('earn-coins'),
+                            'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('earn-coins'),
+                        ])>
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M4 9h16M5 9v10a2 2 0 002 2h10a2 2 0 002-2V9"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 9C7 9 6 8 6 6.8 6 5.6 7 5 8.2 5c2 0 3.8 4 3.8 4M15.5 9c1.5 0 2.5-1 2.5-2.2C18 5.6 17 5 15.8 5c-2 0-3.8 4-3.8 4"/>
+                        </svg>
+                        <span x-show="showLabels()" x-transition:enter="transition-opacity duration-200"
+                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                              class="text-sm font-medium whitespace-nowrap">Earn Coins</span>
                     </a>
 
                     {{-- Logout --}}
@@ -148,13 +203,13 @@
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit"
-                                    :class="expanded ? 'justify-start' : 'justify-center px-0'"
+                                    :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
                                     :title="!expanded ? 'Logout' : ''"
                                     class="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 transition hover:bg-red-500/5 hover:text-red-400 border-l-2 border-transparent">
                                 <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                 </svg>
-                                <span x-show="expanded" x-transition:enter="transition-opacity duration-200"
+                                <span x-show="showLabels()" x-transition:enter="transition-opacity duration-200"
                                       x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                                       class="text-sm font-medium whitespace-nowrap">Logout</span>
                             </button>
