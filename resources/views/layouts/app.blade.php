@@ -65,6 +65,13 @@
                 {{-- Navigation --}}
                 <nav class="flex flex-1 flex-col gap-1 p-2 overflow-y-auto">
 
+                    {{-- ================= MAIN ================= --}}
+                    <div
+                        x-show="showLabels()"
+                        class="px-3 pt-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+                    >
+                        Main
+                    </div>
                     {{-- Dashboard --}}
                     <a href="{{ route('dashboard') }}" wire:navigate
                        :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
@@ -84,6 +91,17 @@
                             class="text-sm font-medium whitespace-nowrap">Dashboard</span>
                     </a>
 
+                    {{-- Divider
+                    <div class="my-4 border-t border-yellow-800/20"></div>
+                    --}}
+                    {{-- ================= GAMING =================
+                    <div
+                        x-show="showLabels()"
+                        class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+                    >
+                        Gaming
+                    </div>
+                    --}}
                     {{-- Games
                     <a href="{{ route('games') }}" wire:navigate
                        :class="expanded ? 'justify-start' : 'justify-center px-0'"
@@ -119,26 +137,15 @@
                     </a>
                     --}}
 
-                    {{-- Profile --}}
-                    <a href="{{ route('profile') }}" wire:navigate
-                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
-                       :title="!expanded ? 'Profile' : ''"
-                       @class([
-                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
-                           'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('profile'),
-                           'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('profile'),
-                       ])>
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        <span
-                            x-show="showLabels()"
-                            x-transition:enter="transition-opacity duration-200"
-                            x-transition:enter-start="opacity-0"
-                            x-transition:enter-end="opacity-100"
-                            class="text-sm font-medium whitespace-nowrap">Profile</span>
-                    </a>
-
+                    {{-- Divider --}}
+                    <div class="my-4 border-t border-yellow-800/20"></div>
+                    {{-- ================= WALLET ================= --}}
+                    <div
+                        x-show="showLabels()"
+                        class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+                    >
+                        Wallet
+                    </div>
                     {{-- Vault --}}
                     <a href="{{ route('wallet') }}" wire:navigate
                        :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
@@ -161,7 +168,6 @@
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               class="text-sm font-medium whitespace-nowrap">Vault</span>
                     </a>
-
                     {{-- Buy Coins --}}
                     <a href="{{ route('buy-coins') }}" wire:navigate
                        :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
@@ -179,7 +185,6 @@
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               class="text-sm font-medium whitespace-nowrap">Buy Coins</span>
                     </a>
-
                     {{-- Earn Coins --}}
                     <a href="{{ route('earn-coins') }}" wire:navigate
                        :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
@@ -196,6 +201,161 @@
                         <span x-show="showLabels()" x-transition:enter="transition-opacity duration-200"
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               class="text-sm font-medium whitespace-nowrap">Earn Coins</span>
+                    </a>
+
+                    {{-- Divider --}}
+                    <div class="my-4 border-t border-yellow-800/20"></div>
+                    {{-- ================= ACCOUNT ================= --}}
+                    <div
+                        x-show="showLabels()"
+                        class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+                    >
+                        Account
+                    </div>
+                    {{-- Profile --}}
+                    <a href="{{ route('profile') }}" wire:navigate
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                       :title="!expanded ? 'Profile' : ''"
+                        @class([
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                            'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('profile'),
+                            'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('profile'),
+                        ])>
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span
+                            x-show="showLabels()"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="text-sm font-medium whitespace-nowrap">Profile</span>
+                    </a>
+
+                    {{-- Divider --}}
+                    <div class="my-4 border-t border-yellow-800/20"></div>
+                    {{-- ================= ADVERTS ================= --}}
+                    <div
+                        x-show="showLabels()"
+                        class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+                    >
+                        ADVERTS
+                    </div>
+                    @if(auth()->user()->isAdmin())
+                        {{-- Categories --}}
+                        <a href="{{ route('ad-categories') }}" wire:navigate
+                           :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                           :title="!expanded ? 'Categories' : ''"
+                            @class([
+                                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                                'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('ad-categories'),
+                                'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('ad-categories'),
+                            ])>
+                            <svg class="w-5 h-5 flex-shrink-0"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <rect x="4" y="4" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                                <rect x="14" y="4" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                                <rect x="4" y="14" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                                <rect x="14" y="14" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                            </svg>
+                            <span
+                                x-show="showLabels()"
+                                x-transition:enter="transition-opacity duration-200"
+                                x-transition:enter-start="opacity-0"
+                                x-transition:enter-end="opacity-100"
+                                class="text-sm font-medium whitespace-nowrap">Categories</span>
+                        </a>
+                        {{-- Pricing Tiers --}}
+                        <a href="{{ route('pricing-tiers') }}" wire:navigate
+                           :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                           :title="!expanded ? 'Pricing Tiers' : ''"
+                            @class([
+                                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                                'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('pricing-tiers'),
+                                'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('pricing-tiers'),
+                            ])>
+                            <svg class="w-5 h-5 flex-shrink-0"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <path stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      d="M5 18h4M5 12h8M5 6h14"/>
+                            </svg>
+                            <span
+                                x-show="showLabels()"
+                                x-transition:enter="transition-opacity duration-200"
+                                x-transition:enter-start="opacity-0"
+                                x-transition:enter-end="opacity-100"
+                                class="text-sm font-medium whitespace-nowrap">Pricing Tiers</span>
+                        </a>
+                    @endif
+
+                    {{-- Campaings --}}
+                    <a href="{{ route('ad-campaigns') }}" wire:navigate
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                       :title="!expanded ? 'Campaigns' : ''"
+                        @class([
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                            'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('ad-campaigns'),
+                            'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('ad-campaigns'),
+                        ])>
+                        <svg class="w-5 h-5 flex-shrink-0"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M4 11v2a2 2 0 002 2h2l3 4h2l-1.5-4H15l5 3V6l-5 3H6a2 2 0 00-2 2z"/>
+                        </svg>
+                        <span
+                            x-show="showLabels()"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="text-sm font-medium whitespace-nowrap">Campaigns</span>
+                    </a>
+                    {{-- Ad Wallet --}}
+                    <a href="{{ route('ad-wallet') }}" wire:navigate
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                       :title="!expanded ? 'Ad Vault' : ''"
+                        @class([
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                            'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('ad-wallet'),
+                            'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('ad-wallet'),
+                        ])>
+                        <svg class="w-5 h-5 flex-shrink-0"
+                             fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor"
+                             stroke-width="2">
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M4 7a2 2 0 012-2h10a2 2 0 012 2v1H6a2 2 0 000 4h12v5a2 2 0 01-2 2H6a2 2 0 01-2-2V7z"/>
+                            <path stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M18 9h2v4h-2"/>
+                            <circle cx="10" cy="14" r="2"/>
+                        </svg>
+                        <span
+                            x-show="showLabels()"
+                            x-transition:enter="transition-opacity duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            class="text-sm font-medium whitespace-nowrap">Ad Vault</span>
                     </a>
 
                     {{-- Logout --}}

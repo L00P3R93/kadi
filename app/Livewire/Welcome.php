@@ -39,7 +39,7 @@ class Welcome extends Component
 
         $googleId = $profile['google_id'] ?? null;
 
-        $this->playKadiUrl = 'https://play.kadikings.co.ke'
+        $this->playKadiUrl = 'https://kadi-kings.co.ke'
             . ($googleId ? '?ggid=' . $googleId : '');
     }
 

@@ -44,7 +44,7 @@ class Dashboard extends Component
 
         $kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
         $googleId = $kadiCustomer['google_id'] ?? null;
-        $playKadiUrl = 'https://play.kadikings.co.ke'.($googleId ? '?ggid='.$googleId : '');
+        $playKadiUrl = 'https://kadi-kings.co.ke'.($googleId ? '?ggid='.$googleId : '');
 
         return view('livewire.dashboard', compact('recentTransactions', 'playKadiUrl') + [
             'liveTables' => 24,

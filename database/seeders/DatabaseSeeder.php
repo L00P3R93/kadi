@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +14,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        Storage::deleteDirectory('public');
+        $this->call(RoleSeeder::class);
+        $this->call(AdCategorySeeder::class);
+        $this->call(AdPricingTierSeeder::class);
+        $this->call(VerifiedUserSeeder::class);
     }
 }

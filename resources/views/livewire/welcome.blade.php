@@ -422,10 +422,18 @@
                     </h2>
                     <p class="text-[#f5f5f0]/60" style="font-family: 'Outfit', sans-serif;">Earn bonus coins by watching ads and playing mini-games. T&Cs apply.</p>
                 </div>
-                <a href="{{ route('register') }}" wire:navigate
-                   class="btn-casino-primary shrink-0 inline-block rounded-full px-8 py-4 no-underline">
-                    Sign Up →
-                </a>
+                @auth
+                    <a href="{{ $playKadiUrl }}" wire:navigate
+                       class="btn-casino-primary shrink-0 inline-block rounded-full px-8 py-4 no-underline">
+                        Play Kadi →
+                    </a>
+                @else
+                    <a href="{{ route('register') }}" wire:navigate
+                       class="btn-casino-primary shrink-0 inline-block rounded-full px-8 py-4 no-underline">
+                        Sign Up →
+                    </a>
+                @endauth
+
             </div>
         </div>
     </section>

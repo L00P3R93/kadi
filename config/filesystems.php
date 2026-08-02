@@ -60,6 +60,14 @@ return [
             'report' => false,
         ],
 
+        'media' => [
+            'driver' => 'local',
+            'root' => public_path('media'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/media',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
     ],
 
     /*

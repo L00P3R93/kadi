@@ -4,8 +4,6 @@ namespace App\Livewire\Wallet;
 
 use App\Facades\KadiApi;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -33,7 +31,9 @@ class Index extends Component
      * Flipping any of these to true will restore Casino UI
      */
     public bool $depositWithdrawEnabled = false;
+
     public bool $coinsWalletCardEnabled = false;
+
     public bool $withdrawalsTabEnabled = false;
 
     /*
@@ -66,7 +66,9 @@ class Index extends Component
     ];
 
     public ?int $selectedPurchaseIndex = null;
+
     public bool $processingPurchase = false;
+
     public ?string $purchaseError = null;
 
     public ?float $balance = null;
@@ -74,7 +76,7 @@ class Index extends Component
     public function mount(): void
     {
         $this->kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
-        $this->balance = (float) $this->kadiCustomer['balance'] ?? 0;
+        $this->balance = (float) ($this->kadiCustomer['balance'] ?? 0);
         $this->loadTransactions();
     }
 
@@ -130,6 +132,7 @@ class Index extends Component
         if ($cached) {
             $this->kadiCustomer = $cached;
             $this->balance = (float) $cached['balance'] ?? 0;
+
             return;
         }
 
@@ -138,7 +141,7 @@ class Index extends Component
             $data = $response['data'] ?? $response;
             Cache::put('kadi.customer.'.auth()->id(), $data, now()->addHour());
             $this->kadiCustomer = $data;
-            $this->balance = (float) $data['balance'] ?? 0;
+            $this->balance = (float) ($data['balance'] ?? 0);
         } catch (\Throwable $e) {
             $this->kadiCustomer = [];
         }
@@ -161,6 +164,7 @@ class Index extends Component
 
         if (! $option) {
             $this->purchaseError = 'Invalid purchase option';
+
             return;
         }
 
@@ -168,6 +172,7 @@ class Index extends Component
 
         if (! $phone) {
             $this->purchaseError = 'Please add your phone number to complete this purchase';
+
             return;
         }
 
@@ -217,7 +222,6 @@ class Index extends Component
         $this->processingPurchase = is_null($response);
         $this->purchaseError = $response ? null : 'Error processing purchase';
     }
-
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View
     {

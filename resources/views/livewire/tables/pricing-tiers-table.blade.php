@@ -1,0 +1,11 @@
+<div>
+    <livewire:livewire-datatable
+        :model="$model"
+        :columns="$columns"
+        :searchable="$searchable"
+        :unsortable="$unsortable"
+        :custom-columns="$customColumns"
+        default-sort-field="duration_seconds"
+        default-sort-direction="asc"
+    />
+</div>

@@ -11,10 +11,6 @@
 
         {{-- ═══ Header ═══ --}}
         <div class="mb-10 text-center">
-            <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-[#f5c542]/25 bg-[#f5c542]/10 px-3 py-1">
-                <span class="mpesa-dot"></span>
-                <span class="font-cinzel text-[10px] uppercase tracking-[0.2em] text-[#f5c542]">Instant M-Pesa Top-Up</span>
-            </div>
             <h1 class="font-cinzel text-3xl font-bold text-[#f5f5f0] md:text-4xl">Load Your Vault</h1>
             <p class="mx-auto mt-2 max-w-md text-sm text-[#6b6b6b]">
                 Top up coins or grab a perk pack — tap a pack and confirm the STK push on your phone.

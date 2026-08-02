@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Faker\Providers\KenyaProvider;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +18,12 @@ class UserFactory extends Factory
      */
     protected static ?string $password;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->faker->addProvider(new KenyaProvider($this->faker));
+    }
+
     /**
      * Define the model's default state.
      *
@@ -25,6 +32,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+            'account_no' => 'KK-'.strtoupper(uniqid()),
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),

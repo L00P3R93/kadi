@@ -4,6 +4,11 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\GoogleLinkController;
 use App\Http\Controllers\KadiGameController;
 use App\Http\Controllers\ProfilePictureController;
+use App\Livewire\Ads\Adverts;
+use App\Livewire\Ads\Campaigns;
+use App\Livewire\Ads\Categories;
+use App\Livewire\Ads\PricingTiers;
+use App\Livewire\Ads\Wallets;
 use App\Livewire\Coins\BuyCoins;
 use App\Livewire\Coins\EarnCoins;
 use App\Livewire\Dashboard;
@@ -94,7 +99,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/wallet', Index::class)->name('wallet');
     Route::get('/buy-coins', BuyCoins::class)->name('buy-coins');
     Route::get('/earn-coins', EarnCoins::class)->name('earn-coins');
-    Route::get('/admin/sportsbook', fn () => view('admin.sportsbook'))->name('admin.sportsbook');
+    Route::get('/admin/sportsbook', fn () => view('admin.sportsbook'))
+        ->middleware('permission:manage sportsbook admin')
+        ->name('admin.sportsbook');
+    Route::get('/ad-categories', Categories::class)
+        ->middleware('permission:manage ad categories')
+        ->name('ad-categories');
+    Route::get('/pricing-tiers', PricingTiers::class)
+        ->middleware('permission:manage ad categories')
+        ->name('pricing-tiers');
+    Route::get('/ad-campaigns', Campaigns::class)
+        ->name('ad-campaigns');
+    Route::get('/ad-wallet', Wallets::class)
+        ->name('ad-wallet');
+
+    Route::get('/campaigns/{campaign}/ads', Adverts::class)->name('campaigns.ads');
     Route::get('/kadi', KadiGameController::class)->name('kadi');
 });
 
