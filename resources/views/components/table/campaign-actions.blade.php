@@ -1,7 +1,11 @@
 @php
-    // $item = the AdCategory model ($value is unused here — there's no 'actions' db column)
+    // $item = the AdCampaign model
 @endphp
-<div class="text-right">
+<div class="flex items-center justify-end gap-2">
+    <a href="{{ route('campaigns.show', $item->id) }}" wire:navigate
+       class="rounded-lg border border-[#f5c542]/20 px-3 py-1.5 text-[11px] font-semibold text-[#f5f5f0]/70 transition hover:border-[#f5c542]/50 hover:text-[#f5c542]">
+        View
+    </a>
     <button
         type="button"
         wire:click="$dispatch('campaign-edit', { id: {{ $item->id }} })"

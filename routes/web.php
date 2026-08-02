@@ -8,6 +8,7 @@ use App\Livewire\Ads\Adverts;
 use App\Livewire\Ads\Campaigns;
 use App\Livewire\Ads\Categories;
 use App\Livewire\Ads\PricingTiers;
+use App\Livewire\Ads\ShowCampaign;
 use App\Livewire\Ads\Wallets;
 use App\Livewire\Coins\BuyCoins;
 use App\Livewire\Coins\EarnCoins;
@@ -113,6 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ad-wallet', Wallets::class)
         ->name('ad-wallet');
 
+    Route::get('/campaigns/{campaign}', ShowCampaign::class)->name('campaigns.show');
     Route::get('/campaigns/{campaign}/ads', Adverts::class)->name('campaigns.ads');
     Route::get('/kadi', KadiGameController::class)->name('kadi');
 });

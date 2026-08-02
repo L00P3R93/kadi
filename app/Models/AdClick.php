@@ -23,6 +23,14 @@ class AdClick extends Model
     /** @use HasFactory<AdClickFactory> */
     use HasFactory, LogsActivity, SoftDeletes;
 
+    protected function casts(): array
+    {
+        return [
+            'charge_amount' => 'decimal:2',
+            'clicked_at' => 'datetime',
+        ];
+    }
+
     public function adView(): BelongsTo
     {
         return $this->belongsTo(AdView::class);

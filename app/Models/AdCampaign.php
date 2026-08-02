@@ -6,6 +6,7 @@ use App\Enums\CampaignStatus;
 use Database\Factories\AdCampaignFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,8 +38,9 @@ class AdCampaign extends Model
         ];
     }
 
-    public function scopeUserCampaign($query, User $user)
+    public function scopeUserCampaign(Builder $query)
     {
+        $user = auth()->user();
         return $user->isAdmin() ? $query : $query->where('ad_profile_id', $user->adProfile->id);
     }
 

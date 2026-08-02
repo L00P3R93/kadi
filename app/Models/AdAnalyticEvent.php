@@ -23,6 +23,14 @@ class AdAnalyticEvent extends Model
     /** @use HasFactory<AdAnalyticEventFactory> */
     use HasFactory, LogsActivity, SoftDeletes;
 
+    protected function casts(): array
+    {
+        return [
+            'event_data' => 'array',
+            'occurred_at' => 'datetime'
+        ];
+    }
+
     public function ad(): BelongsTo
     {
         return $this->belongsTo(Ad::class);

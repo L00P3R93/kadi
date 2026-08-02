@@ -1,105 +1,92 @@
-<div class="min-h-screen bg-[#0a0a0a] pt-14 pb-20">
+<div>
 
-    {{-- Ambient background glow --}}
-    <div class="pointer-events-none fixed inset-x-0 top-0 h-[420px] -z-0"
-         style="background: radial-gradient(60% 60% at 50% 0%, rgba(245,197,66,0.06) 0%, transparent 70%);"></div>
-
-    <div class="relative mx-auto max-w-6xl px-6">
-
-        {{-- ═══ Header ═══ --}}
-        <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-                @php($adsCount = $campaign->ads()->count())
-                <div class="mb-2 inline-flex items-center gap-2 rounded-full border border-[#f5c542]/25 bg-[#f5c542]/10 px-3 py-1">
-                    <span class="h-1.5 w-1.5 rounded-full bg-[#f5c542]"></span>
-                    <span class="font-cinzel text-[10px] uppercase tracking-[0.2em] text-[#f5c542]">{{ $campaign->name }}</span>
-                </div>
-                <h1 class="font-cinzel text-3xl font-bold text-[#f5f5f0]">Ad Creatives</h1>
-                <p class="mt-1 text-sm text-[#6b6b6b]">
-                    {{ $adsCount }} {{ $adsCount === 1 ? 'ad' : 'ads' }}
-                    &middot; {{ $campaign->adCategory->name ?? 'Uncategorized' }}
-                    &middot; KES {{ number_format($campaign->escrowed_budget, 2) }} remaining
-                </p>
-            </div>
-
-            <button type="button" wire:click="openCreateModal" class="btn-casino-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-xs whitespace-nowrap">
-                <span class="text-base leading-none">+</span> New Ad
-            </button>
+    {{-- ═══ Section header ═══ --}}
+    <div class="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+            @php($adsCount = $campaign->ads()->count())
+            <h2 class="font-cinzel text-xl font-bold text-[#f5f5f0]">Ad Creatives</h2>
+            <p class="mt-1 text-sm text-[#6b6b6b]">
+                {{ $adsCount }} {{ $adsCount === 1 ? 'ad' : 'ads' }} in this campaign
+            </p>
         </div>
 
-        {{-- ═══ Success banner ═══ --}}
-        @if ($successMessage)
-            <div class="mb-6 flex items-center gap-2 rounded-lg border border-green-800 bg-green-950/30 p-4 text-xs text-green-400">
-                <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                {{ $successMessage }}
-            </div>
-        @endif
+        <button type="button" wire:click="openCreateModal" class="btn-casino-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-xs whitespace-nowrap">
+            <span class="text-base leading-none">+</span> New Ad
+        </button>
+    </div>
 
-        {{-- ═══ Ad cards ═══ --}}
-        @if ($ads->isEmpty())
-            <div class="glass-card px-6 py-16 text-center">
-                <p class="text-sm text-[#6b6b6b]">No ad creatives yet — add your first one to start serving this campaign.</p>
-            </div>
-        @else
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                @foreach ($ads as $ad)
-                    <div class="ad-card" wire:key="ad-{{ $ad->id }}">
+    {{-- ═══ Success banner ═══ --}}
+    @if ($successMessage)
+        <div class="mb-6 flex items-center gap-2 rounded-lg border border-green-800 bg-green-950/30 p-4 text-xs text-green-400">
+            <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            {{ $successMessage }}
+        </div>
+    @endif
 
-                        @unless ($ad->is_active)
-                            <div class="absolute right-3 top-3 z-10 rounded-full border border-gray-700 bg-black/70 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                                Inactive
-                            </div>
-                        @endunless
+    {{-- ═══ Ad cards ═══ --}}
+    @if ($ads->isEmpty())
+        <div class="glass-card px-6 py-16 text-center">
+            <p class="text-sm text-[#6b6b6b]">No ad creatives yet — add your first one to start serving this campaign.</p>
+        </div>
+    @else
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach($ads as $ad)
+                <div class="ad-card" wire:key="ad-{{ $ad->id }}">
 
-                        <div class="ad-card__thumb-wrap">
-                            @if ($ad->thumbnail_url)
-                                <img src="{{ $ad->thumbnail_url }}" alt="{{ $ad->title }}" class="ad-card__thumb" loading="lazy" decoding="async" />
-                            @else
-                                <span class="text-3xl opacity-30">🎬</span>
-                            @endif
-                            <span class="ad-card__reward-pill">🪙 +{{ $ad->reward_amount }}</span>
-                            <span class="ad-card__duration-pill">{{ $ad->duration_seconds }}s &middot; {{ ucfirst($ad->orientation) }}</span>
+                    @unless ($ad->is_active)
+                        <div class="absolute right-3 top-3 z-10 rounded-full border border-gray-700 bg-black/70 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                            Inactive
+                        </div>
+                    @endunless
+
+                    <div class="ad-card__thumb-wrap">
+                        @if ($ad->thumbnail_url)
+                            <img src="{{ $ad->thumbnail_url }}" alt="{{ $ad->title }}" class="ad-card__thumb" loading="lazy" decoding="async" />
+                        @else
+                            <span class="text-3xl opacity-30">🎬</span>
+                        @endif
+                        <span class="ad-card__reward-pill">🪙 +{{ $ad->reward_amount }}</span>
+                        <span class="ad-card__duration-pill">{{ $ad->duration_seconds }}s &middot; {{ ucfirst($ad->orientation) }}</span>
+                    </div>
+
+                    <div class="ad-card__body">
+                        <div>
+                            <div class="ad-card__sponsor">KES {{ number_format($ad->cost_per_view, 2) }} / view</div>
+                            <div class="ad-card__title">{{ $ad->title }}</div>
                         </div>
 
-                        <div class="ad-card__body">
-                            <div>
-                                <div class="ad-card__sponsor">KES {{ number_format($ad->cost_per_view, 2) }} / view</div>
-                                <div class="ad-card__title">{{ $ad->title }}</div>
-                            </div>
+                        <div class="mt-auto flex items-center justify-between pt-2">
+                            <label class="relative inline-flex cursor-pointer items-center">
+                                <input type="checkbox" wire:click="$dispatch('ad-toggle-active', { id: {{ $ad->id }} })" @checked($ad->is_active) class="peer sr-only">
+                                <div class="h-5 w-9 rounded-full bg-gray-700 transition-colors peer-checked:bg-[#f5c542]"></div>
+                                <div class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></div>
+                            </label>
 
-                            <div class="mt-auto flex items-center justify-between pt-2">
-                                <label class="relative inline-flex cursor-pointer items-center">
-                                    <input type="checkbox" wire:click="$dispatch('ad-toggle-active', { id: {{ $ad->id }} })" @checked($ad->is_active) class="peer sr-only">
-                                    <div class="h-5 w-9 rounded-full bg-gray-700 transition-colors peer-checked:bg-[#f5c542]"></div>
-                                    <div class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></div>
-                                </label>
-
-                                <button type="button" wire:click="$dispatch('ad-edit', { id: {{ $ad->id }} })"
-                                        class="rounded-lg border border-[#f5c542]/20 px-3 py-1.5 text-[11px] font-semibold text-[#f5f5f0]/70 transition hover:border-[#f5c542]/50 hover:text-[#f5c542]">
-                                    Edit
-                                </button>
-                            </div>
+                            <button type="button" wire:click="$dispatch('ad-edit', { id: {{ $ad->id }} })"
+                                    class="rounded-lg border border-[#f5c542]/20 px-3 py-1.5 text-[11px] font-semibold text-[#f5f5f0]/70 transition hover:border-[#f5c542]/50 hover:text-[#f5c542]">
+                                Edit
+                            </button>
                         </div>
                     </div>
-                @endforeach
-            </div>
-
-            {{-- ═══ Pagination ═══ --}}
-            @if ($ads->hasPages())
-                <div class="mt-6 flex items-center justify-center gap-1">
-                    <button type="button" wire:click="previousPage" @disabled($ads->onFirstPage())
-                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#f5c542]/15 text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40 hover:text-[#f5c542] disabled:cursor-not-allowed disabled:opacity-30">
-                        ‹
-                    </button>
-                    <span class="px-3 text-xs text-[#6b6b6b]">Page {{ $ads->currentPage() }} of {{ $ads->lastPage() }}</span>
-                    <button type="button" wire:click="nextPage" @disabled($ads->onLastPage())
-                    class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#f5c542]/15 text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40 hover:text-[#f5c542] disabled:cursor-not-allowed disabled:opacity-30">
-                        ›
-                    </button>
                 </div>
-            @endif
+            @endforeach
+        </div>
+
+        {{-- ═══ Pagination ═══ --}}
+        @if ($ads->hasPages())
+            <div class="mt-6 flex items-center justify-center gap-1">
+                <button type="button" wire:click="previousPage" @disabled($ads->onFirstPage())
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#f5c542]/15 text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40 hover:text-[#f5c542] disabled:cursor-not-allowed disabled:opacity-30">
+                    ‹
+                </button>
+                <span class="px-3 text-xs text-[#6b6b6b]">Page {{ $ads->currentPage() }} of {{ $ads->lastPage() }}</span>
+                <button type="button" wire:click="nextPage" @disabled($ads->onLastPage())
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-[#f5c542]/15 text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40 hover:text-[#f5c542] disabled:cursor-not-allowed disabled:opacity-30">
+                    ›
+                </button>
+            </div>
         @endif
-    </div>
+    @endif
 
     {{-- ═══ Create / Edit modal ═══ --}}
     @if ($showFormModal)
@@ -107,13 +94,13 @@
             x-data
             x-on:keydown.escape.window="$wire.closeModal()"
             wire:click.self="closeModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-3 py-6 sm:px-4 sm:py-8 backdrop-blur-sm"
         >
-            <div class="glass-card relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#f5c542]/30 p-6">
+            <div class="glass-card relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#f5c542]/30 p-4 sm:p-6">
                 <button type="button" wire:click="closeModal"
                         class="absolute right-4 top-4 text-[#6b6b6b] transition hover:text-[#f5c542]">✕</button>
 
-                <h3 class="mb-5 font-cinzel text-lg font-bold text-[#f5f5f0]">
+                <h3 class="mb-5 pr-6 font-cinzel text-lg font-bold text-[#f5f5f0]">
                     {{ $editingId ? 'Edit Ad' : 'New Ad' }}
                 </h3>
 
@@ -143,7 +130,7 @@
                         @error('reward_message') <p class="mt-1 text-[11px] text-red-400">{{ $message }}</p> @enderror
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label class="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#6b6b6b]">Reward Amount</label>
                             <input type="number" step="1" min="1" wire:model="reward_amount"
@@ -239,7 +226,7 @@
                     </div>
 
                     {{-- CTA --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label class="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#6b6b6b]">CTA Text</label>
                             <input type="text" wire:model="cta_text" placeholder="Install Now"
@@ -262,7 +249,7 @@
                     </div>
 
                     {{-- Duration + orientation --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label class="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#6b6b6b]">Duration</label>
                             <select wire:model.live="duration_seconds"

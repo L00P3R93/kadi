@@ -25,6 +25,19 @@ class AdView extends Model
     /** @use HasFactory<AdViewFactory> */
     use HasFactory, LogsActivity, SoftDeletes;
 
+    protected function casts(): array
+    {
+        return [
+            'watched_percentage' => 'decimal:2',
+            'reward_granted' => 'boolean',
+            'reward_amount' => 'integer',
+            'reward_credited_to_game_wallet' => 'boolean',
+            'charge_amount' => 'decimal:2',
+            'started_at' => 'datetime',
+            'completed_at' => 'datetime',
+        ];
+    }
+
     public function ad(): BelongsTo
     {
         return $this->belongsTo(Ad::class);

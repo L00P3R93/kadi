@@ -47,13 +47,13 @@
             x-data
             x-on:keydown.escape.window="$wire.closeModal()"
             wire:click.self="closeModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-3 py-6 sm:px-4 backdrop-blur-sm"
         >
-            <div class="glass-card relative w-full max-w-lg rounded-2xl border border-[#f5c542]/30 p-6 max-h-[90vh] overflow-y-auto">
+            <div class="glass-card relative w-full max-w-lg rounded-2xl border border-[#f5c542]/30 p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
                 <button type="button" wire:click="closeModal"
                         class="absolute right-4 top-4 text-[#6b6b6b] transition hover:text-[#f5c542]">✕</button>
 
-                <h3 class="mb-5 font-cinzel text-lg font-bold text-[#f5f5f0]">
+                <h3 class="mb-5 pr-6 font-cinzel text-lg font-bold text-[#f5f5f0]">
                     {{ $editingId ? 'Edit Campaign' : 'New Campaign' }}
                 </h3>
 
@@ -76,7 +76,7 @@
                             @foreach ($adProfiles as $profile)
                                 {{-- NOTE: assuming AdProfile has a company_name column — swap for
                                      whatever field actually identifies the advertiser if not. --}}
-                                <option @selected($profile->user_id === auth()->id()) value="{{ $profile->id }}">{{ $profile->company_name ?? $profile->user->name }}</option>
+                                <option value="{{ $profile->id }}">{{ $profile->company_name ?? ('Advertiser Profile #'.$profile->id) }}</option>
                             @endforeach
                         </select>
                         @error('ad_profile_id') <p class="mt-1 text-[11px] text-red-400">{{ $message }}</p> @enderror
@@ -115,7 +115,7 @@
                     @endif
 
                     {{-- Budget + Priority --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label class="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#6b6b6b]">Total Budget (KES)</label>
                             <input type="number" step="1" min="1" wire:model="total_budget" placeholder="10000"
@@ -141,7 +141,7 @@
                     </div>
 
                     {{-- Schedule --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <label class="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-[#6b6b6b]">Starts</label>
                             <input type="datetime-local" wire:model="starts_at"
