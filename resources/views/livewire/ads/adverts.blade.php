@@ -30,7 +30,7 @@
         </div>
     @else
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach($ads as $ad)
+            @foreach ($ads as $ad)
                 <div class="ad-card" wire:key="ad-{{ $ad->id }}">
 
                     @unless ($ad->is_active)
@@ -96,15 +96,19 @@
             wire:click.self="closeModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-3 py-6 sm:px-4 sm:py-8 backdrop-blur-sm"
         >
-            <div class="glass-card relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#f5c542]/30 p-4 sm:p-6">
-                <button type="button" wire:click="closeModal"
-                        class="absolute right-4 top-4 text-[#6b6b6b] transition hover:text-[#f5c542]">✕</button>
+            <div class="glass-card relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[#f5c542]/30">
 
-                <h3 class="mb-5 pr-6 font-cinzel text-lg font-bold text-[#f5f5f0]">
-                    {{ $editingId ? 'Edit Ad' : 'New Ad' }}
-                </h3>
+                {{-- Header — fixed, never scrolls --}}
+                <div class="flex flex-shrink-0 items-center justify-between gap-4 border-b border-[#f5c542]/10 px-4 py-4 sm:px-6">
+                    <h3 class="font-cinzel text-lg font-bold text-[#f5f5f0]">
+                        {{ $editingId ? 'Edit Ad' : 'New Ad' }}
+                    </h3>
+                    <button type="button" wire:click="closeModal"
+                            class="flex-shrink-0 text-[#6b6b6b] transition hover:text-[#f5c542]">✕</button>
+                </div>
 
-                <form wire:submit="save" class="space-y-4">
+                {{-- Body — the only part that scrolls --}}
+                <form wire:submit="save" id="ad-form" class="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6">
 
                     {{-- Title --}}
                     <div>
@@ -147,15 +151,15 @@
 
                     {{-- Video --}}
                     <div class="rounded-lg border border-[#f5c542]/10 bg-black/20 p-4">
-                        <div class="mb-2 flex items-center justify-between">
+                        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
                             <label class="text-[10px] font-semibold uppercase tracking-widest text-[#6b6b6b]">Video</label>
                             <div class="flex gap-1.5">
                                 <button type="button" wire:click="$set('video_source', 'upload')"
-                                        class="rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $video_source === 'upload' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
+                                        class="whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $video_source === 'upload' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
                                     Upload
                                 </button>
                                 <button type="button" wire:click="$set('video_source', 'external')"
-                                        class="rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $video_source === 'external' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
+                                        class="whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $video_source === 'external' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
                                     External Link
                                 </button>
                             </div>
@@ -187,15 +191,15 @@
 
                     {{-- Thumbnail --}}
                     <div class="rounded-lg border border-[#f5c542]/10 bg-black/20 p-4">
-                        <div class="mb-2 flex items-center justify-between">
+                        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
                             <label class="text-[10px] font-semibold uppercase tracking-widest text-[#6b6b6b]">Thumbnail</label>
                             <div class="flex gap-1.5">
                                 <button type="button" wire:click="$set('thumbnail_source', 'upload')"
-                                        class="rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $thumbnail_source === 'upload' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
+                                        class="whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $thumbnail_source === 'upload' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
                                     Upload
                                 </button>
                                 <button type="button" wire:click="$set('thumbnail_source', 'external')"
-                                        class="rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $thumbnail_source === 'external' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
+                                        class="whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition {{ $thumbnail_source === 'external' ? 'bg-[#f5c542] text-black' : 'border border-[#f5c542]/20 text-[#f5f5f0]/60 hover:border-[#f5c542]/40' }}">
                                     External Link
                                 </button>
                             </div>
@@ -308,24 +312,24 @@
                             <div class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"></div>
                         </label>
                     </div>
-
-                    {{-- Actions --}}
-                    <div class="flex gap-3 pt-1">
-                        <button type="button" wire:click="closeModal"
-                                class="flex-1 rounded-lg border border-[#f5c542]/20 py-2.5 text-xs font-semibold text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                                wire:loading.attr="disabled"
-                                wire:target="save,videoFile,thumbnailFile"
-                                class="btn-casino-primary flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-60">
-                            <span wire:loading.remove wire:target="save">{{ $editingId ? 'Save Changes' : 'Create Ad' }}</span>
-                            <span wire:loading wire:target="save" class="inline-flex items-center gap-1.5">
-                                <span class="inline-block animate-spin">⟳</span> Saving...
-                            </span>
-                        </button>
-                    </div>
                 </form>
+
+                {{-- Footer — fixed, always visible, never scrolled out of reach --}}
+                <div class="flex flex-shrink-0 gap-3 border-t border-[#f5c542]/10 px-4 py-4 sm:px-6">
+                    <button type="button" wire:click="closeModal"
+                            class="flex-1 rounded-lg border border-[#f5c542]/20 py-2.5 text-xs font-semibold text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40">
+                        Cancel
+                    </button>
+                    <button type="submit" form="ad-form"
+                            wire:loading.attr="disabled"
+                            wire:target="save,videoFile,thumbnailFile"
+                            class="btn-casino-primary flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-60">
+                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Save Changes' : 'Create Ad' }}</span>
+                        <span wire:loading wire:target="save" class="inline-flex items-center gap-1.5">
+                            <span class="inline-block animate-spin">⟳</span> Saving...
+                        </span>
+                    </button>
+                </div>
             </div>
         </div>
     @endif

@@ -77,8 +77,8 @@
 
                     {{-- Subline --}}
                     <p class="text-gray-400 text-sm md:text-base leading-relaxed mb-7 max-w-sm">
-                        Premium casino games, live sports betting &amp; real-time odds.
-                        Your winning moment starts here.
+                        Play competitive Kadi anytime, anywhere.
+                        Enter tournaments, challenge skilled opponents, and showcase your card-playing mastery.
                     </p>
 
                     {{-- CTAs --}}

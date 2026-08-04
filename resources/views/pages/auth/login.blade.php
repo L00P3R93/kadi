@@ -44,7 +44,7 @@
 
             <div class="flex items-center justify-end">
                 <flux:button variant="primary" type="submit" class="w-full" data-test="login-button">
-                    {{ __('Enter the Casino 🎰') }}
+                    {{ __('Enter the Arena 🏆') }}
                 </flux:button>
             </div>
         </form>

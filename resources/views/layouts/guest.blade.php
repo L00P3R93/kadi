@@ -139,7 +139,7 @@
                     <div>
                         <div class="mb-4 text-xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ {{ strtoupper(config('app.name')) }}</div>
                         <p class="text-sm leading-relaxed text-[#6b6b6b]">
-                            The premier destination for luxury online casino gaming. Experience the thrill of high-stakes entertainment from the comfort of your home.
+                            The home of competitive Kadi in Kenya. Play against real opponents, sharpen your strategy, and experience the excitement of online Kadi esports
                         </p>
                     </div>
 

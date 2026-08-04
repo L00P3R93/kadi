@@ -2,7 +2,7 @@
     <div class="flex flex-col gap-6">
         <div class="text-center">
             <span class="inline-block rounded-full border border-[#f5c542]/40 bg-[#f5c542]/10 px-3 py-1 text-xs tracking-widest text-[#f5c542]">
-                🎁 +$500 Welcome Bonus
+                🎁 +KES 250 Welcome Bonus
             </span>
         </div>
 

@@ -49,15 +49,19 @@
             wire:click.self="closeModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-3 py-6 sm:px-4 backdrop-blur-sm"
         >
-            <div class="glass-card relative w-full max-w-lg rounded-2xl border border-[#f5c542]/30 p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
-                <button type="button" wire:click="closeModal"
-                        class="absolute right-4 top-4 text-[#6b6b6b] transition hover:text-[#f5c542]">✕</button>
+            <div class="glass-card relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[#f5c542]/30">
 
-                <h3 class="mb-5 pr-6 font-cinzel text-lg font-bold text-[#f5f5f0]">
-                    {{ $editingId ? 'Edit Campaign' : 'New Campaign' }}
-                </h3>
+                {{-- Header — fixed, never scrolls --}}
+                <div class="flex flex-shrink-0 items-center justify-between gap-4 border-b border-[#f5c542]/10 px-4 py-4 sm:px-6">
+                    <h3 class="font-cinzel text-lg font-bold text-[#f5f5f0]">
+                        {{ $editingId ? 'Edit Campaign' : 'New Campaign' }}
+                    </h3>
+                    <button type="button" wire:click="closeModal"
+                            class="flex-shrink-0 text-[#6b6b6b] transition hover:text-[#f5c542]">✕</button>
+                </div>
 
-                <form wire:submit="save" class="space-y-4">
+                {{-- Body — the only part that scrolls --}}
+                <form wire:submit="save" id="campaign-form" class="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6">
 
                     {{-- Name --}}
                     <div>
@@ -156,24 +160,24 @@
                             @error('ends_at') <p class="mt-1 text-[11px] text-red-400">{{ $message }}</p> @enderror
                         </div>
                     </div>
-
-                    {{-- Actions --}}
-                    <div class="flex gap-3 pt-1">
-                        <button type="button" wire:click="closeModal"
-                                class="flex-1 rounded-lg border border-[#f5c542]/20 py-2.5 text-xs font-semibold text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                                wire:loading.attr="disabled"
-                                wire:target="save"
-                                class="btn-casino-primary flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-60">
-                            <span wire:loading.remove wire:target="save">{{ $editingId ? 'Save Changes' : 'Create Campaign' }}</span>
-                            <span wire:loading wire:target="save" class="inline-flex items-center gap-1.5">
-                                <span class="inline-block animate-spin">⟳</span> Saving...
-                            </span>
-                        </button>
-                    </div>
                 </form>
+
+                {{-- Footer — fixed, always visible, never scrolled out of reach --}}
+                <div class="flex flex-shrink-0 gap-3 border-t border-[#f5c542]/10 px-4 py-4 sm:px-6">
+                    <button type="button" wire:click="closeModal"
+                            class="flex-1 rounded-lg border border-[#f5c542]/20 py-2.5 text-xs font-semibold text-[#f5f5f0]/70 transition hover:border-[#f5c542]/40">
+                        Cancel
+                    </button>
+                    <button type="submit" form="campaign-form"
+                            wire:loading.attr="disabled"
+                            wire:target="save"
+                            class="btn-casino-primary flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-60">
+                        <span wire:loading.remove wire:target="save">{{ $editingId ? 'Save Changes' : 'Create Campaign' }}</span>
+                        <span wire:loading wire:target="save" class="inline-flex items-center gap-1.5">
+                            <span class="inline-block animate-spin">⟳</span> Saving...
+                        </span>
+                    </button>
+                </div>
             </div>
         </div>
     @endif
