@@ -92,7 +92,7 @@
                         <a href="{{ route('buy-coins') }}" @click="menuOpen = false" wire:navigate
                            class="py-3 text-sm transition {{ request()->routeIs('buy-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Buy Coins</a>
                         <a href="{{ route('earn-coins') }}" @click="menuOpen = false" wire:navigate
-                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Earn Coins</a>
+                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Free Coins</a>
                     @endauth
 
                     {{-- Auth CTA — mobile only --}}
@@ -169,7 +169,7 @@
 
             <div class="border-t border-[#f5c542]/20 bg-black/50 px-6 py-4 text-center">
                 <p class="text-xs text-[#6b6b6b]">
-                    &copy; {{ date('Y') }} {{ strtoupper(config('app.name')) }}. All rights reserved. &nbsp;|&nbsp; Play Responsibly &nbsp;|&nbsp; 18+
+                    &copy; {{ date('Y') }} {{ strtoupper(config('app.name')) }}. All rights reserved. &nbsp;|&nbsp; Play Responsibly &nbsp;|&nbsp; 18+ since 2024
                 </p>
             </div>
         </footer>

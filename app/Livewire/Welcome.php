@@ -9,12 +9,13 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-//#[Title('Angel Palace — Kenya\'s Premier Online Casino')]
+// #[Title('Angel Palace — Kenya\'s Premier Online Casino')]
 #[Title('Kadi Kings — Kenya\'s Kadi Game')]
 class Welcome extends Component
 {
@@ -27,11 +28,12 @@ class Welcome extends Component
 
         if (! $user) {
             $this->playKadiUrl = route('login');
+
             return;
         }
 
         $cacheKey = "kadi.customer.{$user->id}";
-        $profile  = Cache::get($cacheKey);
+        $profile = Cache::get($cacheKey);
 
         if ($profile === null) {
             $profile = $this->refreshProfile($user, $cacheKey);
@@ -40,7 +42,25 @@ class Welcome extends Component
         $googleId = $profile['google_id'] ?? null;
 
         $this->playKadiUrl = 'https://kadi-kings.co.ke'
-            . ($googleId ? '?ggid=' . $googleId : '');
+            .($googleId ? '?ggid='.$googleId : '');
+    }
+
+    public function livePlayers(): int
+    {
+        return Cache::remember('kadi.live_players', now()->addMinutes(5), function () {
+            try {
+                $response = Http::get('https://gameapi.kadikings.co.ke/kadi/get_user_totals.php')
+                    ->throw()
+                    ->json();
+
+                return ($response['jackpots']['total'] ?? 0)
+                    + ($response['single']['total'] ?? 0)
+                    + ($response['tournaments']['total'] ?? 0);
+            } catch (ConnectionException|RequestException $e) {
+                Log::error('Welcome: Failed to fetch live players: '.$e->getMessage());
+                return 0;
+            }
+        });
     }
 
     private function refreshProfile(User $user, string $cacheKey): array
@@ -51,7 +71,7 @@ class Welcome extends Component
 
         try {
             $response = KadiApi::getCustomer($user->linked_id);
-            $profile  = $response['data'] ?? $response;
+            $profile = $response['data'] ?? $response;
 
             $googleId = DB::connection('kadi')
                 ->table('accounts')
@@ -66,9 +86,9 @@ class Welcome extends Component
 
             return $profile;
         } catch (RequestException|ConnectionException $e) {
-            Log::error("Welcome: KadiApi fetch failed for user {$user->id}: " . $e->getMessage());
+            Log::error("Welcome: KadiApi fetch failed for user {$user->id}: ".$e->getMessage());
         } catch (\Throwable $e) {
-            Log::error("Welcome: Failed to refresh profile for user {$user->id}: " . $e->getMessage());
+            Log::error("Welcome: Failed to refresh profile for user {$user->id}: ".$e->getMessage());
         }
 
         return [];
@@ -76,11 +96,14 @@ class Welcome extends Component
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View
     {
-        return view('livewire.welcome')
+        return view('livewire.welcome', [
+            'livePlayers' => $this->livePlayers(),
+            'users' => User::count(),
+        ])
             ->layout('layouts.guest')
             ->layoutData([
                 'description' => 'Experience world-class casino games at Angel Palace. Slots, live tables & more. Play now in Kenya.',
-                'page'        => 'home',
+                'page' => 'home',
             ]);
     }
 }

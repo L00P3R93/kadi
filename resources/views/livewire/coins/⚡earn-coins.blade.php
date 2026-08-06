@@ -15,7 +15,7 @@
                 <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-[#f5c542]"></span>
                 <span class="font-cinzel text-[10px] uppercase tracking-[0.2em] text-[#f5c542]">Watch &amp; Earn</span>
             </div>
-            <h1 class="font-cinzel text-3xl font-bold text-[#f5f5f0] md:text-4xl">Earn Coins</h1>
+            <h1 class="font-cinzel text-3xl font-bold text-[#f5f5f0] md:text-4xl">Free Coins</h1>
             <p class="mx-auto mt-2 max-w-md text-sm text-[#6b6b6b]">
                 Today's picks — watch each one fully to claim your coins.
             </p>

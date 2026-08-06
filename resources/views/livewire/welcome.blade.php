@@ -47,15 +47,9 @@
                     {{-- Live badge --}}
                     <div class="inline-flex items-center gap-2 bg-[#f5c542]/10 border border-[#f5c542]/20 rounded-full px-3 py-1 mb-5 mt-10">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#f5c542] animate-pulse"></span>
-                        @php
-                            $period = floor(now()->timestamp / (60 * 60 * 2)); // Changes every 2 hours
-                            mt_srand($period);
-                            $players = mt_rand(50, 500);
-                            mt_srand(); // Reset RNG
-                        @endphp
 
                         <span class="font-cinzel text-[10px] text-[#f5c542] uppercase tracking-[0.2em] font-semibold">
-                            Live Now · {{ number_format($players) }} Players
+                            Live Now · {{ number_format($livePlayers) }} Players
                         </span>
                     </div>
 
@@ -409,7 +403,7 @@
     </section>
     --}}
 
-    {{-- ===================== PROMOTIONS BANNER ===================== --}}
+    {{-- ===================== PROMOTIONS BANNER =====================
     <section id="promotions" class="py-20" style="background: linear-gradient(135deg, #1a1000, #2a1f00, #1a1000);">
         <div class="mx-auto max-w-7xl px-6">
             <div class="glass-card flex flex-col items-start gap-6 border-l-4 border-[#f5c542] p-8 md:flex-row md:items-center md:justify-between">
@@ -437,14 +431,16 @@
             </div>
         </div>
     </section>
+    --}}
 
     {{-- ===================== STATS BAR ===================== --}}
     <section class="border-y border-[#f5c542]/30 bg-black py-12">
         <div class="mx-auto max-w-7xl px-6">
             <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
                 @php
+
                     $stats = [
-                        ['value' => '1,000+', 'label' => 'Community Members'],
+                        ['value' => (string) (6000 + $users), 'label' => 'Community Members'],
                         ['value' => '10',    'label' => 'Game Modes'],
                         ['value' => '250',    'label' => 'Free Coins on Signup'],
                         ['value' => '24/7',   'label' => 'Support'],

@@ -188,7 +188,7 @@
                     {{-- Earn Coins --}}
                     <a href="{{ route('earn-coins') }}" wire:navigate
                        :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
-                       :title="!expanded ? 'Earn Coins' : ''"
+                       :title="!expanded ? 'Free Coins' : ''"
                         @class([
                             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
                             'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('earn-coins'),
@@ -200,7 +200,7 @@
                         </svg>
                         <span x-show="showLabels()" x-transition:enter="transition-opacity duration-200"
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                              class="text-sm font-medium whitespace-nowrap">Earn Coins</span>
+                              class="text-sm font-medium whitespace-nowrap">Free Coins</span>
                     </a>
 
                     {{-- Divider --}}

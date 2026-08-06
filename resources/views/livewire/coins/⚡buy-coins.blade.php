@@ -48,7 +48,7 @@
             <div class="flex items-center gap-3">
                 <span class="text-xl">🎬</span>
                 <div>
-                    <div class="font-cinzel text-sm font-bold text-[#f5f5f0]">Earn Free Coins</div>
+                    <div class="font-cinzel text-sm font-bold text-[#f5f5f0]"> Free Coins</div>
                     <div class="text-xs text-[#6b6b6b]">Watch quick ads and earn coins for free.</div>
                 </div>
             </div>
