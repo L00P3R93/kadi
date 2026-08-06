@@ -26,7 +26,7 @@
                     <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>-->
                     @auth
                         <a href="{{ route('buy-coins') }}" wire:navigate class="text-sm transition {{ request()->routeIs('buy-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Buy Coins</a>
-                        <a href="{{ route('earn-coins') }}" wire:navigate class="text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Earn Coins</a>
+                        <a href="{{ route('earn-coins') }}" wire:navigate class="text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Free Coins</a>
                     @endauth
                     <a href="#about" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
                     <a href="#promotions" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Promotions</a>
