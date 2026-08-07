@@ -124,7 +124,7 @@
                             <div class="flex flex-col gap-3">
                                 <a href="{{ route('login') }}" @click="menuOpen = false" wire:navigate
                                    class="btn-casino-primary block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
-                                    Enter the Casino 🎰
+                                    Enter the Arena 🎰
                                 </a>
                                 <a href="{{ route('register') }}" @click="menuOpen = false" wire:navigate
                                    class="btn-casino-ghost block w-full rounded-xl py-3 text-center text-sm font-semibold no-underline">
@@ -156,10 +156,13 @@
                     <div>
                         <h4 class="mb-4 text-sm font-semibold uppercase tracking-widest text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Quick Links</h4>
                         <ul class="space-y-2">
-                            {{--<li><a href="#games" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Games</a></li>--}}
-                            <li><a href="#promotions" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Promotions</a></li>
+                            <li><a href="{{ route('rules') }}" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]" wire:navigate>Rules & Card Guide</a></li>
+                            <li><a href="#" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Terms & Conditions</a></li>
+                            <li><a href="#" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Privacy Policy</a></li>
+                            {{--
                             <li><a href="{{ route('register') }}" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]" wire:navigate>Register</a></li>
                             <li><a href="{{ route('login') }}" class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]" wire:navigate>Login</a></li>
+                            --}}
                         </ul>
                     </div>
 
@@ -169,8 +172,6 @@
                         <ul class="space-y-2">
                             <li><span class="text-sm text-[#6b6b6b]">+254790417280</span></li>
                             <li><span class="text-sm text-[#6b6b6b]">info@kadikings.co.ke</span></li>
-                            <li><span class="text-sm text-[#6b6b6b]">Terms & Conditions</span></li>
-                            <li><span class="text-sm text-[#6b6b6b]">Privacy Policy</span></li>
                         </ul>
                     </div>
                 </div>

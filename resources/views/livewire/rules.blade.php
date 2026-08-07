@@ -35,11 +35,36 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
              style="background: radial-gradient(circle, rgba(245,197,66,0.08) 0%, transparent 70%);"></div>
 
-        {{-- Floating suit symbols --}}
+        {{-- Floating suit symbols
         <span class="hero-orbit-icon absolute top-10 left-[8%] text-4xl md:text-5xl text-[#f5c542]/20 select-none" style="animation-duration:7s;">♠</span>
         <span class="hero-orbit-icon absolute bottom-8 left-[20%] text-3xl md:text-4xl text-[#f5c542]/15 select-none" style="animation-duration:8.5s; animation-delay:.6s;">♥</span>
         <span class="hero-orbit-icon absolute top-16 right-[12%] text-4xl md:text-5xl text-[#f5c542]/20 select-none" style="animation-duration:6.5s; animation-delay:1.1s;">♦</span>
         <span class="hero-orbit-icon absolute bottom-10 right-[22%] text-3xl md:text-4xl text-[#f5c542]/15 select-none hidden sm:block" style="animation-duration:9s; animation-delay:.3s;">♣</span>
+        --}}
+
+        {{-- Faded background images (cached) --}}
+        @php
+            $casinoImages = cache()->remember('welcome_casino_bg_images', 3600, function () {
+                return array_slice(glob(public_path('rules/*.{png,jpg,webp}'), GLOB_BRACE), 0, 4);
+            });
+            $bgPositions = [
+                ['top-4 -left-8 md:top-8 md:-left-4', 'rotate-[-15deg]'],
+                ['top-0 right-0 md:-right-6',          'rotate-[10deg]'],
+                ['bottom-4 left-16 md:bottom-8 md:left-24', 'rotate-[8deg]'],
+                ['-bottom-4 right-8 md:right-16',      'rotate-[-12deg]'],
+            ];
+        @endphp
+        @foreach($casinoImages as $i => $imgPath)
+            @php [$pos, $rot] = $bgPositions[$i] ?? ['top-0 left-0', '']; @endphp
+            <img src="{{ asset('casino/' . basename($imgPath)) }}"
+                 alt=""
+                 width="208"
+                 height="208"
+                 class="absolute {{ $pos }} {{ $rot }} opacity-[0.08] pointer-events-none select-none w-40 md:w-52 object-contain"
+                 loading="lazy"
+                 decoding="async"
+                 aria-hidden="true" />
+        @endforeach
 
         <div class="relative z-10 w-full max-w-5xl mx-auto px-6 py-14 md:py-20 text-center">
             <div class="inline-flex items-center gap-2 bg-[#f5c542]/10 border border-[#f5c542]/20 rounded-full px-4 py-1.5 mb-6">
@@ -104,15 +129,17 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
                 @foreach ([
-                    ['n' => '01', 'icon' => '🃏', 'title' => 'Shuffle & Deal', 'desc' => 'The server shuffles a full 54-card deck (with two Jokers) and deals 4 cards to each player.'],
-                    ['n' => '02', 'icon' => '📚', 'title' => 'The Draw Pile', 'desc' => 'Remaining cards form a face-down draw pile, managed automatically by the server.'],
-                    ['n' => '03', 'icon' => '🎴', 'title' => 'Start the Discard', 'desc' => 'The top card of the draw pile is flipped face-up to begin the discard pile.'],
-                    ['n' => '04', 'icon' => '🚫', 'title' => 'Opening Restrictions', 'desc' => '2s, 3s, Jokers, Queens, 8s, Jacks, Kings & Aces can never start the discard pile — they\'re auto-replaced.'],
+                    ['n' => '01', 'icon' => asset('rules/shuffle.png'), 'title' => 'Shuffle & Deal', 'desc' => 'The server shuffles a full 54-card deck (with two Jokers) and deals 4 cards to each player.'],
+                    ['n' => '02', 'icon' => asset('rules/card-draw.png'), 'title' => 'The Draw Pile', 'desc' => 'Remaining cards form a face-down draw pile, managed automatically by the server.'],
+                    ['n' => '03', 'icon' => asset('rules/card-pile.png'), 'title' => 'Start the Discard', 'desc' => 'The top card of the draw pile is flipped face-up to begin the discard pile.'],
+                    ['n' => '04', 'icon' => asset('rules/restrict.png'), 'title' => 'Opening Restrictions', 'desc' => '2s, 3s, Jokers, Queens, 8s, Jacks, Kings & Aces can never start the discard pile — they\'re auto-replaced.'],
                 ] as $step)
                     <div class="glass-card glass-card-hover p-6 relative isolate overflow-hidden">
                         <span class="pointer-events-none select-none absolute top-3 right-4 z-0 font-cinzel font-black text-3xl md:text-4xl leading-none text-[#f5c542] opacity-10">{{ $step['n'] }}</span>
                         <div class="relative z-10">
-                            <div class="text-3xl mb-4">{{ $step['icon'] }}</div>
+                            <div class="text-3xl mb-4">
+                                <img src="{{ $step['icon'] }}" alt="{{ $step['title'] }}" width="80" height="80">
+                            </div>
                             <h3 class="font-cinzel text-sm font-bold text-[#f5c542] uppercase tracking-wide mb-2">{{ $step['title'] }}</h3>
                             <p class="text-xs text-[#6b6b6b] leading-relaxed">{{ $step['desc'] }}</p>
                         </div>
