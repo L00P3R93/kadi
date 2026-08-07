@@ -69,7 +69,7 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->
 Route::get('/', Welcome::class)->name('home');
 Route::get('/lobby', GamesList::class)->name('guest.games');
 Route::get('/sportsbook', GuestSportsbookPage::class)->name('sportsbook');
-Route::get('/rules', Rules::class)->name('rules');
+Route::get('/how-to', Rules::class)->name('rules');
 
 // Sportsbook data API — public, serves cache.json directly
 Route::get('/sportsbook/data', function () {
