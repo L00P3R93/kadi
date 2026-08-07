@@ -254,4 +254,7 @@
             </template>
         </div>
     </div>
+    <livewire:phone-required />
 </div>
+
+

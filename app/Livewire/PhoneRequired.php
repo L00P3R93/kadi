@@ -3,9 +3,11 @@
 namespace App\Livewire;
 
 use App\Facades\KadiApi;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -38,7 +40,7 @@ class PhoneRequired extends Component
                 // Bust the cached profile so the profile page reflects the new phone
                 Cache::forget("kadi.customer.{$user->id}");
             } catch (\Throwable $e) {
-                Log::error("KadiApi phone update failed for user {$user->id}: " . $e->getMessage());
+                Log::error("KadiApi phone update failed for user {$user->id}: ".$e->getMessage());
             }
         }
 
@@ -49,13 +51,13 @@ class PhoneRequired extends Component
                 ->where('email', $user->email)
                 ->update(['phone' => $this->phone]);
         } catch (\Throwable $e) {
-            Log::error("Kadi DB phone update failed for user {$user->id}: " . $e->getMessage());
+            Log::error("Kadi DB phone update failed for user {$user->id}: ".$e->getMessage());
         }
 
         $this->show = false;
     }
 
-    public function render()
+    public function render(): Factory|\Illuminate\Contracts\View\View|View
     {
         return view('livewire.phone-required');
     }
