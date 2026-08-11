@@ -1,5 +1,18 @@
 <div
-    x-data="{ tab: 'all', confirmOpen: false, selected: null }"
+    x-data="{
+        tab: 'all',
+        confirmOpen: false,
+        selected: null,
+        hasPhone: @js((bool) (auth()->user()->phone ?? false)),
+        openOption(option) {
+            if (! this.hasPhone) {
+                $wire.dispatch('open-phone-required');
+                return;
+            }
+            this.selected = option;
+            this.confirmOpen = true;
+        }
+    }"
     x-on:wallet-refreshed.window="confirmOpen = false"
     class="min-h-screen bg-[#0a0a0a] pt-14 pb-20"
 >
@@ -82,7 +95,7 @@
         @if ($best)
             <button
                 type="button"
-                @click="selected = { index: {{ $bestIndex }}, type: '{{ $best['type'] }}', price: {{ $best['price'] }}, coins: {{ $best['coins'] ?? 'null' }}, label: '{{ $best['label'] ?? '' }}' }; confirmOpen = true"
+                @click="openOption({ index: {{ $bestIndex }}, type: '{{ $best['type'] }}', price: {{ $best['price'] }}, coins: {{ $best['coins'] ?? 'null' }}, label: '{{ $best['label'] ?? '' }}' })"
                 class="group relative mb-10 flex w-full flex-col items-center gap-4 overflow-hidden rounded-2xl border border-[#f5c542]/40 p-6 text-center transition-all duration-300 hover:border-[#f5c542] sm:flex-row sm:text-left"
                 style="background: linear-gradient(135deg, rgba(245,197,66,0.10), rgba(10,10,10,0.4) 60%);"
             >
@@ -133,7 +146,7 @@
                 <div x-show="tab === 'all' || tab === '{{ $group }}'" x-cloak>
                     <button
                         type="button"
-                        @click="selected = { index: {{ $index }}, type: '{{ $option['type'] }}', price: {{ $option['price'] }}, coins: {{ $option['coins'] ?? 'null' }}, label: '{{ $option['label'] ?? '' }}' }; confirmOpen = true"
+                        @click="openOption({ index: {{ $index }}, type: '{{ $option['type'] }}', price: {{ $option['price'] }}, coins: {{ $option['coins'] ?? 'null' }}, label: '{{ $option['label'] ?? '' }}' })"
                         class="purchase-tile purchase-tile--{{ $group === 'coins' ? 'coins' : 'perk' }} w-full"
                     >
                         @if ($option['best'] ?? false)
@@ -256,5 +269,3 @@
     </div>
     <livewire:phone-required />
 </div>
-
-

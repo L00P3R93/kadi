@@ -616,11 +616,11 @@ select:focus[data-flux-control] {
     height: 44px;
     border-radius: 999px;
     background: radial-gradient(circle at 50% 40%, rgba(245, 197, 66, 0.22), rgba(245, 197, 66, 0.04));
-    border: 2px dashed rgba(245, 197, 66, 0.45);
+    /* border: 2px dashed rgba(245, 197, 66, 0.45); */
 }
 .purchase-tile--perk .purchase-tile__icon-wrap {
     background: radial-gradient(circle at 50% 40%, rgba(50, 200, 80, 0.22), rgba(50, 200, 80, 0.04));
-    border: 2px dashed rgba(50, 200, 80, 0.4);
+    /* border: 2px dashed rgba(50, 200, 80, 0.4); */
 }
 .purchase-tile__icon {
     font-size: 1.35rem;
@@ -629,6 +629,24 @@ select:focus[data-flux-control] {
 }
 .purchase-tile--perk .purchase-tile__icon {
     filter: drop-shadow(0 0 6px rgba(50, 200, 80, 0.35));
+}
+
+/* Coin emoji: gentle continuous pop to draw the eye, livens up on hover */
+@keyframes coinPop {
+    0%, 100% { transform: scale(1)     rotate(0deg); }
+    50%       { transform: scale(1.16) rotate(-6deg); }
+}
+.purchase-tile .purchase-tile--perk, .purchase-tile__icon {
+    display: inline-block;
+    animation: coinPop 2.4s ease-in-out infinite;
+}
+.purchase-tile:hover .purchase-tile--perk, .purchase-tile__icon {
+    animation-duration: 0.9s;
+}
+@media (prefers-reduced-motion: reduce) {
+    .purchase-tile .purchase-tile--perk, .purchase-tile__icon {
+        animation: none;
+    }
 }
 
 /* Body: the coin amount (or perk name) is the hero — it's what

@@ -155,7 +155,7 @@ class Show extends Component
 
         $base = rtrim(config('services.kadi_api.image_url'), '/');
 
-        return "{$base}{$pic}";
+        return $pic === 'profilepic.png' ? asset('images/avatar.png') : "{$base}{$pic}";
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View

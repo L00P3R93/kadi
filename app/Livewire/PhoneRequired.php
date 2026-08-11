@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -20,8 +21,25 @@ class PhoneRequired extends Component
 
     public function mount(): void
     {
+        // No longer auto-opens on page load. It only opens when explicitly
+        // requested (e.g. clicking a Buy Coins option) via the
+        // 'open-phone-required' event, see open() below.
+        $this->show = false;
+    }
+
+    /**
+     * Opens the modal, but only if the user genuinely has no phone on file.
+     * Dispatched from wherever a phone number is required to proceed
+     * (currently: Buy Coins purchase tiles).
+     */
+    #[On('open-phone-required')]
+    public function open(): void
+    {
         $user = auth()->user();
-        $this->show = empty($user->phone);
+
+        if (empty($user->phone)) {
+            $this->show = true;
+        }
     }
 
     public function save(): void
