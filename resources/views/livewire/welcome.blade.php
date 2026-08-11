@@ -250,7 +250,7 @@
                              class="w-28 h-28 md:w-36 md:h-36 object-contain" style="filter: drop-shadow(0 0 22px rgba(245,197,66,0.4));" />
                     </div>
 
-                    {{-- Caption card --}}
+                    {{-- Caption card
                     <div class="relative z-10 mt-6 w-full max-w-xs">
                         <div class="glass-card px-5 py-4 text-center">
                             <div class="font-cinzel text-xs font-bold tracking-widest text-[#f5c542] uppercase mb-1">
@@ -264,6 +264,7 @@
                             </div>
                         </div>
                     </div>
+                    --}}
                 </div>
             </div>
         </div>

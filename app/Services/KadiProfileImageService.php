@@ -42,7 +42,7 @@ class KadiProfileImageService
             $mainPath = tempnam(
                 sys_get_temp_dir(),
                 'profile_'
-            ).'.webp';
+            ).'.png';
 
             $image->save(
                 $mainPath,
@@ -60,7 +60,7 @@ class KadiProfileImageService
             $thumbPath = tempnam(
                 sys_get_temp_dir(),
                 'thumb_'
-            ).'.webp';
+            ).'.png';
 
             $thumbnail->save(
                 $thumbPath,

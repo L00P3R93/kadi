@@ -194,7 +194,7 @@
                     </div>
                     @endif
 
-                    {{-- Account No: read-only --}}
+                    {{-- Account No: read-only
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-widest text-[#6b6b6b] mb-1.5" style="font-family: 'Outfit', sans-serif;">
                             Account No
@@ -203,6 +203,7 @@
                             {{ $kadiCustomer['account_no'] ?? auth()->user()->account_no ?? '—' }}
                         </div>
                     </div>
+                    --}}
 
                     <button
                         type="submit"
@@ -267,7 +268,7 @@
 
                 <h3 class="mb-0.5 font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">{{ auth()->user()->name }}</h3>
                 <p class="mb-1 text-sm text-[#6b6b6b]">{{ auth()->user()->email }}</p>
-                <p class="mb-4 font-mono text-xs text-[#f5c542]/70">{{ auth()->user()->account_no ?? '—' }}</p>
+                {{-- <p class="mb-4 font-mono text-xs text-[#f5c542]/70">{{ auth()->user()->account_no ?? '—' }}</p> --}}
 
                 <div class="mb-4 border-t border-yellow-800/20 pt-4 text-left space-y-2">
                     <div class="flex justify-between text-sm">

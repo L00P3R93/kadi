@@ -42,20 +42,20 @@ class Show extends Component
     {
         $user = auth()->user();
         $this->kadiCustomer = Cache::get("kadi.customer.{$user->id}", []);
-        $this->name    = $user->name;
-        $this->email   = $user->email;
-        $this->idNo    = $this->kadiCustomer['id_no'] ?? '';
+        $this->name = $user->name;
+        $this->email = $user->email;
+        $this->idNo = $this->kadiCustomer['id_no'] ?? '';
         $this->phoneNo = $this->kadiCustomer['phone_no'] ?? $user->phone ?? '';
-        $this->profilePicUrl      = $this->buildProfilePicUrl();
-        $this->resolvedAvatarUrl  = $this->resolveAvatarUrl();
+        $this->profilePicUrl = $this->buildProfilePicUrl();
+        $this->resolvedAvatarUrl = $this->resolveAvatarUrl();
     }
 
     public function updateProfile(): void
     {
         $this->validate([
-            'name'    => ['required', 'min:2', 'max:100'],
-            'email'   => ['required', 'email', 'unique:users,email,'.auth()->id()],
-            'idNo'    => ['nullable', 'string'],
+            'name' => ['required', 'min:2', 'max:100'],
+            'email' => ['required', 'email', 'unique:users,email,'.auth()->id()],
+            'idNo' => ['nullable', 'string'],
             'phoneNo' => ['nullable', 'string'],
         ]);
 
@@ -73,8 +73,8 @@ class Show extends Component
         if ($customerId) {
             try {
                 $response = KadiApi::updateCustomer($customerId, [
-                    'name'     => $this->name,
-                    'id_no'    => $this->idNo,
+                    'name' => $this->name,
+                    'id_no' => $this->idNo,
                     'phone_no' => $this->phoneNo,
                 ]);
 
@@ -106,7 +106,7 @@ class Show extends Component
     {
         $this->validate([
             'currentPassword' => ['required'],
-            'newPassword'     => ['required', 'confirmed', Password::defaults()],
+            'newPassword' => ['required', 'confirmed', Password::defaults()],
         ]);
 
         if (! Hash::check($this->currentPassword, auth()->user()->password)) {
@@ -146,7 +146,7 @@ class Show extends Component
 
     private function buildProfilePicUrl(): string
     {
-        $pic       = $this->kadiCustomer['pic'] ?? null;
+        $pic = $this->kadiCustomer['pic'] ?? null;
         $accountId = $this->kadiCustomer['id'] ?? auth()->user()->linked_id;
 
         if (! $pic || ! $accountId) {

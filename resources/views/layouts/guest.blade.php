@@ -30,6 +30,8 @@
                     @auth
                         <a href="{{ route('buy-coins') }}" wire:navigate class="text-sm transition {{ request()->routeIs('buy-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Buy Coins</a>
                         <a href="{{ route('earn-coins') }}" wire:navigate class="text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Free Coins</a>
+                        <a href="{{ route('ad-campaigns') }}" wire:navigate class="text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Campaigns</a>
+                        <a href="{{ route('profile') }}" wire:navigate class="text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Account</a>
                     @endauth
                     {{--
                      <a href="#about" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">About</a>
@@ -102,6 +104,10 @@
                            class="py-3 text-sm transition {{ request()->routeIs('buy-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Buy Coins</a>
                         <a href="{{ route('earn-coins') }}" @click="menuOpen = false" wire:navigate
                            class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Free Coins</a>
+                        <a href="{{ route('ad-campaigns') }}" @click="menuOpen = false" wire:navigate
+                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Campaigns</a>
+                        <a href="{{ route('profile') }}" @click="menuOpen = false" wire:navigate
+                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Account</a>
                     @endauth
 
                     {{-- Auth CTA — mobile only --}}
