@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Table('orders')]
@@ -85,5 +86,15 @@ class Order extends Model
     public function redemptionTransactions(): HasMany
     {
         return $this->hasMany(RedemptionTransaction::class);
+    }
+
+    public function shippingAddress(): HasOne
+    {
+        return $this->hasOne(ShippingAddress::class);
+    }
+
+    public function shipments(): HasMany
+    {
+        return $this->hasMany(Shipment::class);
     }
 }

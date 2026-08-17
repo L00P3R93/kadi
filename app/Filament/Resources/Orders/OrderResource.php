@@ -10,6 +10,7 @@ use App\Filament\Resources\Orders\RelationManagers\OrderItemsRelationManager;
 use App\Filament\Resources\Orders\RelationManagers\OrderStatusHistoriesRelationManager;
 use App\Filament\Resources\Orders\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Orders\RelationManagers\RefundsRelationManager;
+use App\Filament\Resources\Orders\RelationManagers\ShipmentsRelationManager;
 use App\Filament\Resources\Orders\RelationManagers\UserRelationManager;
 use App\Filament\Resources\Orders\Schemas\OrderForm;
 use App\Filament\Resources\Orders\Schemas\OrderInfolist;
@@ -57,6 +58,7 @@ class OrderResource extends Resource
             OrderItemsRelationManager::class,
             PaymentsRelationManager::class,
             OrderStatusHistoriesRelationManager::class,
+            ShipmentsRelationManager::class,
             RefundsRelationManager::class,
             UserRelationManager::class,
         ];
