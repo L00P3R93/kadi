@@ -2,9 +2,11 @@
 
 namespace App\Enums;
 
-use App\Interfaces\HasColor;
-use App\Interfaces\HasIcon;
-use App\Interfaces\HasLabel;
+use BackedEnum;
+use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+use Illuminate\Contracts\Support\Htmlable;
 
 enum CampaignStatus: string implements HasColor, HasIcon, HasLabel
 {
@@ -16,7 +18,7 @@ enum CampaignStatus: string implements HasColor, HasIcon, HasLabel
     case Exhausted = 'exhausted';
     case Completed = 'completed';
 
-    public function label(): string
+    public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
             self::Draft => 'Draft',
@@ -29,19 +31,7 @@ enum CampaignStatus: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function color(): string
-    {
-        return match ($this) {
-            self::Draft => 'border-gray-700 bg-gray-900/30 text-gray-400',
-            self::PendingReview => 'border-orange-700 bg-orange-900/30 text-orange-400',
-            self::Active => 'border-green-800 bg-green-950/30 text-green-400',
-            self::Paused => 'border-yellow-700 bg-yellow-900/30 text-yellow-400',
-            self::Rejected, self::Exhausted => 'border-red-800 bg-red-950/30 text-red-400',
-            self::Completed => 'border-blue-800 bg-blue-950/30 text-blue-400',
-        };
-    }
-
-    public function icon(): string
+    public function getIcon(): string|BackedEnum|Htmlable|null
     {
         return match ($this) {
             self::Draft => 'heroicon-o-pencil-square',
@@ -51,6 +41,19 @@ enum CampaignStatus: string implements HasColor, HasIcon, HasLabel
             self::Rejected => 'heroicon-o-x-circle',
             self::Exhausted => 'heroicon-o-battery-0',
             self::Completed => 'heroicon-o-flag',
+        };
+
+    }
+
+    public function getColor(): string|array|null
+    {
+        return match ($this) {
+            self::Draft => 'gray',
+            self::PendingReview => 'orange',
+            self::Active => 'success',
+            self::Paused => 'warning',
+            self::Rejected, self::Exhausted => 'danger',
+            self::Completed => 'primary',
         };
     }
 }

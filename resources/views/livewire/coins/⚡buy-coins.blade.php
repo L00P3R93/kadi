@@ -80,6 +80,30 @@
             <span class="inline-block animate-spin">⟳</span> Sending STK push to your phone...
         </div>
 
+        {{-- ═══ Awaiting confirmation banner — persists after the request finishes,
+       since the STK push has been sent but payment isn't confirmed yet.
+       wire:loading.remove hides it while initiatePurchase is still in
+       flight, so the two banners don't briefly overlap. ═══ --}}
+        @if ($awaitingConfirmation)
+            <div
+                wire:loading.remove
+                wire:target="initiatePurchase"
+                class="awaiting-confirm-banner mb-6 flex items-center justify-between gap-3 rounded-lg border border-[#f5c542]/40 bg-[#f5c542]/10 p-4 text-xs text-[#f5c542]"
+            >
+                <span class="flex items-center gap-2.5">
+                    <span class="relative flex h-2.5 w-2.5 flex-shrink-0">
+                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#f5c542] opacity-75"></span>
+                        <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#f5c542]"></span>
+                    </span>
+                    <span>
+                        <span class="font-bold tracking-wide">STK push sent</span>
+                        <span class="text-[#f5c542]/70"> — enter your M-Pesa PIN on your phone to complete payment.</span>
+                    </span>
+                </span>
+                <button type="button" wire:click="dismissAwaitingConfirmation" class="flex-shrink-0 text-[#f5c542]/60 transition hover:text-[#f5c542]">✕</button>
+            </div>
+        @endif
+
         {{-- ═══ Error banner ═══ --}}
         @if ($purchaseError)
             <div class="mb-6 rounded-lg border border-red-800 bg-red-950/40 p-4 text-center text-xs text-red-400">

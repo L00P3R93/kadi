@@ -13,6 +13,20 @@
                 <p class="mt-1 text-sm text-[#6b6b6b]">Fund your campaigns and track every charge, top-up, and refund.</p>
             </div>
 
+            <a href="{{ url('/marketing') }}" class="btn-casino-ghost flex items-center gap-2 rounded-full px-5 py-2.5 text-xs whitespace-nowrap">
+                <span class="text-base leading-none">
+                    <svg class="w-5 h-5 flex-shrink-0"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke="currentColor"
+                         stroke-width="2">
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M4 11v2a2 2 0 002 2h2l3 4h2l-1.5-4H15l5 3V6l-5 3H6a2 2 0 00-2 2z"/>
+                    </svg>
+                </span> Manage Campaigns
+            </a>
+
             <button type="button" wire:click="openTopUpModal" class="btn-casino-primary flex items-center gap-2 rounded-full px-5 py-2.5 text-xs whitespace-nowrap">
                 <span class="text-base leading-none">+</span> Add Funds
             </button>

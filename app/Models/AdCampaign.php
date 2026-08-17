@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CampaignPriority;
 use App\Enums\CampaignStatus;
 use Database\Factories\AdCampaignFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -29,6 +30,7 @@ class AdCampaign extends Model
     {
         return [
             'status' => CampaignStatus::class,
+            'priority' => CampaignPriority::class,
             'total_budget' => 'decimal:2',
             'escrowed_budget' => 'decimal:2',
             'spent_budget' => 'decimal:2',
@@ -41,7 +43,13 @@ class AdCampaign extends Model
     public function scopeUserCampaign(Builder $query)
     {
         $user = auth()->user();
+
         return $user->isAdmin() ? $query : $query->where('ad_profile_id', $user->adProfile->id);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function adProfile(): BelongsTo

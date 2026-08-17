@@ -46,6 +46,11 @@ class BuyCoins extends Component
 
     public ?string $purchaseError = null;
 
+    // Stays true across renders (unlike wire:loading, which clears the
+    // instant the initiatePurchase request finishes) so the "check your
+    // phone" message survives while the user is off entering their PIN.
+    public bool $awaitingConfirmation = false;
+
     public function mount(): void
     {
         $this->kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
@@ -55,6 +60,7 @@ class BuyCoins extends Component
     public function initiatePurchase(int $index): void
     {
         $this->purchaseError = null;
+        $this->awaitingConfirmation = false;
 
         $option = $this->purchaseOptions[$index] ?? null;
 
@@ -91,19 +97,26 @@ class BuyCoins extends Component
         }
 
         if ($response) {
-            try {
+            // TODO: Update balance and wallet balance cache
+            /*try {
                 $this->kadiCustomer = KadiApi::getCustomer($user->linked_id);
                 Cache::put('kadi.customer.'.auth()->id(), $this->kadiCustomer, now()->addHour());
                 $this->balance = (float) $this->kadiCustomer['balance'];
                 Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addMinutes(5));
-                $this->dispatch('wallet-refreshed');
             } catch (\Throwable $e) {
                 Log::error("BuyCoins: Error fetching customer {$user->id} profile after requestStkPush");
-            }
+            }*/
+            $this->awaitingConfirmation = true;
+            $this->dispatch('wallet-refreshed');
         }
 
-        $this->processingPurchase = is_null($response);
+        $this->processingPurchase = false;
         $this->purchaseError = $response ? null : 'Error processing purchase';
+    }
+
+    public function dismissAwaitingConfirmation(): void
+    {
+        $this->awaitingConfirmation = false;
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View

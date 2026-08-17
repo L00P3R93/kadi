@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -17,7 +19,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password', 'account_no', 'phone', 'linked_id', 'google_id', 'avatar'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
@@ -45,9 +47,39 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasAnyRole(['super-admin', 'admin']);
     }
 
+    /**
+     * Set the phone attribute - convert 0 prefix to 254 for storage
+     */
+    public function setPhoneAttribute($value): void
+    {
+        $phone = trim($value);
+        // If phone starts with 0, replace with 254
+        if (str_starts_with($phone, '0')) {
+            $phone = '254'.substr($phone, 1);
+        }
+        $this->attributes['phone'] = $phone;
+    }
+
     public function getFormattedBalanceAttribute(): string
     {
         return number_format($this->balance, 2);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if (! $this->hasVerifiedEmail()) {
+            return false;
+        }
+
+        if ($panel->getId() === 'console') {
+            return $this->isAdmin();
+        }
+
+        if ($panel->getId() === 'marketing') {
+            return $this->hasAnyRole(['super-admin', 'admin', 'player']);
+        }
+
+        return false;
     }
 
     /**
@@ -67,14 +99,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Transaction::class);
     }
 
-    public function adProfile(): BelongsTo
+    public function adProfile(): HasOne
     {
-        return $this->belongsTo(AdProfile::class);
+        return $this->hasOne(AdProfile::class);
     }
 
     public function adWalletTopUps(): HasMany
     {
         return $this->hasMany(AdWalletTopUp::class);
+    }
+
+    public function adCampaigns(): HasMany
+    {
+        return $this->hasMany(AdCampaign::class);
     }
 
     public function adCampaignReviews(): HasMany
@@ -100,5 +137,45 @@ class User extends Authenticatable implements MustVerifyEmail
     public function adAnalyticEvents(): HasMany
     {
         return $this->hasMany(AdAnalyticEvent::class);
+    }
+
+    public function inventoryMovements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class, 'performed_by');
+    }
+
+    public function carts(): HasMany
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function promotionUsages(): HasMany
+    {
+        return $this->hasMany(PromotionUsage::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function orderStatusHistories(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function paymentIdempotencyKeys(): HasMany
+    {
+        return $this->hasMany(PaymentIdempotencyKey::class);
+    }
+
+    public function redemptionTransactions(): HasMany
+    {
+        return $this->hasMany(RedemptionTransaction::class);
     }
 }

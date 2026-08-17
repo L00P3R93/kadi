@@ -30,6 +30,9 @@ class RoleSeeder extends Seeder
             // seeding it now is what actually makes 'admin' vs 'super-admin'
             // mean something.
             'manage user roles',
+
+            // Products
+            'manage promotions',
         ];
 
         foreach ($permissions as $permission) {
@@ -47,6 +50,7 @@ class RoleSeeder extends Seeder
                 'manage ad campaigns',
                 'manage ads',
                 'manage sportsbook admin',
+                'manage promotions',
             ],
 
             // Default authenticated user. No admin permissions — access to

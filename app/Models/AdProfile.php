@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
@@ -24,5 +25,10 @@ class AdProfile extends Model
     public function adWallet(): BelongsTo
     {
         return $this->belongsTo(AdWallet::class);
+    }
+
+    public function adCampaigns(): HasMany
+    {
+        return $this->hasMany(AdCampaign::class);
     }
 }
