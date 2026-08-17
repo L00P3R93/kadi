@@ -48,13 +48,17 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     }
 
     /**
-     * Set the phone attribute - convert 0 prefix to 254 for storage
+     * Set the phone attribute - convert 0|+254 prefix to 254 for storage
      */
     public function setPhoneAttribute($value): void
     {
         $phone = trim($value);
+        // If phone starts with +254, replace with 254
+        if (str_starts_with($phone, '+254')) {
+            $phone = '254'.substr($phone, 4);
+        }
         // If phone starts with 0, replace with 254
-        if (str_starts_with($phone, '0')) {
+        elseif (str_starts_with($phone, '0')) {
             $phone = '254'.substr($phone, 1);
         }
         $this->attributes['phone'] = $phone;
