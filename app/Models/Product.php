@@ -7,6 +7,7 @@ use App\Enums\ProductType;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 #[Table('products')]
 #[Fillable([
@@ -60,7 +62,44 @@ class Product extends Model implements HasMedia
         ];
     }
 
-    public function category(): BelongsTo
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('cover')
+            ->singleFile()
+            ->useFallbackUrl(asset('images/product-placeholder.png'));
+
+        $this->addMediaCollection('gallery');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('card')
+            ->width(400)
+            ->height(400)
+            ->sharpen(5)
+            ->format('webp')
+            ->nonQueued();
+
+        $this->addMediaConversion('thumb')
+            ->width(120)
+            ->height(120)
+            ->format('webp')
+            ->nonQueued();
+    }
+
+    public function scopeStorefront(Builder $query): void
+    {
+        $query->where('status', ProductStatus::ACTIVE);
+    }
+
+    public function getCardImageUrlAttribute(): string
+    {
+        return $this->getFirstMediaUrl('cover', 'card')
+            ?: $this->getFirstMediaUrl('gallery', 'card')
+                ?: asset('images/product-placeholder.png');
+    }
+
+    public function productCategory(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class);
     }

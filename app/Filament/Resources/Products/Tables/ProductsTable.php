@@ -37,7 +37,6 @@ class ProductsTable
                 TextColumn::make('product_type')
                     ->label('Type')
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => str($state)->headline())
                     ->sortable(),
 
                 TextColumn::make('money_price')
@@ -66,13 +65,6 @@ class ProductsTable
 
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state) => str($state)->headline())
-                    ->color(fn (string $state) => match ($state) {
-                        'active' => 'success',
-                        'inactive', 'draft' => 'gray',
-                        'out_of_stock' => 'danger',
-                        default => 'warning',
-                    })
                     ->sortable(),
 
                 TextColumn::make('badges')

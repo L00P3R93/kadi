@@ -10,6 +10,7 @@ use Illuminate\Contracts\Support\Htmlable;
 
 enum MerchandisingCollectionType: string implements HasColor, HasIcon, HasLabel
 {
+    case HERO = 'hero';
     case FEATURED = 'featured';
     case NEW_ARRIVALS = 'new_arrivals';
     case TRENDING = 'trending';
@@ -19,6 +20,7 @@ enum MerchandisingCollectionType: string implements HasColor, HasIcon, HasLabel
     public function getColor(): string|array|null
     {
         return match ($this) {
+            self::HERO => 'primary',
             self::FEATURED => 'purple',
             self::NEW_ARRIVALS => 'green',
             self::TRENDING => 'orange',
@@ -30,6 +32,7 @@ enum MerchandisingCollectionType: string implements HasColor, HasIcon, HasLabel
     public function getIcon(): string|BackedEnum|Htmlable|null
     {
         return match ($this) {
+            self::HERO => 'hugeicons-image-02',
             self::FEATURED => 'hugeicons-star',
             self::NEW_ARRIVALS => 'hugeicons-new-releases',
             self::TRENDING => 'hugeicons-fire',
@@ -41,6 +44,7 @@ enum MerchandisingCollectionType: string implements HasColor, HasIcon, HasLabel
     public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
+            self::HERO => 'Hero Slides',
             self::FEATURED => 'Featured',
             self::NEW_ARRIVALS => 'New Arrivals',
             self::TRENDING => 'Trending',

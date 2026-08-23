@@ -42,7 +42,7 @@ class ProductForm
                             ->label('Category')
                             ->prefixIcon(Heroicon::OutlinedFolder)
                             ->prefixIconColor('primary')
-                            ->relationship('category', 'name')
+                            ->relationship('productCategory', 'name')
                             ->searchable()
                             ->preload()
                             ->native(false)

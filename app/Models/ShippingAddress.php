@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Table('shipments')]
+#[Table('shipping_addresses')]
 #[Fillable([
     'order_id',
     'recipient_name', 'phone', 'email',
@@ -22,8 +22,8 @@ class ShippingAddress extends Model
     /** @use HasFactory<ShippingAddressFactory> */
     use HasFactory, SoftDeletes;
 
-    public function order(): HasOne
+    public function order(): BelongsTo
     {
-        return $this->hasOne(Order::class);
+        return $this->belongsTo(Order::class);
     }
 }

@@ -41,9 +41,9 @@ return [
         'image_url' => env('KADI_IMAGE_URL', 'https://gameapi.kadikings.co.ke/kadi/images'),
     ],
 
-    'kadi'=>[
-        'image_upload_url'=> env('KADI_IMAGE_UPLOAD_URL'),
-        'image_upload_key'=> env('KADI_IMAGE_UPLOAD_KEY'),
+    'kadi' => [
+        'image_upload_url' => env('KADI_IMAGE_UPLOAD_URL'),
+        'image_upload_key' => env('KADI_IMAGE_UPLOAD_KEY'),
     ],
 
     'odds_api' => [
@@ -64,5 +64,11 @@ return [
         'sender_email' => env('BREVO_SENDER_EMAIL'),
         'sender_name' => env('BREVO_SENDER_NAME'),
         'endpoint' => env('BREVO_ENDPOINT', 'https://api.brevo.com/v3/smtp/email'),
+    ],
+
+    'unsplash' => [
+        'access_key' => env('UNSPLASH_ACCESS_KEY'),
+        'base_url' => env('UNSPLASH_BASE_URL', 'https://api.unsplash.com'),
+        'source_url' => env('UNSPLASH_SOURCE_URL', 'https://images.unsplash.com'),
     ],
 ];

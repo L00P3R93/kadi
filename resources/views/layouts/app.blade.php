@@ -234,12 +234,12 @@
 
                     {{-- Divider --}}
                     <div class="my-4 border-t border-yellow-800/20"></div>
-                    {{-- ================= ADVERTS ================= --}}
+                    {{-- ================= Store ================= --}}
                     <div
                         x-show="showLabels()"
                         class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
                     >
-                        ADVERTS
+                        STORE
                     </div>
                     @if(auth()->user()->roles->isNotEmpty())
                         @if(auth()->user()->isAdmin())
@@ -273,6 +273,55 @@
                                     x-transition:enter-end="opacity-100"
                                     class="text-sm font-medium whitespace-nowrap">Manage Promotions</span>
                             </a>
+                        @endif
+                        {{-- Categories --}}
+                        <a href="{{ route('storefront.home') }}" wire:navigate
+                           :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                           :title="!expanded ? 'Store' : ''"
+                            @class([
+                                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                                'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('storefront.home'),
+                                'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('storefront.home'),
+                            ])>
+                            <svg class="w-5 h-5 flex-shrink-0"
+                                 fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor"
+                                 stroke-width="2">
+                                <rect x="4" y="4" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                                <rect x="14" y="4" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                                <rect x="4" y="14" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                                <rect x="14" y="14" width="6" height="6" rx="1.5"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                            </svg>
+                            <span
+                                x-show="showLabels()"
+                                x-transition:enter="transition-opacity duration-200"
+                                x-transition:enter-start="opacity-0"
+                                x-transition:enter-end="opacity-100"
+                                class="text-sm font-medium whitespace-nowrap">Store</span>
+                        </a>
+
+                    @endif
+
+                    {{-- Divider --}}
+                    <div class="my-4 border-t border-yellow-800/20"></div>
+                    {{-- ================= ADVERTS ================= --}}
+                    <div
+                        x-show="showLabels()"
+                        class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
+                    >
+                        ADVERTS
+                    </div>
+                    @if(auth()->user()->roles->isNotEmpty())
+                        @if(auth()->user()->isAdmin())
                             {{-- Categories
                             <a href="{{ route('ad-categories') }}" wire:navigate
                                :class="showLabels() ? 'justify-start' : 'justify-center px-0'"

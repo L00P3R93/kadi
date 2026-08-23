@@ -27,3 +27,6 @@ yarn-error.log
 /.junie
 /public/sitemap.xml
 /storage/app/sportsbook/cache.json
+
+/database/seeders/local_images
+/public/media

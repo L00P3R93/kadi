@@ -33,6 +33,13 @@ class MerchandisingCollection extends Model
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'merchandising_collection_product', 'merchandising_collection_id', 'product_id');
+        return $this->belongsToMany(
+            Product::class,
+            'merchandising_collection_product',
+            'merchandising_collection_id',
+            'product_id'
+        )
+            ->withPivot('sort_order')
+            ->withTimestamps();
     }
 }

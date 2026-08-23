@@ -19,6 +19,7 @@ use App\Livewire\Profile\Show;
 use App\Livewire\Rules;
 use App\Livewire\Sportsbook\GuestSportsbookPage;
 use App\Livewire\Sportsbook\SportsbookPage;
+use App\Livewire\Storefront\Home as StorefrontHome;
 use App\Livewire\Wallet\Index;
 use App\Livewire\Welcome;
 use App\Services\OddsApiService;
@@ -115,6 +116,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('ad-campaigns');
     Route::get('/ad-wallet', Wallets::class)
         ->name('ad-wallet');
+
+    Route::get('/store', StorefrontHome::class)->name('storefront.home');
+    Route::get('/store/category/{category:slug}', App\Livewire\Storefront\Category\Show::class)->name('storefront.category');
+    Route::get('/store/product/{product:slug}', App\Livewire\Storefront\Product\Show::class)->name('storefront.product');
 
     Route::get('/campaigns/{campaign}', ShowCampaign::class)->name('campaigns.show');
     Route::get('/campaigns/{campaign}/ads', Adverts::class)->name('campaigns.ads');
