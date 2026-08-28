@@ -16,7 +16,10 @@ class BugsApiService
     public function __construct()
     {
         $this->baseUrl = config('services.bugs_api.url');
-        $this->http = Http::baseUrl($this->baseUrl);
+        $this->http = Http::withHeaders([
+            // 'x-api-key' => config('services.bugs_api.key'),
+            'Accept' => 'application/json',
+        ])->baseUrl($this->baseUrl);
     }
 
     /**
