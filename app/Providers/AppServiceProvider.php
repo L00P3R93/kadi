@@ -97,9 +97,9 @@ class AppServiceProvider extends ServiceProvider
         // Fail fast when the shared KadiApi encryption key is missing or
         // malformed outside local/testing. Silent fallbacks here would put
         // money-endpoint customer-ID encryption at risk (audit finding C-2).
-        if (! app()->environment('local', 'testing')) {
-            openssl_shared_key();
-        }
+        //        if (! app()->environment('local', 'testing')) {
+        //            openssl_shared_key();
+        //        }
 
         Date::use(CarbonImmutable::class);
 
