@@ -28,7 +28,7 @@ class BugsApiService
     public function registerUser(array $data): array
     {
         return $this->http
-            ->post('users', $data)
+            ->post('user', $data)
             ->throw()
             ->json() ?? [];
     }
