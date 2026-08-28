@@ -13,8 +13,11 @@ use Livewire\Component;
 class PricingTiers extends Component
 {
     public bool $showFormModal = false;
+
     public ?int $editingId = null;
+
     public int $duration_seconds = 0;
+
     public float $base_cost = 0.00;
 
     public ?string $successMessage = null;
@@ -72,7 +75,6 @@ class PricingTiers extends Component
         $this->reset(['editingId', 'duration_seconds', 'base_cost']);
         $this->resetErrorBag();
     }
-
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View
     {

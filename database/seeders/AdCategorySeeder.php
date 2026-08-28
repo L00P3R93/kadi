@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\AdCategory;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 
 class AdCategorySeeder extends BaseSeeder
 {

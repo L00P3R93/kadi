@@ -4,9 +4,11 @@ namespace Database\Factories;
 
 use App\Faker\Providers\KenyaProvider;
 use App\Models\User;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use PragmaRX\Google2FA\Google2FA;
 
 /**
  * @extends Factory<User>
@@ -18,10 +20,18 @@ class UserFactory extends Factory
      */
     protected static ?string $password;
 
-    public function __construct()
+    /**
+     * Use the Kenyan faker locale provider without overriding the
+     * framework constructor — Laravel 13 passes builder state
+     * (states/count/has/for) as positional constructor args, so a
+     * custom __construct() silently discards every state transformation.
+     */
+    protected function withFaker(): Generator
     {
-        parent::__construct();
-        $this->faker->addProvider(new KenyaProvider($this->faker));
+        $faker = \Faker\Factory::create();
+        $faker->addProvider(new KenyaProvider($faker));
+
+        return $faker;
     }
 
     /**
@@ -60,7 +70,7 @@ class UserFactory extends Factory
     public function withTwoFactor(): static
     {
         return $this->state(fn (array $attributes) => [
-            'two_factor_secret' => encrypt('secret'),
+            'two_factor_secret' => encrypt((new Google2FA)->generateSecretKey()),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),
         ]);

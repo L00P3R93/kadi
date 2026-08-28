@@ -19,15 +19,23 @@ class Campaigns extends Component
     public bool $showFormModal = false;
 
     public ?int $editingId = null;
+
     public ?int $ad_profile_id = null;
+
     public ?int $ad_category_id = null;
+
     public string $name = '';
+
     public string $status = '';
+
     public float $total_budget = 0.00;
+
     public int $frequency_cap = 5;
 
     public int $priority = 5;
+
     public string $starts_at = '';
+
     public string $ends_at = '';
 
     public ?string $successMessage = null;

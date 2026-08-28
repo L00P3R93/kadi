@@ -35,7 +35,7 @@ class GoogleLinkController extends Controller
 
         $updateData = [
             'google_id' => $googleUser->getId(),
-            'avatar'    => $googleUser->getAvatar(),
+            'avatar' => $googleUser->getAvatar(),
         ];
 
         if (is_null(Auth::user()->email_verified_at)) {

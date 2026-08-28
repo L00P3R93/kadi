@@ -8,14 +8,12 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-// #[Title('Angel Palace — Kenya\'s Premier Online Casino')]
 #[Title('Kadi Kings — Kenya\'s Kadi Game')]
 class Welcome extends Component
 {
@@ -39,7 +37,7 @@ class Welcome extends Component
             $profile = $this->refreshProfile($user, $cacheKey);
         }
 
-        $googleId = $profile['google_id'] ?? null;
+        $googleId = $user->account_no ?? null;
 
         $this->playKadiUrl = 'https://kadi-kings.co.ke'
             .($googleId ? '?ggid='.$googleId : '');
@@ -58,6 +56,7 @@ class Welcome extends Component
                     + ($response['tournaments']['total'] ?? 0);
             } catch (ConnectionException|RequestException $e) {
                 Log::error('Welcome: Failed to fetch live players: '.$e->getMessage());
+
                 return 0;
             }
         });
@@ -73,10 +72,7 @@ class Welcome extends Component
             $response = KadiApi::getCustomer($user->linked_id);
             $profile = $response['data'] ?? $response;
 
-            $googleId = DB::connection('kadi')
-                ->table('accounts')
-                ->where('email', $user->email)
-                ->value('google_id');
+            $googleId = $user->account_no ?? null;
 
             if ($googleId !== null) {
                 $profile['google_id'] = $googleId;
@@ -102,7 +98,7 @@ class Welcome extends Component
         ])
             ->layout('layouts.guest')
             ->layoutData([
-                'description' => 'Experience world-class casino games at Angel Palace. Slots, live tables & more. Play now in Kenya.',
+                'description' => 'Play Kadi — Kenya\'s own card game online. Free to join, competitive tables, deposits via M-Pesa.',
                 'page' => 'home',
             ]);
     }

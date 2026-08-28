@@ -6,6 +6,7 @@ use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -36,7 +37,16 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $input['password'],
         ]);
 
-        Cache::put("user.plain_password.{$user->id}", $input['password'], now()->addHours(24));
+        // The linked kadi account needs a password that matches what the user
+        // registered with, so the game site can verify logins via
+        // password_verify(). We hand the job a one-way BCRYPT HASH — never the
+        // plaintext — so no recoverable secret is stored in cache or queue
+        // payloads (audit finding C-1).
+        Cache::put(
+            "user.kadi_password_hash.{$user->id}",
+            Hash::make($input['password']),
+            now()->addMinutes(30)
+        );
         $user->assignRole('player');
 
         // $user->sendEmailVerificationNotification();

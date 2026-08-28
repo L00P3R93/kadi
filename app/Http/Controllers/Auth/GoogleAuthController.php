@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessVerifiedUser;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -17,7 +19,7 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
         try {
             $googleUser = Socialite::driver('google')->user();
@@ -30,13 +32,9 @@ class GoogleAuthController extends Controller
         $user = User::where('google_id', $googleUser->getId())->first();
 
         if ($user) {
-            if (is_null($user->email_verified_at)) {
-                $user->update(['email_verified_at' => now()]);
-            }
+            $this->markVerified($user);
 
-            Auth::login($user, remember: true);
-
-            return redirect()->intended(route('home'));
+            return $this->finalizeLogin($request, $user);
         }
 
         // Case b: existing user matched by email — link the Google account.
@@ -47,7 +45,7 @@ class GoogleAuthController extends Controller
         if ($user) {
             $updateData = [
                 'google_id' => $googleUser->getId(),
-                'avatar'    => $googleUser->getAvatar(),
+                'avatar' => $googleUser->getAvatar(),
             ];
 
             if (is_null($user->email_verified_at)) {
@@ -60,26 +58,53 @@ class GoogleAuthController extends Controller
                 ProcessVerifiedUser::dispatch($user);
             }
 
-            Auth::login($user, remember: true);
-
-            return redirect()->intended(route('home'));
+            return $this->finalizeLogin($request, $user);
         }
 
         // Case c: brand-new Google user — create account and kick off onboarding.
         // No plain-password cache entry; ProcessVerifiedUser handles null password gracefully.
         $user = User::create([
-            'name'              => $googleUser->getName(),
-            'email'             => $googleUser->getEmail(),
-            'google_id'         => $googleUser->getId(),
-            'avatar'            => $googleUser->getAvatar(),
-            'password'          => Hash::make(Str::random(32)),
-            'account_no'        => 'KK-' . strtoupper(uniqid()),
+            'name' => $googleUser->getName(),
+            'email' => $googleUser->getEmail(),
+            'google_id' => $googleUser->getId(),
+            'avatar' => $googleUser->getAvatar(),
+            'password' => Hash::make(Str::random(32)),
+            'account_no' => 'KK-'.strtoupper(uniqid()),
             'email_verified_at' => now(),
         ]);
 
         ProcessVerifiedUser::dispatch($user);
 
+        return $this->finalizeLogin($request, $user);
+    }
+
+    private function markVerified(User $user): void
+    {
+        if (is_null($user->email_verified_at)) {
+            $user->update(['email_verified_at' => now()]);
+        }
+    }
+
+    /**
+     * Complete the Google sign-in, enforcing two-factor authentication
+     * exactly like Fortify's password login flow does.
+     */
+    private function finalizeLogin(Request $request, User $user): RedirectResponse
+    {
+        if ($user->hasEnabledTwoFactorAuthentication()) {
+            // Park the user behind the two-factor challenge. No authenticated
+            // session and no remember token exist until a valid code passes.
+            $request->session()->put([
+                'login.id' => $user->getKey(),
+                'login.remember' => true,
+            ]);
+
+            return redirect()->route('two-factor.login');
+        }
+
         Auth::login($user, remember: true);
+
+        $request->session()->regenerate();
 
         return redirect()->intended(route('home'));
     }

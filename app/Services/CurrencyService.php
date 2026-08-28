@@ -22,7 +22,7 @@ class CurrencyService
                 return $default;
             }
 
-            $geo         = json_decode($geoResponse, true);
+            $geo = json_decode($geoResponse, true);
             $countryCode = $geo['countryCode'] ?? 'KE';
 
             $countryResult = World::countries(['filters' => ['iso2' => $countryCode], 'with' => ['currencies']]);
@@ -31,7 +31,7 @@ class CurrencyService
                 return $default;
             }
 
-            $country  = $countryResult->data->first();
+            $country = $countryResult->data->first();
             $currency = $country->currencies->first();
 
             if (! $currency) {
@@ -39,9 +39,9 @@ class CurrencyService
             }
 
             return [
-                'code'   => $currency->code   ?? 'KES',
+                'code' => $currency->code ?? 'KES',
                 'symbol' => $currency->symbol ?? 'KES',
-                'name'   => $currency->name   ?? 'Kenyan Shilling',
+                'name' => $currency->name ?? 'Kenyan Shilling',
             ];
         } catch (\Throwable $e) {
             return $default;

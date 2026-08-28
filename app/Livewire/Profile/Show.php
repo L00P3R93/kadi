@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Profile;
 
+use App\Actions\Security\RevokeOtherSessions;
+use App\Events\PasswordChanged;
 use App\Facades\KadiApi;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
@@ -106,7 +108,8 @@ class Show extends Component
     {
         $this->validate([
             'currentPassword' => ['required'],
-            'newPassword' => ['required', 'confirmed', Password::defaults()],
+            'newPassword' => ['required', Password::defaults()],
+            'newPasswordConfirmation' => ['required', 'same:newPassword'],
         ]);
 
         if (! Hash::check($this->currentPassword, auth()->user()->password)) {
@@ -115,9 +118,15 @@ class Show extends Component
             return;
         }
 
-        auth()->user()->update([
+        $user = auth()->user();
+
+        $user->update([
             'password' => Hash::make($this->newPassword),
         ]);
+
+        PasswordChanged::dispatch($user);
+
+        app(RevokeOtherSessions::class)($user);
 
         $this->reset('currentPassword', 'newPassword', 'newPasswordConfirmation');
         session()->flash('password_success', 'Password updated successfully.');

@@ -45,7 +45,7 @@ class CategoriesTable extends Component
                 'requires_approval' => 'components.table.category-approval-badge',
                 'is_active' => 'components.table.category-status-toggle',
                 'actions' => 'components.table.category-actions',
-            ]
+            ],
         ]);
     }
 }

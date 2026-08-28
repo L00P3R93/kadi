@@ -11,7 +11,7 @@ class LinkGoogleAccount extends Component
     {
         Auth::user()->update([
             'google_id' => null,
-            'avatar'    => null,
+            'avatar' => null,
         ]);
     }
 

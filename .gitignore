@@ -30,3 +30,10 @@ yarn-error.log
 
 /database/seeders/local_images
 /public/media
+/public/screenshots
+
+AGENTS.md
+DESIGN.md
+PRODUCT.md
+/.agents
+/.impeccable

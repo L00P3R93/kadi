@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Actions\Security\RevokeOtherSessions;
 use App\Concerns\PasswordValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -25,5 +26,9 @@ class ResetUserPassword implements ResetsUserPasswords
         $user->forceFill([
             'password' => $input['password'],
         ])->save();
+
+        // A password reset means the old credential is compromised —
+        // sign out every existing session on all devices.
+        app(RevokeOtherSessions::class)($user);
     }
 }

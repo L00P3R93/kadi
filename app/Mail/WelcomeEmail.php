@@ -29,9 +29,9 @@ class WelcomeEmail extends Mailable
         return new Content(
             view: 'mail.welcome',
             with: [
-                'user'          => $this->user,
-                'appName'       => config('app.name'),
-                'appUrl'        => config('app.url'),
+                'user' => $this->user,
+                'appName' => config('app.name'),
+                'appUrl' => config('app.url'),
             ],
         );
     }

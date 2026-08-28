@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['ad_campaign_id', 'created_at'], 'idx_campaign');
+            $table->index(['ad_campaign_id', 'created_at'], 'idx_moderation_campaign');
 
             $table->comment('Audit trail for Alcohol/Political approval workflow plus any manual pause/resume/reject.');
         });

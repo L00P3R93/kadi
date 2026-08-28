@@ -44,7 +44,8 @@
                 {{-- ══ LEFT: Tagline + CTA ══ --}}
                 <div class="flex flex-col items-start">
 
-                    {{-- Live badge --}}
+                    {{-- Live badge (hidden when the players API fails and returns 0) --}}
+                    @if($livePlayers > 0)
                     <div class="inline-flex items-center gap-2 bg-[#f5c542]/10 border border-[#f5c542]/20 rounded-full px-3 py-1 mb-5 mt-10">
                         <span class="w-1.5 h-1.5 rounded-full bg-[#f5c542] animate-pulse"></span>
 
@@ -52,6 +53,7 @@
                             Live Now · {{ number_format($livePlayers) }} Players
                         </span>
                     </div>
+                    @endif
 
                     {{-- Tagline --}}
                     <div class="mb-6">
@@ -77,16 +79,20 @@
 
                     {{-- CTAs --}}
                     <div class="flex flex-wrap gap-3">
-                        <a href="{{ $playKadiUrl }}"
+                        <a href="{{ auth()->check() ? $playKadiUrl : route('register') }}"
                            @auth target="_blank" rel="noopener noreferrer" @endauth
                            class="inline-flex items-center gap-2 bg-[#f5c542] text-black font-black
                                   px-6 py-3 rounded-xl hover:bg-[#ffde74] transition-all duration-200
                                   text-sm tracking-wide shadow-lg shadow-[#f5c542]/25
                                   hover:shadow-[#f5c542]/40 hover:-translate-y-0.5">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
                             </svg>
-                            Play Kadi
+                            @auth
+                                Play Kadi
+                            @else
+                                Sign Up Free to Play
+                            @endauth
                         </a>
                         {{-- Sports CTA commented out (Kadi-only focus)
                         <a href="{{ route('sportsbook') }}"
@@ -112,20 +118,20 @@
                             <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                             </svg>
-                            <span class="text-[11px]">Instant Withdrawals</span>
+                            <span class="text-[11px]">Deposits via M-Pesa</span>
                         </div>
                         <div class="w-px h-3 bg-gray-700"></div>
                         <div class="flex items-center gap-1.5 text-gray-600">
                             <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                             </svg>
-                            <span class="text-[11px]">24/7 Support</span>
+                            <span class="text-[11px]">Support via Phone &amp; Email</span>
                         </div>
                     </div>
 
                 </div>
 
-                {{-- ══ RIGHT: Prize Pool ══
+                {{-- ══ RIGHT: Prize Pool ══ --}}
                 <div class="relative">
 
                     <div class="relative bg-gradient-to-b from-[#1a1200]/80 to-[#0a0a0a]/60
@@ -209,7 +215,7 @@
 
                         <div class="mt-5 text-center">
                             <span class="text-[10px] text-gray-700 font-cinzel tracking-widest uppercase">
-                                Guaranteed Wins
+                                Tournament Terms Apply
                             </span>
                         </div>
                     </div>
@@ -217,19 +223,18 @@
                          style="background: radial-gradient(circle at top right, rgba(245,197,66,0.15), transparent 70%);">
                     </div>
                 </div>
-                --}}
 
-                {{-- ══ RIGHT: Kadi Table Showcase ══ --}}
+                {{-- ══ RIGHT: Kadi Table Showcase ══
                 <div class="relative flex flex-col items-center justify-center py-6 md:py-0">
 
-                    {{-- Ambient glow --}}
+                    {{-- Ambient glow
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div class="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-[#f5c542]/10 blur-3xl" style="animation: ambientFloat 8s ease-in-out infinite;"></div>
                         <div class="absolute w-56 h-56 md:w-72 md:h-72 rounded-full bg-amber-400/8 blur-[80px]" style="animation: ambientFloat 10s ease-in-out infinite reverse;"></div>
                         <div class="absolute w-40 h-40 md:w-52 md:h-52 rounded-full bg-yellow-200/10 blur-[50px]"></div>
                     </div>
 
-                    {{-- Orbiting suit / chip art around the centerpiece --}}
+                    {{-- Orbiting suit / chip art around the centerpiece
                     <img src="{{ asset('casino/crown.png') }}" alt="" width="64" height="64" loading="lazy" decoding="async"
                          class="hero-orbit-icon absolute top-0 left-2 md:left-6 w-12 md:w-16 object-contain" style="animation-duration:7s;" />
                     <img src="{{ asset('casino/poker.png') }}" alt="" width="72" height="72" loading="lazy" decoding="async"
@@ -241,7 +246,7 @@
                     <img src="{{ asset('casino/cherry.png') }}" alt="" width="48" height="48" loading="lazy" decoding="async"
                          class="hero-orbit-icon absolute top-1/2 -left-2 w-10 md:w-12 object-contain hidden sm:block" style="animation-duration:9s; animation-delay:1.6s;" />
 
-                    {{-- Centerpiece medallion --}}
+                    {{-- Centerpiece medallion
                     <div class="relative z-10 w-40 h-40 md:w-52 md:h-52 rounded-full flex items-center justify-center
                                 bg-gradient-to-b from-[#1a1200] to-[#0a0a0a] border-2 border-[#f5c542]/40"
                          style="box-shadow: 0 0 60px rgba(245,197,66,0.22), inset 0 1px 0 rgba(245,197,66,0.15);">
@@ -264,8 +269,8 @@
                             </div>
                         </div>
                     </div>
-                    --}}
                 </div>
+                --}}
             </div>
         </div>
 

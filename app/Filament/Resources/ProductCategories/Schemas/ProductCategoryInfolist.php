@@ -38,7 +38,6 @@ class ProductCategoryInfolist
                             ->copyMessage('Slug copied')
                             ->placeholder('-'),
 
-
                     ])
                     ->columns(2),
 

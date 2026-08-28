@@ -19,7 +19,7 @@ class KadiMigrateProfilePics extends Command
     public function handle(): int
     {
         $isDryRun = $this->option('dry-run');
-        $userId   = $this->option('user');
+        $userId = $this->option('user');
 
         if ($isDryRun) {
             $this->warn('DRY RUN — no changes will be made.');
@@ -34,6 +34,7 @@ class KadiMigrateProfilePics extends Command
 
         if ($users->isEmpty()) {
             $this->info('No linked users found.');
+
             return self::SUCCESS;
         }
 
@@ -42,33 +43,35 @@ class KadiMigrateProfilePics extends Command
         $bar->start();
 
         $migrated = 0;
-        $skipped  = 0;
-        $failed   = 0;
+        $skipped = 0;
+        $failed = 0;
 
         foreach ($users as $user) {
             $bar->advance();
 
             try {
                 $customerData = KadiApi::getCustomer($user->linked_id);
-                $data         = $customerData['data'] ?? $customerData;
+                $data = $customerData['data'] ?? $customerData;
 
-                $pic       = $data['pic'] ?? null;
+                $pic = $data['pic'] ?? null;
                 $accountId = $data['id'] ?? $user->linked_id;
 
                 if (! $pic) {
                     $skipped++;
+
                     continue;
                 }
 
-                $imageBase  = rtrim(config('services.kadi_api.image_url'), '/');
+                $imageBase = rtrim(config('services.kadi_api.image_url'), '/');
                 $currentUrl = "{$imageBase}/{$pic}";
-                $newUrl     = "{$imageBase}/{$accountId}/{$pic}";
+                $newUrl = "{$imageBase}/{$accountId}/{$pic}";
 
                 // Skip if the pic field already includes the account ID subfolder
                 if (str_contains($pic, '/')) {
                     $this->newLine();
                     $this->line("  <comment>SKIP</comment>  User #{$user->id} (account {$accountId}) — pic already has subfolder: {$pic}");
                     $skipped++;
+
                     continue;
                 }
 
@@ -78,6 +81,7 @@ class KadiMigrateProfilePics extends Command
                     $this->line("    From: {$currentUrl}");
                     $this->line("    To:   {$newUrl}");
                     $migrated++;
+
                     continue;
                 }
 
@@ -88,12 +92,13 @@ class KadiMigrateProfilePics extends Command
                     $this->newLine();
                     $this->warn("  SKIP  User #{$user->id} — could not download image from {$currentUrl} (HTTP {$response->status()})");
                     $skipped++;
+
                     continue;
                 }
 
                 // Write to a temp file
-                $ext      = pathinfo($pic, PATHINFO_EXTENSION) ?: 'jpg';
-                $tmpPath  = sys_get_temp_dir().'/kadi_migrate_'.$accountId.'_'.time().'.'.$ext;
+                $ext = pathinfo($pic, PATHINFO_EXTENSION) ?: 'jpg';
+                $tmpPath = sys_get_temp_dir().'/kadi_migrate_'.$accountId.'_'.time().'.'.$ext;
                 file_put_contents($tmpPath, $response->body());
 
                 try {

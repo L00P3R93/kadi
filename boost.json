@@ -1,9 +1,13 @@
 {
     "agents": [
         "junie",
-        "claude_code"
+        "claude_code",
+        "opencode"
     ],
     "cloud": false,
+    "packages": [
+        "filament/filament"
+    ],
     "skills": [
         "fortify-development",
         "laravel-best-practices",

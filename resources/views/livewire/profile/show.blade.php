@@ -41,12 +41,12 @@
                     Personal Info
                 </button>
                 <button
-                    @click="tab = 'password'"
-                    :class="tab === 'password' ? 'bg-[#f5c542] text-black' : 'text-[#6b6b6b] hover:text-[#f5f5f0]'"
+                    @click="tab = 'security'"
+                    :class="tab === 'security' ? 'bg-[#f5c542] text-black' : 'text-[#6b6b6b] hover:text-[#f5f5f0]'"
                     class="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition"
                     style="font-family: 'Cinzel', serif;"
                 >
-                    Change Password
+                    Security
                 </button>
                 <button
                     @click="tab = 'connected'"
@@ -226,32 +226,42 @@
                 <livewire:settings.link-google-account />
             </div>
 
-            {{-- Tab 2: Change Password --}}
-            <div x-show="tab === 'password'" x-cloak class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
-                <h2 class="mb-6 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Change Password</h2>
+            {{-- Tab 2: Security (password + 2FA + passkeys) --}}
+            <div x-show="tab === 'security'" x-cloak class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
+                <h2 class="mb-6 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Security</h2>
 
-                <form wire:submit="updatePassword" class="space-y-5">
-                    <div>
-                        <flux:input wire:model="currentPassword" :label="__('Current Password')" type="password" viewable />
-                        @error('currentPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <flux:input wire:model="newPassword" :label="__('New Password')" type="password" viewable />
-                        @error('newPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <flux:input wire:model="newPasswordConfirmation" :label="__('Confirm New Password')" type="password" viewable />
-                    </div>
-                    <flux:button
-                        type="submit"
-                        variant="primary"
-                        wire:loading.attr="disabled"
-                        wire:loading.class="opacity-50 cursor-not-allowed"
-                    >
-                        <span wire:loading wire:target="updatePassword" class="animate-spin mr-2">⟳</span>
-                        Update Password
-                    </flux:button>
-                </form>
+                <section aria-label="{{ __('Password') }}">
+                    <form wire:submit="updatePassword" class="space-y-5">
+                        <div>
+                            <flux:input wire:model="currentPassword" :label="__('Current Password')" type="password" viewable />
+                            @error('currentPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <flux:input wire:model="newPassword" :label="__('New Password')" type="password" viewable />
+                            @error('newPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <flux:input wire:model="newPasswordConfirmation" :label="__('Confirm New Password')" type="password" viewable />
+                        </div>
+                        <flux:button
+                            type="submit"
+                            variant="primary"
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-50 cursor-not-allowed"
+                        >
+                            <span wire:loading wire:target="updatePassword" class="animate-spin mr-2">⟳</span>
+                            Update Password
+                        </flux:button>
+                    </form>
+                </section>
+
+                <section class="mt-8 border-t border-yellow-800/20 pt-8" aria-label="{{ __('Two-Factor Authentication') }}">
+                    <livewire:profile.security.two-factor-panel />
+                </section>
+
+                <section class="mt-8 border-t border-yellow-800/20 pt-8" aria-label="{{ __('Passkeys') }}">
+                    <livewire:profile.security.passkey-manager />
+                </section>
             </div>
         </div>
 

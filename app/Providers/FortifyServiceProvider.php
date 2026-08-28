@@ -68,5 +68,12 @@ class FortifyServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by($throttleKey);
         });
+
+        // Passkey ceremony endpoints (login options/verify, registration,
+        // confirmation, delete). WebAuthn ceremonies are expensive and
+        // challenges are stored in session, so keep this tight.
+        RateLimiter::for('passkeys', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->getAuthIdentifier() ?: $request->ip());
+        });
     }
 }

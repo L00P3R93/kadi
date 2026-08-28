@@ -57,9 +57,9 @@ class ProductCategoryResource extends Resource
     {
         return [
             'index' => ListProductCategories::route('/'),
-            //'create' => CreateProductCategory::route('/create'),
-            //'view' => ViewProductCategory::route('/{record}'),
-            //'edit' => EditProductCategory::route('/{record}/edit'),
+            // 'create' => CreateProductCategory::route('/create'),
+            // 'view' => ViewProductCategory::route('/{record}'),
+            // 'edit' => EditProductCategory::route('/{record}/edit'),
         ];
     }
 

@@ -33,7 +33,7 @@ class GamesList extends Component
             ->layout('layouts.guest')
             ->layoutData([
                 'description' => 'Browse all casino games at Kadi Kings — slots, blackjack, roulette, poker, and live dealer games available in Kenya.',
-                'page'        => 'games',
+                'page' => 'games',
             ]);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Support\Collection;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class BaseSeeder extends Seeder

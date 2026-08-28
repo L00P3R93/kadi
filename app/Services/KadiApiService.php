@@ -198,4 +198,33 @@ class KadiApiService
             return false;
         }
     }
+
+    /**
+     * Request an M-Pesa withdrawal (B2C payout) for a customer.
+     *
+     * Mirrors stkDeposit()/stkLoad(): try/catch, log response, return bool.
+     *
+     * Endpoint : POST withdrawals/{encrypted_linked_id}  (confirm against staging)
+     * Payload  : ['amount' => string]
+     * Response : ['status' => 'success'|'failed', ...]   (confirm against staging)
+     */
+    public function withdraw(User $user, float $amount): bool
+    {
+        try {
+            $response = $this->http
+                ->post('withdrawals/'.encryptOpenSSL($user->linked_id), [
+                    'amount' => (string) $amount,
+                ])
+                ->throw()
+                ->json() ?? [];
+
+            Log::info("StkPush Withdrawal Response for user {$user->id}: ".($response['status'] ?? 'unknown'));
+
+            return ($response['status'] ?? '') === 'success';
+        } catch (\Throwable $e) {
+            Log::error("StkPush Withdrawal Error for user {$user->id}: {$e->getMessage()}");
+
+            return false;
+        }
+    }
 }

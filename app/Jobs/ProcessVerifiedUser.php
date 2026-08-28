@@ -2,11 +2,10 @@
 
 namespace App\Jobs;
 
-use App\Facades\BrevoMail;
+use App\Facades\BugsApi;
 use App\Facades\KadiApi;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
-use App\Services\BrevoEmailService;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -14,10 +13,12 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
-class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
+class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -36,11 +37,16 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
             return;
         }
 
-        $plainPassword = Cache::get("user.plain_password.{$this->user->id}");
+        $cached = Cache::get("user.kadi_password_hash.{$this->user->id}");
+
+        // Null is expected for Google-auth users (no local password) — the
+        // kadi account insert handles it gracefully.
+        $kadiPasswordHash = $cached !== null ? (string) $cached : null;
 
         $customerId = $this->registerWithKadiApi();
+        $bugsId = $this->registerWithBugsApi();
         $this->fetchAndCacheCustomerProfile($customerId);
-        $this->insertIntoKadiDatabase($plainPassword, $customerId);
+        $this->insertIntoKadiDatabase($kadiPasswordHash, $customerId);
         $this->sendWelcomeEmail();
     }
 
@@ -73,9 +79,42 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
     }
 
     /**
-     * Insert a new account record into the kadi database.
+     * POST to BugsApi /users, store the returned user_id as bugs_id, and return it.
      */
-    private function insertIntoKadiDatabase(?string $plainPassword, ?int $customerId): void
+    private function registerWithBugsApi(): ?int
+    {
+        try {
+            $userArr = [
+                'account_no' => $this->user->account_no,
+                'name' => $name = $this->user->name,
+                'username' => Str::slug($name),
+                'email' => $email = $this->user->email,
+                'phone' => $this->user->phone ?? null,
+                'password' => Hash::make(Str::lower($email)),
+                'linked_id' => $this->user->linked_id,
+            ];
+            $response = BugsApi::registerUser($userArr);
+
+            if (isset($response['user_id'])) {
+                $this->user->update(['bugs_id' => $response['user_id']]);
+
+                return $response['user_id'];
+            }
+        } catch (RequestException|ConnectionException $e) {
+            Log::error('BugsApi registration failed for user '.$this->user->id.': '.$e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Insert a new account record into the kadi database.
+     *
+     * `$passwordHash` is a one-way bcrypt hash of the user's registration
+     * password (never plaintext). The KadiApi/game side must verify logins
+     * with password_verify() against this column.
+     */
+    private function insertIntoKadiDatabase(?string $passwordHash, ?int $customerId): void
     {
         try {
             $userName = explode(' ', $this->user->name);
@@ -84,11 +123,11 @@ class ProcessVerifiedUser implements ShouldQueue, ShouldBeUnique
                 'name' => $userName[0],
                 'phone' => $this->user->phone,
                 'email' => $this->user->email,
-                'password' => $plainPassword,
+                'password' => $passwordHash,
                 'outh' => $customerId,
-                'google_id' => $this->user->google_id ?? $this->user->account_no,
+                'google_id' => $this->user->account_no,
             ]);
-            Cache::forget("user.plain_password.{$this->user->id}");
+            Cache::forget("user.kadi_password_hash.{$this->user->id}");
         } catch (\Throwable $e) {
             Log::error('Kadi DB insert failed for user '.$this->user->id.': '.$e->getMessage());
         }

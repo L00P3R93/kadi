@@ -14,12 +14,19 @@ use Livewire\Component;
 class Categories extends Component
 {
     public bool $showFormModal = false;
+
     public ?int $editingId = null;
+
     public string $key = '';
+
     public string $name = '';
+
     public string $description = '';
+
     public float $pricing_multiplier = 1.00;
+
     public bool $requires_approval = false;
+
     public bool $is_active = true;
 
     public ?string $successMessage = null;
@@ -40,7 +47,6 @@ class Categories extends Component
             'is_active' => ['boolean'],
         ];
     }
-
 
     public function openCreateModal(): void
     {

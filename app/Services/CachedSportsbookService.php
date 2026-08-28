@@ -5,6 +5,7 @@ namespace App\Services;
 class CachedSportsbookService
 {
     protected string $cachePath;
+
     protected static ?array $cachedData = null; // Adding memoization
 
     public function __construct()

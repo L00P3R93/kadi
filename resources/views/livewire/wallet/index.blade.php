@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" @if ($needsLoad) wire:init="refreshCustomer" @endif>
 
     {{-- Flash messages --}}
     @if (session('wallet_success'))
@@ -10,6 +10,18 @@
     @if ($purchaseError)
         <div class="rounded-lg border border-red-700 bg-red-900/30 p-4 text-sm text-red-400">
            {{ $purchaseError }}
+        </div>
+    @endif
+
+    @if ($withdrawError)
+        <div class="rounded-lg border border-red-700 bg-red-900/30 p-4 text-sm text-red-400">
+           {{ $withdrawError }}
+        </div>
+    @endif
+
+    @if ($successMessage)
+        <div class="rounded-lg border border-green-700 bg-green-900/30 p-4 text-sm text-green-400">
+           {{ $successMessage }}
         </div>
     @endif
 
@@ -32,39 +44,42 @@
 
 
                 <div class="mb-2 h-px bg-yellow-800/20"></div>
-                <div class="mt-4 space-y-3">
-                    <a
-                        href="{{ route('buy-coins') }}"
-                        wire:navigate
-                        class="btn-casino-primary flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
-                    >
-                        + Buy Coins
-                    </a>
-                    <a
-                        href="{{ route('earn-coins') }}"
-                        wire:navigate
-                        class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
-                    >
-                        + Earn Coins
-                    </a>
-                </div>
+                @if($coinsLogicEnabled)
+                    <div class="mt-4 space-y-3">
+                        <a
+                            href="{{ route('buy-coins') }}"
+                            wire:navigate
+                            class="btn-casino-primary flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
+                        >
+                            + Buy Coins
+                        </a>
+                        <a
+                            href="{{ route('earn-coins') }}"
+                            wire:navigate
+                            class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
+                        >
+                            + Earn Coins
+                        </a>
+                    </div>
+                @endif
+
                 @if($depositWithdrawEnabled)
                     <div class="mt-4 space-y-3">
                         <button
-                            wire:click="$set('showDepositModal', true)"
+                            wire:click="openDeposit"
                             class="btn-casino-primary flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
                         >
                             + Deposit Funds
                         </button>
                         <button
-                            wire:click="$set('showWithdrawModal', true)"
+                            wire:click="openWithdraw"
                             class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
                         >
                             - Withdraw Funds
                         </button>
                     </div>
 
-                    <p class="mt-4 text-center text-xs text-[#6b6b6b]">Minimum deposit/withdrawal: KES 10</p>
+                    <p class="mt-4 text-center text-xs text-[#6b6b6b]">Minimum deposit: KES 10 · Minimum withdrawal: KES 100</p>
                 @endif
             </div>
 
@@ -159,8 +174,8 @@
 
                 {{-- Filter tabs --}}
                 <div class="mb-6 flex gap-2">
-                    @foreach (['all' => 'All', 'deposits' => 'Deposits', 'withdrawals' => 'Withdrawals'] as $key => $label)
-                        @continue($key === 'withdrawals' && ! $withdrawalsTabEnabled)
+                    @foreach (['all' => 'All', 'deposit' => 'Deposits', 'withdrawal' => 'Withdrawals'] as $key => $label)
+                        @continue($key === 'withdrawal' && ! $withdrawalsTabEnabled)
                         <button
                             wire:click="setFilter('{{ $key }}')"
                             @class([
@@ -194,7 +209,7 @@
                                         <th class="pb-3">Date</th>
                                         <th class="pb-3">Type</th>
                                         <th class="pb-3">Amount</th>
-                                        <th class="pb-3">Status</th>
+{{--                                        <th class="pb-3">Status</th>--}}
                                         <th class="pb-3">Reference</th>
                                     </tr>
                                 </thead>
@@ -205,7 +220,7 @@
                                             $status       = (int) ($tx['status'] ?? 0);
                                         @endphp
                                         <tr class="text-[#f5f5f0]/80">
-                                            <td class="py-3 text-xs text-[#6b6b6b]">{{ $tx['created_at'] ?? '—' }}</td>
+                                            <td class="py-3 text-xs text-[#6b6b6b]">{{ \Illuminate\Support\Carbon::parse($tx['created_at'])->diffForHumans()  ?? '—' }}</td>
                                             <td class="py-3">
                                                 @if ($isWithdrawal)
                                                     <span class="rounded-full bg-red-900/50 px-2.5 py-1 text-xs text-red-400 border border-red-700">Withdrawal</span>
@@ -214,8 +229,9 @@
                                                 @endif
                                             </td>
                                             <td class="py-3 font-semibold {{ $isWithdrawal ? 'text-red-400' : 'text-green-400' }}">
-                                                {{ $isWithdrawal ? '-' : '+' }}{{ session('currency.code', 'KES') }} {{ number_format($tx['amount'] ?? 0, 2) }}
+                                                {{ $isWithdrawal ? '-' : '+' }}{{-- session('currency.code', 'KES') --}} {{ number_format($tx['amount'] ?? 0, 2) }}
                                             </td>
+                                            {{--
                                             <td class="py-3">
                                                 @if ($status === 2)
                                                     <span class="rounded-full bg-green-900/50 px-2.5 py-1 text-xs text-green-400">Completed</span>
@@ -225,7 +241,8 @@
                                                     <span class="rounded-full bg-red-900/50 px-2.5 py-1 text-xs text-red-400">Failed</span>
                                                 @endif
                                             </td>
-                                            <td class="py-3 font-mono text-xs text-[#6b6b6b]">{{ $tx['reference'] ?? '—' }}</td>
+                                            --}}
+                                            <td class="py-3 font-mono text-xs text-[#6b6b6b]">{{ $tx['payment_ref'] ?? '—' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -238,22 +255,190 @@
         </div>
     </div>
 
-    {{-- Deposit Modal (UI placeholder) --}}
-    <flux:modal wire:model="showDepositModal" class="max-w-sm">
+    {{-- Deposit Modal --}}
+    <flux:modal wire:model.self="showDepositModal" class="kadi-bottom-sheet sm:max-w-sm">
         <div class="p-6 space-y-5">
-            <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Deposit Funds</h3>
-            <p class="text-sm text-[#6b6b6b]">Deposit functionality coming soon. Please contact support to add funds to your account.</p>
-            <flux:button wire:click="$set('showDepositModal', false)" variant="ghost" class="w-full">Close</flux:button>
+            <div>
+                <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Deposit Funds</h3>
+                <p class="mt-1 text-sm text-[#6b6b6b]">Confirm the M-Pesa prompt on your phone to complete the deposit.</p>
+            </div>
+
+            @if (! $confirmingDeposit)
+                {{-- Step 1: amount entry --}}
+                <flux:field>
+                    <flux:label>Amount (KES)</flux:label>
+                    <flux:input
+                        type="number"
+                        wire:model="depositAmount"
+                        min="10"
+                        step="1"
+                        inputmode="numeric"
+                        placeholder="e.g. 100"
+                    />
+                    <flux:text class="mt-1 text-xs">Minimum deposit: <span class="font-semibold text-[#f5c542]">KES 10</span></flux:text>
+                    <flux:error name="depositAmount" />
+                </flux:field>
+
+                {{-- Quick amounts --}}
+                <div>
+                    <p class="mb-2 text-xs uppercase tracking-widest text-[#6b6b6b]">Quick amounts</p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ([20, 50, 100, 500, 1000, 5000] as $quick)
+                            <button
+                                type="button"
+                                wire:click="$set('depositAmount', '{{ $quick }}')"
+                                @class([
+                                    'rounded-full border px-4 py-1.5 text-sm font-semibold transition',
+                                    'border-[#f5c542]/25 text-[#f5f5f0]/80 hover:border-[#f5c542]/60 hover:bg-[#f5c542]/10' => (float) $depositAmount !== (float) $quick,
+                                    'border-[#f5c542] bg-[#f5c542]/15 text-[#f5c542]' => (float) $depositAmount === (float) $quick,
+                                ])
+                            >
+                                {{ number_format($quick) }}
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+
+                @if ($depositError)
+                    <p class="text-sm font-medium text-red-400" role="alert">{{ $depositError }}</p>
+                @endif
+
+                <div class="flex gap-2">
+                    <flux:modal.close>
+                        <flux:button variant="ghost" class="w-full">Cancel</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button
+                        variant="primary"
+                        class="w-full"
+                        wire:click="requestDeposit"
+                        wire:loading.attr="disabled"
+                        wire:target="requestDeposit"
+                    >
+                        Deposit
+                    </flux:button>
+                </div>
+            @else
+                {{-- Step 2: confirmation --}}
+                <div class="space-y-1 rounded-xl border border-[#f5c542]/30 bg-[#f5c542]/5 p-4 text-center">
+                    <p class="text-xs uppercase tracking-widest text-[#6b6b6b]">You are about to deposit</p>
+                    <p class="text-3xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
+                        KES {{ number_format((float) $depositAmount) }}
+                    </p>
+                    <p class="text-xs text-[#6b6b6b]">
+                        via M-Pesa to <span class="font-semibold text-[#f5f5f0]/80">{{ $mpesa_phone ?? 'your registered number' }}</span>
+                    </p>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:button
+                        variant="ghost"
+                        class="w-full"
+                        wire:click="cancelDeposit"
+                        wire:loading.attr="disabled"
+                        wire:target="confirmDeposit"
+                    >
+                        Back
+                    </flux:button>
+
+                    <flux:button
+                        variant="primary"
+                        class="w-full"
+                        wire:click="confirmDeposit"
+                        :disabled="$processingDeposit"
+                        wire:loading.attr="disabled"
+                        wire:target="confirmDeposit"
+                    >
+                        {{ $processingDeposit ? 'Sending…' : 'Confirm Deposit' }}
+                    </flux:button>
+                </div>
+            @endif
         </div>
     </flux:modal>
 
-    {{-- Withdraw Modal (UI placeholder) --}}
-    <flux:modal wire:model="showWithdrawModal" class="max-w-sm">
+    {{-- Withdraw Modal --}}
+    <flux:modal wire:model.self="showWithdrawModal" class="kadi-bottom-sheet sm:max-w-sm">
         <div class="p-6 space-y-5">
-            <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💸 Withdraw Funds</h3>
-            <p class="text-sm text-[#6b6b6b]">Withdrawal functionality coming soon. Please contact support to withdraw from your account.</p>
-            <flux:button wire:click="$set('showWithdrawModal', false)" variant="ghost" class="w-full">Close</flux:button>
+            <div>
+                <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💸 Withdraw Funds</h3>
+                <p class="mt-1 text-sm text-[#6b6b6b]">
+                    Available: <span class="font-semibold text-[#f5c542]">{{ $walletCurrencyLabel }} {{ number_format($balance) }}</span>
+                </p>
+            </div>
+
+            @if (! $confirmingWithdraw)
+                {{-- Step 1: amount entry --}}
+                <flux:field>
+                    <flux:label>Amount (KES)</flux:label>
+                    <flux:input
+                        type="number"
+                        wire:model="withdrawAmount"
+                        min="100"
+                        step="1"
+                        inputmode="numeric"
+                        placeholder="Min KES 100"
+                    />
+                    <flux:text class="mt-1 text-xs">Minimum withdrawal: <span class="font-semibold text-[#f5c542]">KES 100</span></flux:text>
+                    <flux:error name="withdrawAmount" />
+                </flux:field>
+
+                @if ($withdrawError)
+                    <p class="text-sm font-medium text-red-400" role="alert">{{ $withdrawError }}</p>
+                @endif
+
+                <div class="flex gap-2">
+                    <flux:modal.close>
+                        <flux:button variant="ghost" class="w-full">Cancel</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button
+                        variant="primary"
+                        class="w-full"
+                        wire:click="requestWithdraw"
+                        wire:loading.attr="disabled"
+                        wire:target="requestWithdraw"
+                    >
+                        Withdraw
+                    </flux:button>
+                </div>
+            @else
+                {{-- Step 2: confirmation — only reachable with a valid amount --}}
+                <div class="space-y-1 rounded-xl border border-[#f5c542]/30 bg-[#f5c542]/5 p-4 text-center">
+                    <p class="text-xs uppercase tracking-widest text-[#6b6b6b]">You are about to withdraw</p>
+                    <p class="text-3xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
+                        KES {{ number_format((float) $withdrawAmount) }}
+                    </p>
+                    <p class="text-xs text-[#6b6b6b]">
+                        via M-Pesa to <span class="font-semibold text-[#f5f5f0]/80">{{ $mpesa_phone ?? 'your registered number' }}</span>
+                    </p>
+                </div>
+
+                <div class="flex gap-2">
+                    <flux:button
+                        variant="ghost"
+                        class="w-full"
+                        wire:click="cancelWithdraw"
+                        wire:loading.attr="disabled"
+                        wire:target="confirmWithdraw"
+                    >
+                        Back
+                    </flux:button>
+
+                    <flux:button
+                        variant="primary"
+                        class="w-full"
+                        wire:click="confirmWithdraw"
+                        :disabled="$processingWithdraw"
+                        wire:loading.attr="disabled"
+                        wire:target="confirmWithdraw"
+                    >
+                        {{ $processingWithdraw ? 'Processing…' : 'Confirm Withdrawal' }}
+                    </flux:button>
+                </div>
+            @endif
         </div>
     </flux:modal>
+
+    <livewire:phone-required />
 
 </div>

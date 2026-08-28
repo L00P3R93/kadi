@@ -11,7 +11,9 @@ use Livewire\Component;
 class Games extends Component
 {
     public Collection $games;
+
     public bool $showComingSoonModal = false;
+
     public string $selectedGame = '';
 
     public function mount(): void
@@ -31,7 +33,7 @@ class Games extends Component
             ->layout('layouts.app')
             ->layoutData([
                 'noindex' => true,
-                'page'    => 'dashboard',
+                'page' => 'dashboard',
             ]);
     }
 }

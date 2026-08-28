@@ -1,6 +1,8 @@
-<?php
+﻿<?php
 
 use App\Concerns\PasswordValidationRules;
+use App\Events\PasswordChanged;
+use App\Actions\Security\RevokeOtherSessions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
@@ -59,6 +61,10 @@ new #[Title('Security settings')] class extends Component {
         Auth::user()->update([
             'password' => $validated['password'],
         ]);
+
+        PasswordChanged::dispatch(Auth::user());
+
+        app(RevokeOtherSessions::class)(Auth::user());
 
         $this->reset('current_password', 'password', 'password_confirmation');
 

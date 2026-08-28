@@ -15,7 +15,7 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
 #[Fillable([
     'ad_wallet_id', 'type', 'amount', 'balance_after',
     'ad_wallet_top_up_id', 'ad_campaign_id', 'ad_view_id', 'ad_click_id',
-    'description'
+    'description',
 ])]
 class AdWalletTransaction extends Model
 {

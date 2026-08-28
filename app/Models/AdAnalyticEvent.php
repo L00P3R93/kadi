@@ -27,7 +27,7 @@ class AdAnalyticEvent extends Model
     {
         return [
             'event_data' => 'array',
-            'occurred_at' => 'datetime'
+            'occurred_at' => 'datetime',
         ];
     }
 

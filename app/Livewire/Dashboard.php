@@ -2,10 +2,11 @@
 
 namespace App\Livewire;
 
-use App\Services\GamesService;
+use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -16,43 +17,97 @@ class Dashboard extends Component
 
     public string $selectedGame = '';
 
-    public int $jackpotAmount = 2097152;
-
-    public function refreshJackpot(): void
+    /**
+     * The external play site link, carrying this user's Kadi game
+     * identity when one is known. The app's own linked google_id is
+     * authoritative; the kadi-accounts mirror is only a fallback.
+     */
+    public function buildPlayKadiUrl(): string
     {
-        $this->jackpotAmount += rand(50, 100000);
+        /** @var User $user */
+        $user = auth()->user();
+
+        $cachedProfile = Cache::get("kadi.customer.{$user->id}", []);
+
+        $googleId = $user->account_no ?? null;
+
+        return rtrim((string) config('services.kadi_api.play_url'), '/')
+            .($googleId ? '?ggid='.$googleId : '');
     }
 
-    public function pollJackpot(): void
+    /**
+     * Deterministic "live" lobby numbers derived from the time of day:
+     * quiet mornings, busy evenings — identical for every visitor and
+     * every render within the same minute (no per-render random jumps).
+     *
+     * @return array{liveTables: int, activeGames: int, onlineUsers: int}
+     */
+    public function liveStats(CarbonImmutable $now): array
     {
-        $this->refreshJackpot();
+        $hour = (float) $now->format('G') + ((int) $now->format('i')) / 60;
+        $ramp = min(max(($hour - 9) / 12, 0), 1);
+        $wave = sin($hour / 24 * 2 * pi());
+
+        return [
+            'liveTables' => 18 + (int) round(10 * $ramp),
+            'activeGames' => 120 + (int) round(30 * $ramp),
+            'onlineUsers' => (int) round(850 + 2400 * $ramp + 180 * $wave),
+        ];
     }
 
-    public function openComingSoon(string $gameName): void
+    /**
+     * Progressive pool seeded at midnight and growing steadily through
+     * the day until the nightly draw — deterministic across renders.
+     */
+    public function progressiveJackpot(CarbonImmutable $now): int
     {
-        $this->selectedGame = $gameName;
-        $this->showComingSoonModal = true;
+        return 2_097_152 + $now->secondsSinceMidnight() * 11;
     }
 
-    public function render(): Factory|\Illuminate\Contracts\View\View|View
+    /**
+     * Seconds until the next draw (21:00 app time, rolling to tomorrow).
+     */
+    public function secondsUntilNextDraw(CarbonImmutable $now): int
     {
-        $recentTransactions = auth()->user()
+        $draw = $now->setTime(21, 0);
+
+        if ($now->greaterThanOrEqualTo($draw)) {
+            $draw = $draw->addDay();
+        }
+
+        return max(0, (int) $now->diffInSeconds($draw));
+    }
+
+    public function render(): Factory|View
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $recentTransactions = $user
             ->transactions()
             ->latest()
             ->take(5)
             ->get();
 
-        $kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
-        $googleId = $kadiCustomer['google_id'] ?? null;
-        $playKadiUrl = 'https://kadi-kings.co.ke'.($googleId ? '?ggid='.$googleId : '');
+        // Prefer the fresher dedicated balance cache so this card can't
+        // contradict the header wallet widget on the same screen.
+        $kadiBalance = (float) (
+            Cache::get("wallet_balance_{$user->id}")
+            ?? Cache::get("kadi.customer.{$user->id}")['balance']
+            ?? 0
+        );
 
-        return view('livewire.dashboard', compact('recentTransactions', 'playKadiUrl') + [
-            'liveTables' => 24,
-            'activeGames' => 138,
-            'onlineUsers' => rand(1200, 4800),
-            'kadiBalance' => $kadiCustomer['balance'] ?? 0,
-            'games' => app(GamesService::class)->all(),
-        ])
+        $now = now();
+        $stats = $this->liveStats($now);
+
+        return view('livewire.dashboard', [
+            'recentTransactions' => $recentTransactions,
+            'playKadiUrl' => $this->buildPlayKadiUrl(),
+            'kadiBalance' => $kadiBalance,
+            'jackpotAmount' => $this->progressiveJackpot($now),
+            'drawInSeconds' => $this->secondsUntilNextDraw($now),
+            'kadiPlaying' => (int) round(280 + 520 * min(max((($now->hour + $now->minute / 60) - 9) / 12, 0), 1)),
+        ] + $stats)
             ->layout('layouts.app')
             ->layoutData([
                 'noindex' => true,

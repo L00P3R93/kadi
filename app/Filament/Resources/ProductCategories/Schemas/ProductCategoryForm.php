@@ -4,12 +4,9 @@ namespace App\Filament\Resources\ProductCategories\Schemas;
 
 use App\Models\ProductCategory;
 use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -25,7 +22,7 @@ class ProductCategoryForm
             Section::make()->schema([
                 TextInput::make('name')
                     ->label('Category Name')
-                    ->prefixIcon( Heroicon::OutlinedTag)
+                    ->prefixIcon(Heroicon::OutlinedTag)
                     ->prefixIconColor('primary')
                     ->required()
                     ->maxLength(255)
@@ -34,7 +31,7 @@ class ProductCategoryForm
 
                 TextInput::make('slug')
                     ->label('Category Slug')
-                    ->prefixIcon( Heroicon::OutlinedTag)
+                    ->prefixIcon(Heroicon::OutlinedTag)
                     ->prefixIconColor('primary')
                     ->disabled()
                     ->dehydrated()
@@ -44,7 +41,7 @@ class ProductCategoryForm
 
                 Select::make('parent_id')
                     ->label('Parent Category')
-                    ->prefixIcon( Heroicon::OutlinedArrowPathRoundedSquare)
+                    ->prefixIcon(Heroicon::OutlinedArrowPathRoundedSquare)
                     ->prefixIconColor('primary')
                     ->relationship('parent', 'name', fn (Builder $query) => $query->where('parent_id', null))
                     ->searchable()

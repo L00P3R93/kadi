@@ -53,6 +53,7 @@ class OddsApiQuotaWidget extends Component
             $this->remaining = (int) ($quota['remaining'] ?? 0);
             $this->used = (int) ($quota['used'] ?? 0);
             $this->updatedAt = now();
+
             return;
         }
 

@@ -2,11 +2,20 @@
 
 namespace Tests;
 
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * Seed roles/permissions (registration assigns the 'player' role)
+     * once per run, right after RefreshDatabase finishes migrating.
+     */
+    protected bool $seed = true;
+
+    protected string $seeder = RoleSeeder::class;
+
     protected function skipUnlessFortifyHas(string $feature, ?string $message = null): void
     {
         if (! Features::enabled($feature)) {

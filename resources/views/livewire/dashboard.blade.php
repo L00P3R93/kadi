@@ -16,7 +16,8 @@
             </h2>
             <p class="mb-6 text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">Ready to play? Your luck starts now.</p>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ $playKadiUrl }}" wire:navigate class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
+                <a href="{{ $playKadiUrl }}" target="_blank" rel="noopener"
+                   class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
                     Play Kadi
                 </a>
                 <a href="{{ route('wallet') }}" wire:navigate
@@ -32,10 +33,11 @@
             <x-currency-amount :amount="$kadiBalance" class="mb-1 block text-5xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
             <div class="mb-6">
                 <span class="rounded-full border border-[#f5c542]/30 bg-[#f5c542]/10 px-3 py-1 text-xs text-[#f5c542]">
-                    {{-- session('currency.code', 'KES') --}} Coins · Active
+                    {{-- session('currency.code', 'KES') --}}  · Active ·
                 </span>
             </div>
 
+             {{--
              <div class="flex flex-wrap gap-3">
                 <a href="{{ route('wallet') }}" wire:navigate
                    class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
@@ -43,12 +45,12 @@
                     Buy Coins
                 </a>
             </div>
+             --}}
 
         </div>
     </div>
 
     {{-- ── Featured Bonus + Live Jackpot row ── --}}
-    {{--
      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section class="flex flex-col">
             <div class="mb-4">
@@ -68,7 +70,7 @@
                     <h2 class="font-black text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-4" style="font-family: 'Cinzel', serif;">
                         100% Welcome Bonus
                         <span class="block mt-1 shimmer-text">
-                            Up To {{ session('currency.code', 'KES') }} {{ number_format(50000) }}
+                            Up To {{ session('currency.code', 'KES') }} {{ number_format(250) }}
                         </span>
                     </h2>
                     <p class="text-gray-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl" style="font-family: 'Outfit', sans-serif;">
@@ -79,7 +81,7 @@
                            class="btn-casino-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm no-underline">
                             🎁 Claim Bonus
                         </a>
-                        <a href="#"
+                        <a href="#popular-games"
                            class="btn-casino-ghost inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm no-underline">
                             Explore Games
                         </a>
@@ -88,7 +90,7 @@
             </div>
         </section>
 
-        <section class="flex flex-col" wire:poll.900000ms="pollJackpot">
+        <section class="flex flex-col">
             <div class="mb-4">
                 <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-900/20 border border-red-500/30 text-red-400 text-xs tracking-[0.25em] uppercase" style="font-family: 'Outfit', sans-serif;">
                     <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block"></span>
@@ -111,21 +113,23 @@
                             {{ number_format($jackpotAmount) }}
                         </div>
                         <div x-data="{
-                            h: 2, m: 18, s: 44,
+                            total: {{ $drawInSeconds }},
                             init() {
                                 setInterval(() => {
-                                    this.s--;
-                                    if (this.s < 0) { this.s = 59; this.m--; }
-                                    if (this.m < 0) { this.m = 59; this.h--; }
-                                    if (this.h < 0) { this.h = 2; this.m = 18; this.s = 44; }
+                                    if (this.total > 0) this.total--;
                                 }, 1000)
                             }
                         }">
                             <p class="text-gray-400 text-xl mt-10" style="font-family: 'Outfit', sans-serif;">
-                                ⏱ Next draw in
-                                <span class="text-[#f5c542] font-semibold"
-                                      x-text="`${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`">
-                                    02h 18m 44s
+                                <span x-show="total > 0">
+                                    ⏱ Next draw in
+                                    <span class="text-[#f5c542] font-semibold"
+                                          x-text="`${String(Math.floor(total/3600)).padStart(2,'0')}h ${String(Math.floor((total%3600)/60)).padStart(2,'0')}m ${String(total%60).padStart(2,'0')}s`">
+                                        {{ sprintf('%02dh %02dm %02ds', intdiv($drawInSeconds, 3600), intdiv($drawInSeconds % 3600, 60), $drawInSeconds % 60) }}
+                                    </span>
+                                </span>
+                                <span x-show="total === 0" x-cloak class="text-[#f5c542] font-semibold">
+                                    🎲 Drawing in progress…
                                 </span>
                             </p>
                         </div>
@@ -143,10 +147,9 @@
             </div>
         </section>
     </div>
-     --}}
 
     {{-- ── Popular Games ── --}}
-    <section>
+    <section id="popular-games">
         <div class="text-center mb-8">
             <span class="inline-block px-4 py-1 rounded-full border border-[#f5c542]/40 text-[#f5c542] text-xs tracking-[0.2em] uppercase mb-4" style="font-family: 'Outfit', sans-serif;">✦ Most Played ✦</span>
             <h2 class="text-3xl text-white" style="font-family: 'Cinzel', serif;">POPULAR <span class="shimmer-text">GAMES</span></h2>
@@ -155,7 +158,7 @@
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             @php
                 $popularGames = [
-                    ['img'=>'/casino/kadi.png', 'name'=>'Kadi', 'desc'=>'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments.', 'badge1'=>'🟢 Live Dealer', 'badge2'=>rand(120,850).' Playing', 'btn'=>'Join Now'],
+                    ['img'=>'/casino/kadi.png', 'name'=>'Kadi', 'desc'=>'Classic Kenyan card game. Thrilling Singles. Conquer Tournaments.', 'badge1'=>'🟢 Live Dealer', 'badge2'=>number_format($kadiPlaying).' Playing', 'btn'=>'Join Now'],
                     /* Non-Kadi games commented out (client focus: Kadi only)
                     ['img'=>'/casino/slots.png',      'name'=>'Golden Slots',  'desc'=>'Luxury slot action with rich visuals, bonus rounds, and glittering jackpots.','badge1'=>'📊 RTP 97.4%','badge2'=>rand(200,1200).' Playing','btn'=>'Spin Now'],
                     ['img'=>'/casino/roulette.png',   'name'=>'Roulette Noir', 'desc'=>'Spin the golden wheel and chase high-value wins in elegant style.','badge1'=>'👑 VIP Room','badge2'=>rand(80,600).' Playing','btn'=>'Spin Now'],
@@ -176,7 +179,7 @@
                         </div>
                         <h3 class="mb-1 font-bold text-[#f5c542]" style="font-family: 'Cinzel', serif;">{{ $pg['name'] }}</h3>
                         <p class="mb-3 flex-1 text-xs text-[#f5f5f0]/50 line-clamp-2" style="font-family: 'Outfit', sans-serif;">{{ $pg['desc'] }}</p>
-                        <a href="{{ $playKadiUrl }}" wire:navigate
+                        <a href="{{ $playKadiUrl }}" target="_blank" rel="noopener"
                            class="btn-casino-primary block w-full rounded-xl py-2 text-center text-xs no-underline">
                             {{ $pg['btn'] }}
                         </a>
