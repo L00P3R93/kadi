@@ -30,7 +30,8 @@ class RegisterBugsApi extends Command
 
         $query = User::whereNotNull('email_verified_at')
             ->whereNotNull('linked_id')
-            ->whereNull('bugs_id');
+            ->whereNull('bugs_id')
+            ->where('id', '>=', 501); // Skip first 500 users (bots)
 
         if ($userId) {
             $query->where('id', $userId);
