@@ -231,28 +231,55 @@
                 <h2 class="mb-6 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Security</h2>
 
                 <section aria-label="{{ __('Password') }}">
-                    <form wire:submit="updatePassword" class="space-y-5">
-                        <div>
-                            <flux:input wire:model="currentPassword" :label="__('Current Password')" type="password" viewable />
-                            @error('currentPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                    @if ($isGoogleUser)
+                        <div class="mb-4 rounded-lg border border-yellow-800/20 bg-[#f5c542]/5 p-4">
+                            <p class="text-sm text-[#f5f5f0]">
+                                <span class="font-semibold">You signed in with Google.</span>
+                                Set a password below to enable 2FA, passkeys, and password-based sign-in.
+                            </p>
                         </div>
-                        <div>
-                            <flux:input wire:model="newPassword" :label="__('New Password')" type="password" viewable />
-                            @error('newPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
-                        </div>
-                        <div>
-                            <flux:input wire:model="newPasswordConfirmation" :label="__('Confirm New Password')" type="password" viewable />
-                        </div>
-                        <flux:button
-                            type="submit"
-                            variant="primary"
-                            wire:loading.attr="disabled"
-                            wire:loading.class="opacity-50 cursor-not-allowed"
-                        >
-                            <span wire:loading wire:target="updatePassword" class="animate-spin mr-2">⟳</span>
-                            Update Password
-                        </flux:button>
-                    </form>
+                        <form wire:submit="setPassword" class="space-y-5">
+                            <div>
+                                <flux:input wire:model="newSetPassword" :label="__('New Password')" type="password" viewable />
+                                @error('newSetPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <flux:input wire:model="newSetPasswordConfirmation" :label="__('Confirm New Password')" type="password" viewable />
+                            </div>
+                            <flux:button
+                                type="submit"
+                                variant="primary"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="opacity-50 cursor-not-allowed"
+                            >
+                                <span wire:loading wire:target="setPassword" class="animate-spin mr-2">⟳</span>
+                                Set Password
+                            </flux:button>
+                        </form>
+                    @else
+                        <form wire:submit="updatePassword" class="space-y-5">
+                            <div>
+                                <flux:input wire:model="currentPassword" :label="__('Current Password')" type="password" viewable />
+                                @error('currentPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <flux:input wire:model="newPassword" :label="__('New Password')" type="password" viewable />
+                                @error('newPassword') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <flux:input wire:model="newPasswordConfirmation" :label="__('Confirm New Password')" type="password" viewable />
+                            </div>
+                            <flux:button
+                                type="submit"
+                                variant="primary"
+                                wire:loading.attr="disabled"
+                                wire:loading.class="opacity-50 cursor-not-allowed"
+                            >
+                                <span wire:loading wire:target="updatePassword" class="animate-spin mr-2">⟳</span>
+                                Update Password
+                            </flux:button>
+                        </form>
+                    @endif
                 </section>
 
                 <section class="mt-8 border-t border-yellow-800/20 pt-8" aria-label="{{ __('Two-Factor Authentication') }}">

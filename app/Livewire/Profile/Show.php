@@ -36,6 +36,12 @@ class Show extends Component
 
     public string $newPasswordConfirmation = '';
 
+    public string $newSetPassword = '';
+
+    public string $newSetPasswordConfirmation = '';
+
+    public bool $isGoogleUser = false;
+
     public string $profilePicUrl = '';
 
     public string $resolvedAvatarUrl = '';
@@ -43,6 +49,7 @@ class Show extends Component
     public function mount(): void
     {
         $user = auth()->user();
+        $this->isGoogleUser = $user->google_id !== null;
         $this->kadiCustomer = Cache::get("kadi.customer.{$user->id}", []);
         $this->name = $user->name;
         $this->email = $user->email;
@@ -130,6 +137,27 @@ class Show extends Component
 
         $this->reset('currentPassword', 'newPassword', 'newPasswordConfirmation');
         session()->flash('password_success', 'Password updated successfully.');
+    }
+
+    public function setPassword(): void
+    {
+        $this->validate([
+            'newSetPassword' => ['required', Password::defaults()],
+            'newSetPasswordConfirmation' => ['required', 'same:newSetPassword'],
+        ]);
+
+        $user = auth()->user();
+
+        $user->update([
+            'password' => Hash::make($this->newSetPassword),
+        ]);
+
+        PasswordChanged::dispatch($user);
+
+        app(RevokeOtherSessions::class)($user);
+
+        $this->reset('newSetPassword', 'newSetPasswordConfirmation');
+        session()->flash('password_success', 'Password set successfully. You can now use 2FA and passkeys.');
     }
 
     private function resolveAvatarUrl(): string
