@@ -72,4 +72,8 @@ jobs:
 
             # Bring application back up
             /usr/bin/php8.4 artisan up
+
+            # Build
+            npm install
+            npm run build
           "

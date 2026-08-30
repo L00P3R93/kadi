@@ -13,10 +13,7 @@
         </div>
 
         {{-- Content --}}
-        <div class="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-6 md:px-10 py-16 md:py-20">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-
-            </div>
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-6 md:px-10 py-16 md:py-20">
             <div class="max-w-xl text-center md:text-left mx-auto md:mx-0">
 
                 {{-- Live indicator — minimal, game-authentic --}}
