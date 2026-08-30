@@ -45,7 +45,7 @@
         {{-- Faded background images (cached) --}}
         @php
             $casinoImages = cache()->remember('welcome_casino_bg_images', 3600, function () {
-                return array_slice(glob(public_path('rules/*.{png,jpg,webp}'), GLOB_BRACE), 0, 4);
+                return array_slice(glob(public_path('casino/*.{png,jpg,webp}'), GLOB_BRACE), 0, 4);
             });
             $bgPositions = [
                 ['top-4 -left-8 md:top-8 md:-left-4', 'rotate-[-15deg]'],

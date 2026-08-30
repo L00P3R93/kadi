@@ -31,8 +31,8 @@
 
                 {{-- Headline — Cinzel, strong hierarchy --}}
                 <h1 class="font-cinzel font-black text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] leading-[1.05] tracking-tight mb-4">
-                    <span class="block text-white">Where Fortune</span>
-                    <span class="block text-[#FFD700]">Favors the Bold</span>
+                    <span class="block text-white" style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">Where Fortune</span>
+                    <span class="block text-[#f5c542]" style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">Favors the Bold</span>
                 </h1>
 
                 {{-- Supporting copy — concise, product-focused --}}
