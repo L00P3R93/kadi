@@ -26,6 +26,11 @@ class NotificationsBell extends Component
         Auth::user()->unreadNotifications()->update(['read_at' => now()]);
     }
 
+    public function clearAll(): void
+    {
+        Auth::user()->notifications()->delete();
+    }
+
     public function markAsRead(string $id): void
     {
         $notification = Auth::user()->notifications()->whereKey($id)->first();
@@ -33,6 +38,11 @@ class NotificationsBell extends Component
         if ($notification && $notification->read_at === null) {
             $notification->markAsRead();
         }
+    }
+
+    public function clear(string $id): void
+    {
+        Auth::user()->notifications()->whereKey($id)->delete();
     }
 
     public function render(): Factory|View
