@@ -314,17 +314,19 @@
                     @endif
                     --}}
 
-                    {{-- Divider --}}
+                    {{-- Divider
                     <div class="my-4 border-t border-yellow-800/20"></div>
-                    {{-- ================= ADVERTS ================= --}}
+                    --}}
+                    {{-- ================= ADVERTS =================
                     <div
                         x-show="showLabels()"
                         class="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500"
                     >
                         ADVERTS
                     </div>
+                    --}}
                     @if(auth()->user()->roles->isNotEmpty())
-                        {{-- Campaings --}}
+                        {{-- Campaings
                         <a href="{{ url('/marketing') }}"
                            :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
                            :title="!expanded ? 'Manage Ad Campaigns' : ''"
@@ -349,7 +351,8 @@
                                 x-transition:enter-end="opacity-100"
                                 class="text-sm font-medium whitespace-nowrap">Manage Campaigns</span>
                         </a>
-                        {{-- Ad Wallet --}}
+                        --}}
+                        {{-- Ad Wallet
                         <a href="{{ route('ad-wallet') }}" wire:navigate
                            :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
                            :title="!expanded ? 'Ad Vault' : ''"
@@ -378,7 +381,9 @@
                                 x-transition:enter-end="opacity-100"
                                 class="text-sm font-medium whitespace-nowrap">Ad Vault</span>
                         </a>
+                        --}}
                     @endif
+
 
 
                     {{-- Logout --}}

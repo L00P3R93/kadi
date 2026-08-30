@@ -59,6 +59,7 @@
 /* ─── Font utilities ───────────────────────────────────── */
 .font-cinzel            { font-family: 'Cinzel', serif; }
 .font-cinzel-decorative { font-family: 'Cinzel Decorative', cursive; }
+.font-outfit            { font-family: 'Outfit', sans-serif; }
 
 /* ─── Keyframes ────────────────────────────────────────── */
 @keyframes goldShimmer {

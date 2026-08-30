@@ -46,6 +46,7 @@ class BottomNav extends Component
                 'route' => 'wallet',
                 'url' => null,
             ],
+            /*
             [
                 'key' => 'campaigns',
                 'type' => 'link',
@@ -53,6 +54,7 @@ class BottomNav extends Component
                 'route' => null,
                 'url' => '/marketing',
             ],
+            */
             [
                 'key' => 'profile',
                 'type' => 'link',

@@ -1,277 +1,198 @@
 <div>
     {{-- ===================== HERO ===================== --}}
-    <section class="relative overflow-hidden bg-[#0a0a0a] min-h-[420px] md:min-h-[480px] flex items-center">
+    <section class="relative overflow-hidden bg-[#0a0a0a] min-h-[520px] md:min-h-[560px] flex items-center">
 
-        {{-- Radial gold glow behind left content --}}
-        <div class="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2
-                    w-[500px] h-[500px] rounded-full pointer-events-none"
-             style="background: radial-gradient(circle, rgba(245,197,66,0.07) 0%, transparent 70%);">
+        {{-- Gold coin — game's signature visual asset, right side --}}
+        <div class="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-[5%] lg:right-[10%] w-[380px] md:w-[320px] lg:w-[380px] pointer-events-none select-none z-[1] opacity-10 md:opacity-100"
+             aria-hidden="true">
+            <img src="{{ asset('images/logo-1.png') }}" alt=""
+                 width="450" height="450"
+                 class="w-full h-auto object-contain"
+                 style="filter: drop-shadow(0 0 40px rgba(245,197,66,0.3)) drop-shadow(0 20px 40px rgba(0,0,0,0.5));"
+                 fetchpriority="high" decoding="async" />
         </div>
-        {{-- Radial glow behind right content --}}
-        <div class="absolute top-1/3 right-1/4 -translate-y-1/2
-                    w-[400px] h-[400px] rounded-full pointer-events-none"
-             style="background: radial-gradient(circle, rgba(245,197,66,0.05) 0%, transparent 70%);">
-        </div>
 
-        {{-- Faded background images (cached) --}}
-        @php
-            $casinoImages = cache()->remember('welcome_casino_bg_images', 3600, function () {
-                return array_slice(glob(public_path('casino/*.{png,jpg,webp}'), GLOB_BRACE), 0, 4);
-            });
-            $bgPositions = [
-                ['top-4 -left-8 md:top-8 md:-left-4', 'rotate-[-15deg]'],
-                ['top-0 right-0 md:-right-6',          'rotate-[10deg]'],
-                ['bottom-4 left-16 md:bottom-8 md:left-24', 'rotate-[8deg]'],
-                ['-bottom-4 right-8 md:right-16',      'rotate-[-12deg]'],
-            ];
-        @endphp
-        @foreach($casinoImages as $i => $imgPath)
-            @php [$pos, $rot] = $bgPositions[$i] ?? ['top-0 left-0', '']; @endphp
-            <img src="{{ asset('casino/' . basename($imgPath)) }}"
-                 alt=""
-                 width="208"
-                 height="208"
-                 class="absolute {{ $pos }} {{ $rot }} opacity-[0.08] pointer-events-none select-none w-40 md:w-52 object-contain"
-                 loading="lazy"
-                 decoding="async"
-                 aria-hidden="true" />
-        @endforeach
-
-        {{-- Content grid --}}
-        <div class="relative z-10 w-full max-w-6xl mx-auto px-6 md:px-10 py-10 md:py-14">
+        {{-- Content --}}
+        <div class="relative z-10 w-full max-w-6xl mx-auto px-5 sm:px-6 md:px-10 py-16 md:py-20">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
 
-                {{-- ══ LEFT: Tagline + CTA ══ --}}
-                <div class="flex flex-col items-start">
-
-                    {{-- Live badge (hidden when the players API fails and returns 0) --}}
-                    @if($livePlayers > 0)
-                    <div class="inline-flex items-center gap-2 bg-[#f5c542]/10 border border-[#f5c542]/20 rounded-full px-3 py-1 mb-5 mt-10">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#f5c542] animate-pulse"></span>
-
-                        <span class="font-cinzel text-[10px] text-[#f5c542] uppercase tracking-[0.2em] font-semibold">
-                            Live Now · {{ number_format($livePlayers) }} Players
-                        </span>
-                    </div>
-                    @endif
-
-                    {{-- Tagline --}}
-                    <div class="mb-6">
-                        <div class="flex items-center gap-3 mb-1">
-                            <h1 class="font-cinzel font-bold text-2xl md:text-3xl lg:text-4xl text-[#f5c542] leading-none tracking-wide"
-                                style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">
-                                WHERE FORTUNE
-                            </h1>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <h2 class="font-cinzel font-black text-2xl md:text-3xl lg:text-4xl text-white leading-none tracking-wide"
-                                style="text-shadow: 0 2px 20px rgba(255,255,255,0.1);">
-                                FAVORS THE BOLD
-                            </h2>
-                        </div>
-                    </div>
-
-                    {{-- Subline --}}
-                    <p class="text-gray-400 text-sm md:text-base leading-relaxed mb-7 max-w-sm">
-                        Play competitive Kadi anytime, anywhere.
-                        Enter tournaments, challenge skilled opponents, and showcase your card-playing mastery.
-                    </p>
-
-                    {{-- CTAs --}}
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{{ auth()->check() ? $playKadiUrl : route('register') }}"
-                           @auth target="_blank" rel="noopener noreferrer" @endauth
-                           class="inline-flex items-center gap-2 bg-[#f5c542] text-black font-black
-                                  px-6 py-3 rounded-xl hover:bg-[#ffde74] transition-all duration-200
-                                  text-sm tracking-wide shadow-lg shadow-[#f5c542]/25
-                                  hover:shadow-[#f5c542]/40 hover:-translate-y-0.5">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                            </svg>
-                            @auth
-                                Play Kadi
-                            @else
-                                Sign Up Free to Play
-                            @endauth
-                        </a>
-                        {{-- Sports CTA commented out (Kadi-only focus)
-                        <a href="{{ route('sportsbook') }}"
-                           class="inline-flex items-center gap-2 bg-transparent border border-[#f5c542]/40
-                                  text-[#f5c542] font-bold px-6 py-3 rounded-xl
-                                  hover:border-[#f5c542] hover:bg-[#f5c542]/5 transition-all duration-200
-                                  text-sm tracking-wide hover:-translate-y-0.5">
-                            🏆 Sports
-                        </a>
-                        --}}
-                    </div>
-
-                    {{-- Trust badges --}}
-                    <div class="flex items-center gap-4 mt-5">
-                        <div class="flex items-center gap-1.5 text-gray-600">
-                            <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                            </svg>
-                            <span class="text-[11px]">Secure &amp; Licensed</span>
-                        </div>
-                        <div class="w-px h-3 bg-gray-700"></div>
-                        <div class="flex items-center gap-1.5 text-gray-600">
-                            <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                            </svg>
-                            <span class="text-[11px]">Deposits via M-Pesa</span>
-                        </div>
-                        <div class="w-px h-3 bg-gray-700"></div>
-                        <div class="flex items-center gap-1.5 text-gray-600">
-                            <svg class="w-3.5 h-3.5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                            </svg>
-                            <span class="text-[11px]">Support via Phone &amp; Email</span>
-                        </div>
-                    </div>
-
-                </div>
-
-                {{-- ══ RIGHT: Prize Pool ══ --}}
-                <div class="relative">
-
-                    <div class="relative bg-gradient-to-b from-[#1a1200]/80 to-[#0a0a0a]/60
-                                border border-[#f5c542]/15 rounded-2xl p-6 backdrop-blur-sm"
-                         style="box-shadow: 0 0 40px rgba(245,197,66,0.06), inset 0 1px 0 rgba(245,197,66,0.1);">
-
-
-                        <div class="flex items-center justify-between mb-5">
-                            <div>
-                                <div class="font-cinzel text-[9px] text-[#f5c542]/50 uppercase tracking-[0.3em]">Jackpot</div>
-                                <div class="font-cinzel text-sm font-bold text-[#f5c542] tracking-wider">Kadi Prize Pool</div>
-                            </div>
-                            <svg class="w-8 h-8 text-[#f5c542]/20" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M7 2v2H2v6c0 2.21 1.79 4 4 4h.5c.8 2 2.3 3.5 4.5 3.94V20H7v2h10v-2h-4v-2.06c2.2-.44 3.7-1.94 4.5-3.94H18c2.21 0 4-1.79 4-4V4h-5V2H7zm-1 2v4H4V6h2zm12 4V4h2v4h-2z"/>
-                            </svg>
-                        </div>
-
-                        <div class="h-px bg-gradient-to-r from-transparent via-[#f5c542]/20 to-transparent mb-5"></div>
-                        @php
-                            $seed = (int) date('YmdH');
-                            mt_srand($seed);
-                            $prizes = [
-                                ['rank'=>1,'label'=>'1st Place',            'emoji'=>'🥇','amount'=> 110452931 + mt_rand(-500000,500000), 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
-                                ['rank'=>2,'label'=>'Runner-Up',            'emoji'=>'🥈','amount'=>  25016384 + mt_rand(-200000,200000), 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
-                                ['rank'=>3,'label'=>'Semis (x2 Losers)',    'emoji'=>'🥉','amount'=>   9978624 + mt_rand(-100000,100000), 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
-                                ['rank'=>4,'label'=>'Quarters (x4 Losers)', 'emoji'=>'🎯','amount'=>   3107899 + mt_rand(-50000, 50000),  'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
-                            ];
-                        @endphp
-
-                        <div
-                            x-data="{
-                                prizes: @js($prizes),
-                                displayed: [0,0,0,0],
-                                started: false,
-                                startCounting() {
-                                    if (this.started) return;
-                                    this.started = true;
-                                    this.prizes.forEach((prize, i) => {
-                                        const target = prize.amount;
-                                        const steps = 65;
-                                        let step = 0;
-                                        const iv = setInterval(() => {
-                                            step++;
-                                            const eased = 1 - Math.pow(1 - step/steps, 3);
-                                            this.displayed[i] = Math.round(target * eased);
-                                            this.displayed = [...this.displayed];
-                                            if (step >= steps) { clearInterval(iv); this.displayed[i] = target; this.displayed = [...this.displayed]; }
-                                        }, 2200 / steps);
-                                    });
-                                },
-                                fmt(n) { return Math.round(n).toLocaleString(); }
-                            }"
-                            x-intersect.once="startCounting()"
-                            class="space-y-3"
-                        >
-                            @foreach($prizes as $i => $prize)
-                                <div class="flex items-center gap-3">
-                                    <span class="text-2xl flex-shrink-0 leading-none"
-                                          style="filter: drop-shadow(0 0 8px {{ $prize['glow'] }});">
-                                        {{ $prize['emoji'] }}
-                                    </span>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-[10px] font-semibold uppercase tracking-widest"
-                                             style="color: {{ $prize['color'] }}; opacity: 0.6;">
-                                            {{ $prize['label'] }}
-                                        </div>
-                                    </div>
-                                    <div class="text-right flex-shrink-0">
-                                        <div class="font-cinzel font-black text-sm md:text-base leading-none"
-                                             style="color: {{ $prize['color'] }}; text-shadow: 0 0 12px {{ $prize['glow'] }};"
-                                             :x-text="'KES ' + fmt(displayed[{{ $i }}])"
-                                             x-text="'KES {{ number_format($prize['amount']) }}'">
-                                        </div>
-                                    </div>
-                                </div>
-                                @if($i < 3)
-                                    <div class="h-px bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-                                @endif
-                            @endforeach
-                        </div>
-
-                        <div class="mt-5 text-center">
-                            <span class="text-[10px] text-gray-700 font-cinzel tracking-widest uppercase">
-                                Tournament Terms Apply
-                            </span>
-                        </div>
-                    </div>
-                    <div class="absolute -top-2 -right-2 w-16 h-16 pointer-events-none"
-                         style="background: radial-gradient(circle at top right, rgba(245,197,66,0.15), transparent 70%);">
-                    </div>
-                </div>
-
-                {{-- ══ RIGHT: Kadi Table Showcase ══
-                <div class="relative flex flex-col items-center justify-center py-6 md:py-0">
-
-                    {{-- Ambient glow
-                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div class="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-[#f5c542]/10 blur-3xl" style="animation: ambientFloat 8s ease-in-out infinite;"></div>
-                        <div class="absolute w-56 h-56 md:w-72 md:h-72 rounded-full bg-amber-400/8 blur-[80px]" style="animation: ambientFloat 10s ease-in-out infinite reverse;"></div>
-                        <div class="absolute w-40 h-40 md:w-52 md:h-52 rounded-full bg-yellow-200/10 blur-[50px]"></div>
-                    </div>
-
-                    {{-- Orbiting suit / chip art around the centerpiece
-                    <img src="{{ asset('casino/crown.png') }}" alt="" width="64" height="64" loading="lazy" decoding="async"
-                         class="hero-orbit-icon absolute top-0 left-2 md:left-6 w-12 md:w-16 object-contain" style="animation-duration:7s;" />
-                    <img src="{{ asset('casino/poker.png') }}" alt="" width="72" height="72" loading="lazy" decoding="async"
-                         class="hero-orbit-icon absolute bottom-6 right-0 md:right-2 w-16 md:w-20 object-contain" style="animation-duration:8.5s; animation-delay:.6s;" />
-                    <img src="{{ asset('casino/dice.png') }}" alt="" width="56" height="56" loading="lazy" decoding="async"
-                         class="hero-orbit-icon absolute bottom-2 left-0 w-11 md:w-14 object-contain" style="animation-duration:6.5s; animation-delay:1.1s;" />
-                    <img src="{{ asset('casino/diamond.png') }}" alt="" width="56" height="56" loading="lazy" decoding="async"
-                         class="hero-orbit-icon absolute top-6 right-0 md:right-6 w-11 md:w-14 object-contain" style="animation-duration:7.5s; animation-delay:.3s;" />
-                    <img src="{{ asset('casino/cherry.png') }}" alt="" width="48" height="48" loading="lazy" decoding="async"
-                         class="hero-orbit-icon absolute top-1/2 -left-2 w-10 md:w-12 object-contain hidden sm:block" style="animation-duration:9s; animation-delay:1.6s;" />
-
-                    {{-- Centerpiece medallion
-                    <div class="relative z-10 w-40 h-40 md:w-52 md:h-52 rounded-full flex items-center justify-center
-                                bg-gradient-to-b from-[#1a1200] to-[#0a0a0a] border-2 border-[#f5c542]/40"
-                         style="box-shadow: 0 0 60px rgba(245,197,66,0.22), inset 0 1px 0 rgba(245,197,66,0.15);">
-                        <img src="{{ asset('casino/kadi.png') }}" alt="Kadi Kings"
-                             width="176" height="176" loading="eager" fetchpriority="high" decoding="async"
-                             class="w-28 h-28 md:w-36 md:h-36 object-contain" style="filter: drop-shadow(0 0 22px rgba(245,197,66,0.4));" />
-                    </div>
-
-                    {{-- Caption card
-                    <div class="relative z-10 mt-6 w-full max-w-xs">
-                        <div class="glass-card px-5 py-4 text-center">
-                            <div class="font-cinzel text-xs font-bold tracking-widest text-[#f5c542] uppercase mb-1">
-                                Every Hand Counts
-                            </div>
-                            <p class="text-[11px] text-[#6b6b6b] leading-relaxed">
-                                Real Kadi tables, real opponents, no waiting.
-                            </p>
-                            <div class="mt-3 flex items-center justify-center gap-2 text-[10px] font-cinzel tracking-wider text-[#f5f5f0]/50">
-                                <span>♠</span><span>♥</span><span>♦</span><span>♣</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                --}}
             </div>
+            <div class="max-w-xl text-center md:text-left mx-auto md:mx-0">
+
+                {{-- Live indicator — minimal, game-authentic --}}
+                @if($livePlayers > 0)
+                <div class="inline-flex items-center gap-2 mb-6">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5c542] opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[#f5c542]"></span>
+                    </span>
+                    <span class="font-cinzel text-[11px] font-medium text-white/60 tracking-wide">
+                        Live Now · {{ number_format($livePlayers) }} Players
+                    </span>
+                </div>
+                @endif
+
+                {{-- Headline — Cinzel, strong hierarchy --}}
+                <h1 class="font-cinzel font-black text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] leading-[1.05] tracking-tight mb-4">
+                    <span class="block text-white">Where Fortune</span>
+                    <span class="block text-[#FFD700]">Favors the Bold</span>
+                </h1>
+
+                {{-- Supporting copy — concise, product-focused --}}
+                <p class="text-white/50 text-[15px] md:text-base leading-relaxed mb-8 max-w-md mx-auto md:mx-0">
+                    Play competitive Kadi anytime, anywhere. Enter tournaments, challenge skilled opponents, and master the game.
+                </p>
+
+                {{-- CTA — gold used sparingly, game-authentic --}}
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                    <a href="{{ auth()->check() ? $playKadiUrl : route('register') }}"
+                       @auth target="_blank" rel="noopener noreferrer" @endauth
+                       class="font-cinzel inline-flex items-center gap-2.5
+                              rounded-full px-7 py-3.5 text-sm font-bold
+                              bg-[#f5c542] text-[#0a0a0a]
+                              hover:bg-[#ffde74]
+                              hover:-translate-y-0.5 transition-all duration-300">
+                        @auth
+                            Play Kadi
+                        @else
+                            Sign Up Free to Play
+                        @endauth
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </a>
+                </div>
+
+                {{-- Trust indicators — simplified, game-authentic minimal style --}}
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 mt-8">
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-white/40" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                        <span class="font-cinzel text-[11px] text-white/40">Secure &amp; Licensed</span>
+                    </div>
+                    <div class="w-px h-3 bg-white/10"></div>
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-white/40" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.69 0-3.267-.507-4.575-1.375l-.325-.2-2.875.855.855-2.875-.2-.325A7.963 7.963 0 0 1 4 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/>
+                        </svg>
+                        <span class="font-cinzel text-[11px] text-white/40">Deposits via M-Pesa</span>
+                    </div>
+                    <div class="w-px h-3 bg-white/10"></div>
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-white/40" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                        <span class="font-cinzel text-[11px] text-white/40">Phone &amp; Email Support</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Prize Pool — clean, game-authentic styling --}}
+            @php
+                $seed = (int) date('YmdH');
+                mt_srand($seed);
+                $prizes = [
+                    ['rank'=>1,'label'=>'1st',  'amount'=> 110452931 + mt_rand(-500000,500000), 'color'=>'#FFD700'],
+                    ['rank'=>2,'label'=>'2nd',  'amount'=>  25016384 + mt_rand(-200000,200000), 'color'=>'#C0C0C0'],
+                    ['rank'=>3,'label'=>'3rd',  'amount'=>   9978624 + mt_rand(-100000,100000), 'color'=>'#CD7F32'],
+                    ['rank'=>4,'label'=>'4th',  'amount'=>   3107899 + mt_rand(-50000, 50000),  'color'=>'#60a5fa'],
+                ];
+            @endphp
+
+            <div class="hidden md:block mt-10 max-w-lg"
+                 x-data="{
+                     prizes: @js($prizes),
+                     displayed: [0,0,0,0],
+                     started: false,
+                     startCounting() {
+                         if (this.started) return;
+                         this.started = true;
+                         this.prizes.forEach((prize, i) => {
+                             const target = prize.amount;
+                             const steps = 60;
+                             let step = 0;
+                             const iv = setInterval(() => {
+                                 step++;
+                                 const eased = 1 - Math.pow(1 - step/steps, 3);
+                                 this.displayed[i] = Math.round(target * eased);
+                                 this.displayed = [...this.displayed];
+                                 if (step >= steps) { clearInterval(iv); this.displayed[i] = target; this.displayed = [...this.displayed]; }
+                             }, 2000 / steps);
+                         });
+                     },
+                     fmt(n) { return Math.round(n).toLocaleString(); }
+                 }"
+                 x-intersect.once="startCounting()">
+
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="font-cinzel text-[10px] text-white/30 uppercase tracking-[0.25em] font-semibold">Today's Jackpot</span>
+                    <div class="flex-1 h-px bg-white/5"></div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3">
+                    @foreach($prizes as $i => $prize)
+                        <div class="text-center">
+                            <div class="text-[10px] uppercase tracking-wider mb-1 font-medium" style="color: {{ $prize['color'] }}; opacity: 0.6;">
+                                {{ $prize['label'] }}
+                            </div>
+                            <div class="font-bold text-xs md:text-sm leading-none"
+                                 style="color: {{ $prize['color'] }};"
+                                 :x-text="'KES ' + fmt(displayed[{{ $i }}])"
+                                 x-text="'KES {{ number_format($prize['amount']) }}'">
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Mobile prize strip — horizontal scroll --}}
+            <div class="md:hidden mt-8 -mx-5 px-5 py-3 bg-white/[0.02] border-t border-b border-white/[0.04]"
+                 x-data="{
+                     prizes: @js($prizes),
+                     displayed: [0,0,0,0],
+                     started: false,
+                     startCounting() {
+                         if (this.started) return;
+                         this.started = true;
+                         this.prizes.forEach((prize, i) => {
+                             const target = prize.amount;
+                             const steps = 60;
+                             let step = 0;
+                             const iv = setInterval(() => {
+                                 step++;
+                                 const eased = 1 - Math.pow(1 - step/steps, 3);
+                                 this.displayed[i] = Math.round(target * eased);
+                                 this.displayed = [...this.displayed];
+                                 if (step >= steps) { clearInterval(iv); this.displayed[i] = target; this.displayed = [...this.displayed]; }
+                             }, 2000 / steps);
+                         });
+                     },
+                     fmt(n) { return Math.round(n).toLocaleString(); }
+                 }"
+                 x-intersect.once="startCounting()">
+
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <span class="font-cinzel text-[10px] text-white/30 uppercase tracking-[0.25em] font-semibold">Jackpot</span>
+                    <div class="w-8 h-px bg-white/5"></div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    @foreach($prizes as $i => $prize)
+                        <div class="text-center">
+                            <div class="text-[9px] uppercase tracking-wider mb-1 font-medium" style="color: {{ $prize['color'] }}; opacity: 0.6;">
+                                {{ $prize['label'] }}
+                            </div>
+                            <div class="font-cinzel font-bold text-[11px] leading-none"
+                                 style="color: {{ $prize['color'] }};"
+                                 :x-text="'KES ' + fmt(displayed[{{ $i }}])"
+                                 x-text="'KES {{ number_format($prize['amount']) }}'">
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
         </div>
 
     </section>
