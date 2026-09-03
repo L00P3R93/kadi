@@ -12,7 +12,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Wallet | Kadi Kings')]
+#[Title('Wallet | Kadi')]
 class Index extends Component
 {
     public string $filter = 'all';

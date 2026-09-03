@@ -15,7 +15,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Profile | Kadi Kings')]
+#[Title('Profile | Kadi')]
 class Show extends Component
 {
     public string $name = '';

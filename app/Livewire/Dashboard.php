@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Dashboard | Kadi Kings')]
+#[Title('Dashboard | Kadi')]
 class Dashboard extends Component
 {
     public bool $showComingSoonModal = false;

@@ -14,7 +14,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Kadi Kings — Kenya\'s Kadi Game')]
+#[Title('Kadi — Kenya\'s Card Game')]
 class Welcome extends Component
 {
     public string $playKadiUrl;

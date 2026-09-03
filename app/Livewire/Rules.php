@@ -16,7 +16,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.guest')]
-#[Title('Rules & Card Guide | Kadi Kings')]
+#[Title('Rules & Card Guide | Kadi')]
 class Rules extends Component
 {
     public string $playKadiUrl;

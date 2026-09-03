@@ -124,10 +124,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/campaigns/{campaign}', ShowCampaign::class)->name('campaigns.show');
     Route::get('/campaigns/{campaign}/ads', Adverts::class)->name('campaigns.ads');
     //    Route::get('/kadi', KadiGameController::class)->name('kadi');
-
-    Route::get('/terms', Terms::class)->name('legal.terms');
-    Route::get('/privacy', Privacy::class)->name('legal.privacy');
 });
+
+Route::get('/terms', Terms::class)->name('legal.terms');
+Route::get('/privacy', Privacy::class)->name('legal.privacy');
 
 require __DIR__.'/settings.php';
 
