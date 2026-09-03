@@ -18,6 +18,7 @@ jobs:
     timeout-minutes: 20
 
     steps:
+
       # -----------------------------------------------------------------------
       # Checkout
       # -----------------------------------------------------------------------
@@ -28,9 +29,6 @@ jobs:
 
       # -----------------------------------------------------------------------
       # SSH agent
-      #
-      # DEPLOY_KEY is the PRIVATE SSH KEY used by GitHub Actions to connect
-      # to the deployer account on the production server.
       # -----------------------------------------------------------------------
       - name: Configure SSH
         uses: webfactory/ssh-agent@v0.9.1
@@ -38,16 +36,7 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
       # -----------------------------------------------------------------------
-      # Add production server to known_hosts
-      #
-      # DEPLOY_KNOWN_HOSTS should contain the server's SSH host key.
-      #
-      # Generate it locally with:
-      #
-      # ssh-keyscan -H YOUR_SERVER_IP
-      #
-      # Prefer storing the complete output as a GitHub secret rather than
-      # using StrictHostKeyChecking=no.
+      # Known hosts
       # -----------------------------------------------------------------------
       - name: Configure known hosts
         run: |
@@ -66,6 +55,7 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+
         run: |
           set -euo pipefail
 
@@ -77,7 +67,7 @@ jobs:
             -o BatchMode=yes \
             -o ConnectTimeout=15 \
             "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "DEPLOY_PATH='${DEPLOY_PATH}' bash -s" << 'EOF'
+            "DEPLOY_PATH='${DEPLOY_PATH}' DEPLOY_USER='${DEPLOY_USER}' bash -s" << 'EOF'
 
           set -Eeuo pipefail
 
@@ -106,7 +96,10 @@ jobs:
 
           echo "Required commands found."
 
-          # Verify passwordless sudo is working.
+          # -------------------------------------------------------------------
+          # Verify passwordless sudo
+          # -------------------------------------------------------------------
+
           sudo -n true
 
           echo "Passwordless sudo verified."
@@ -114,13 +107,21 @@ jobs:
           # -------------------------------------------------------------------
           # Verify GitHub SSH authentication
           #
-          # This tests the SSH key belonging to the deployer user.
+          # IMPORTANT:
+          # The deployment script is being provided through stdin.
+          # Redirect stdin to /dev/null so this SSH test cannot consume
+          # the remaining deployment script.
           # -------------------------------------------------------------------
 
           echo ""
           echo "Testing GitHub SSH authentication..."
 
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -T git@github.com 2>&1 || true
+          ssh \
+              -o BatchMode=yes \
+              -o StrictHostKeyChecking=yes \
+              -T git@github.com \
+              </dev/null \
+              2>&1 || true
 
           echo "GitHub SSH authentication test completed."
 
@@ -133,8 +134,18 @@ jobs:
               exit 1
           fi
 
+          echo "Git repository verified."
+
           # -------------------------------------------------------------------
-          # Enable maintenance mode only after repository verification.
+          # Show current version
+          # -------------------------------------------------------------------
+
+          echo ""
+          echo "Current commit:"
+          git rev-parse --short HEAD
+
+          # -------------------------------------------------------------------
+          # Enable maintenance mode
           # -------------------------------------------------------------------
 
           echo ""
@@ -143,13 +154,14 @@ jobs:
           /usr/bin/php8.4 artisan down --retry=60
 
           # -------------------------------------------------------------------
-          # Always bring application back online if deployment fails.
+          # Always bring application back online if deployment fails
           # -------------------------------------------------------------------
 
           cleanup() {
               EXIT_CODE=$?
 
               if [ "$EXIT_CODE" -ne 0 ]; then
+
                   echo ""
                   echo "========================================"
                   echo "Deployment FAILED"
@@ -190,6 +202,10 @@ jobs:
 
           done
 
+          echo ""
+          echo "New commit:"
+          git rev-parse --short HEAD
+
           # -------------------------------------------------------------------
           # Install Composer dependencies
           # -------------------------------------------------------------------
@@ -228,12 +244,20 @@ jobs:
           echo "Installing frontend dependencies..."
 
           if [ -f package-lock.json ]; then
-              npm ci --no-audit --no-fund
+
+              npm ci \
+                  --no-audit \
+                  --no-fund
+
           else
+
               echo "WARNING: package-lock.json not found."
               echo "Falling back to npm install."
 
-              npm install --no-audit --no-fund
+              npm install \
+                  --no-audit \
+                  --no-fund
+
           fi
 
           # -------------------------------------------------------------------
@@ -274,16 +298,12 @@ jobs:
 
           # -------------------------------------------------------------------
           # Fix Laravel permissions
-          #
-          # Application code remains owned by deployer.
-          #
-          # www-data gets group access only where Laravel needs to write.
           # -------------------------------------------------------------------
 
           echo ""
           echo "Fixing Laravel permissions..."
 
-          sudo chown -R deployer:www-data storage bootstrap/cache
+          sudo chown -R "${DEPLOY_USER}:www-data" storage bootstrap/cache
 
           sudo find storage bootstrap/cache \
               -type d \
@@ -293,8 +313,8 @@ jobs:
               -type f \
               -exec chmod 664 {} \;
 
-          # .env should remain private but readable by www-data.
-          sudo chown deployer:www-data .env
+          # .env remains private but readable by www-data.
+          sudo chown "${DEPLOY_USER}:www-data" .env
           sudo chmod 640 .env
 
           # -------------------------------------------------------------------
@@ -335,7 +355,7 @@ jobs:
 
           /usr/bin/php8.4 artisan up
 
-          # Deployment succeeded, so disable failure cleanup.
+          # Deployment succeeded.
           trap - EXIT
 
           echo ""
