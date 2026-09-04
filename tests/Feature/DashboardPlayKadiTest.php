@@ -3,20 +3,16 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
-test('play link uses the configured play url', function () {
-    config(['services.kadi_api.play_url' => 'https://play.example.test']);
-
+test('play form posts to the play route', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertSee('https://play.example.test', false);
+        ->assertSee(route('play'), false);
 });
 
 test('the app account no takes precedence over the cached kadi mirror', function () {
-    config(['services.kadi_api.play_url' => 'https://play.example.test']);
-
     $user = User::factory()->create(['account_no' => 'app-google-123']);
     Cache::put("kadi.customer.{$user->id}", [
         'balance' => 500,
@@ -27,13 +23,11 @@ test('the app account no takes precedence over the cached kadi mirror', function
 
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertSee('ggid=app-google-123', false)
+        ->assertSee('value="app-google-123"', false)
         ->assertDontSee('kadi-mirror-999', false);
 });
 
 test('the cached kadi mirror account no is used as a fallback', function () {
-    config(['services.kadi_api.play_url' => 'https://play.example.test']);
-
     $user = User::factory()->create(['account_no' => 'kadi-mirror-999']);
     Cache::put("kadi.customer.{$user->id}", [
         'balance' => 500,
@@ -44,7 +38,7 @@ test('the cached kadi mirror account no is used as a fallback', function () {
 
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertSee('ggid=kadi-mirror-999', false);
+        ->assertSee('value="kadi-mirror-999"', false);
 });
 
 test('balance card prefers the fresher wallet balance cache over the stale profile mirror', function () {
@@ -61,12 +55,12 @@ test('balance card prefers the fresher wallet balance cache over the stale profi
         ->assertSee('KES 777', false);
 });
 
-test('external play links open in a new tab without wire navigate', function () {
+test('external play forms open in a new tab', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
     $html = $this->get(route('dashboard'))->getContent();
 
-    $playLinks = substr_count($html, 'target="_blank"');
-    expect($playLinks)->toBeGreaterThanOrEqual(2);
+    $playForms = substr_count($html, 'target="_blank"');
+    expect($playForms)->toBeGreaterThanOrEqual(2);
 });

@@ -17,23 +17,27 @@ class Dashboard extends Component
 
     public string $selectedGame = '';
 
+    public string $googleId = '';
+
+    public string $playKadiUrl;
+
+    public function mount(): void
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        $this->googleId = $user->account_no ?? null;
+
+        $this->playKadiUrl = rtrim((string) config('services.kadi_api.play_url'), '/');
+    }
+
     /**
      * The external play site link, carrying this user's Kadi game
      * identity when one is known. The app's own linked google_id is
      * authoritative; the kadi-accounts mirror is only a fallback.
      */
-    public function buildPlayKadiUrl(): string
-    {
-        /** @var User $user */
-        $user = auth()->user();
-
-        $cachedProfile = Cache::get("kadi.customer.{$user->id}", []);
-
-        $googleId = $user->account_no ?? null;
-
-        return rtrim((string) config('services.kadi_api.play_url'), '/')
-            .($googleId ? '?ggid='.$googleId : '');
-    }
+    public function buildPlayKadiUrl(): void
+    {}
 
     /**
      * Deterministic "live" lobby numbers derived from the time of day:
@@ -102,7 +106,8 @@ class Dashboard extends Component
 
         return view('livewire.dashboard', [
             'recentTransactions' => $recentTransactions,
-            'playKadiUrl' => $this->buildPlayKadiUrl(),
+            'playKadiUrl' => $this->playKadiUrl,
+            'googleId' => $this->googleId,
             'kadiBalance' => $kadiBalance,
             'jackpotAmount' => $this->progressiveJackpot($now),
             'drawInSeconds' => $this->secondsUntilNextDraw($now),

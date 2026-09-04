@@ -69,22 +69,34 @@
 
                     {{-- CTA — gold used sparingly, game-authentic --}}
                     <div class="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                        <a href="{{ auth()->check() ? $playKadiUrl : route('register') }}"
-                           @auth target="_blank" rel="noopener noreferrer" @endauth
-                           class="font-cinzel inline-flex items-center gap-2.5
-                              rounded-full px-7 py-3.5 text-sm font-bold
-                              bg-[#f5c542] text-[#0a0a0a]
-                              hover:bg-[#ffde74]
-                              hover:-translate-y-0.5 transition-all duration-300">
-                            @auth
+                        @auth
+                            <button type="button"
+                                    onclick="document.getElementById('kadiPlayForm').submit()"
+                                    class="font-cinzel inline-flex items-center gap-2.5
+                                      rounded-full px-7 py-3.5 text-sm font-bold
+                                      bg-[#f5c542] text-[#0a0a0a]
+                                      hover:bg-[#ffde74]
+                                      hover:-translate-y-0.5 transition-all duration-300">
                                 Play Kadi
-                            @else
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                </svg>
+                            </button>
+
+                            @include('partials.kadi-play-form')
+                        @else
+                            <a href="{{ route('register') }}"
+                               class="font-cinzel inline-flex items-center gap-2.5
+                                  rounded-full px-7 py-3.5 text-sm font-bold
+                                  bg-[#f5c542] text-[#0a0a0a]
+                                  hover:bg-[#ffde74]
+                                  hover:-translate-y-0.5 transition-all duration-300">
                                 Sign Up Free to Play
-                            @endauth
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                            </svg>
-                        </a>
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                </svg>
+                            </a>
+                        @endauth
                     </div>
 
                     {{-- Trust indicators — simplified, game-authentic minimal style --}}
@@ -398,10 +410,14 @@
                     <p class="text-[#f5f5f0]/60" style="font-family: 'Outfit', sans-serif;">Earn bonus coins by watching ads and playing mini-games. T&Cs apply.</p>
                 </div>
                 @auth
-                    <a href="{{ $playKadiUrl }}" wire:navigate
-                       class="btn-casino-primary shrink-0 inline-block rounded-full px-8 py-4 no-underline">
-                        Play Kadi →
-                    </a>
+                    <form action="{{ route('play') }}" method="POST" target="_blank" class="shrink-0 inline">
+                        @csrf
+                        <input type="hidden" name="ggid" value="{{ $googleId }}">
+                        <button type="submit"
+                           class="btn-casino-primary inline-block rounded-full px-8 py-4 no-underline">
+                            Play Kadi →
+                        </button>
+                    </form>
                 @else
                     <a href="{{ route('register') }}" wire:navigate
                        class="btn-casino-primary shrink-0 inline-block rounded-full px-8 py-4 no-underline">

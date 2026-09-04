@@ -17,16 +17,18 @@ use Livewire\Component;
 #[Title('Kadi — Kenya\'s Card Game')]
 class Welcome extends Component
 {
+    public string $googleId = '';
+
     public string $playKadiUrl;
 
     public function mount(): void
     {
+        $this->playKadiUrl = config('services.kadi_api.play_url');
+
         /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
-            $this->playKadiUrl = route('login');
-
             return;
         }
 
@@ -37,10 +39,7 @@ class Welcome extends Component
             $profile = $this->refreshProfile($user, $cacheKey);
         }
 
-        $googleId = $user->account_no ?? null;
-
-        $this->playKadiUrl = 'https://kadi-kings.co.ke'
-            .($googleId ? '?ggid='.$googleId : '');
+        $this->googleId = (string) ($user->account_no ?? '');
     }
 
     public function livePlayers(): int
@@ -95,6 +94,8 @@ class Welcome extends Component
         return view('livewire.welcome', [
             'livePlayers' => $this->livePlayers(),
             'users' => User::count(),
+            'playKadiUrl' => $this->playKadiUrl,
+            'googleId' => $this->googleId,
         ])
             ->layout('layouts.guest')
             ->layoutData([
