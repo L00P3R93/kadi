@@ -3,7 +3,7 @@
     <head>
         @php
             $noindex     = true;
-            $description = 'Sign in or create your Kadi Kings account to play casino games and claim your welcome bonus.';
+            $description = 'Sign in or create your Kadi account to play and claim your welcome bonus.';
             $page        = 'auth';
         @endphp
         @include('partials.head')
@@ -13,7 +13,7 @@
              style="background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);">
             <div class="flex w-full max-w-md flex-col gap-6">
                 <a href="{{ route('home') }}" class="flex flex-col items-center gap-2" wire:navigate>
-                    <span class="text-2xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ KADI KINGS</span>
+                    <span class="text-2xl tracking-widest text-[#f5c542]" style="font-family: 'Cinzel', serif;">♠ KADI</span>
                 </a>
 
                 <div class="flex flex-col gap-6">

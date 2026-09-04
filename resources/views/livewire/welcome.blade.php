@@ -237,7 +237,7 @@
                     <div class="relative z-10 w-40 h-40 md:w-52 md:h-52 rounded-full flex items-center justify-center
                                 bg-gradient-to-b from-[#1a1200] to-[#0a0a0a] border-2 border-[#f5c542]/40"
                          style="box-shadow: 0 0 60px rgba(245,197,66,0.22), inset 0 1px 0 rgba(245,197,66,0.15);">
-                        <img src="{{ asset('casino/kadi.png') }}" alt="Kadi Kings"
+                        <img src="{{ asset('casino/kadi.png') }}" alt="Kadi"
                              width="176" height="176" loading="eager" fetchpriority="high" decoding="async"
                              class="w-28 h-28 md:w-36 md:h-36 object-contain" style="filter: drop-shadow(0 0 22px rgba(245,197,66,0.4));" />
                     </div>

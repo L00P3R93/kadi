@@ -15,7 +15,7 @@
                 TERMS &amp; CONDITIONS
             </h1>
             <p class="text-gray-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-                The rules of the house. By using Kadi Kings, you agree to play by these terms — no exceptions.
+                The rules of the house. By using Kadi, you agree to play by these terms — no exceptions.
             </p>
 
             <div class="mt-6 flex flex-wrap items-center justify-center gap-2">
@@ -41,7 +41,7 @@
                     <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">Before You Play</div>
                     <h2 class="font-cinzel font-bold text-xl md:text-2xl text-[#f5f5f0] mb-3">Acceptance of Terms</h2>
                     <p class="text-sm md:text-base text-[#6b6b6b] leading-relaxed">
-                        By accessing or using Kadi Kings (the "Platform"), you agree to be bound by these Terms &amp; Conditions.
+                        By accessing or using Kadi (the "Platform"), you agree to be bound by these Terms &amp; Conditions.
                         If you do not agree, do not use the Platform. We may update these terms at any time — continued use
                         means you accept the changes.
                     </p>
@@ -60,8 +60,8 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                 @foreach ([
-                    ['icon' => '🔞', 'title' => '18+ Only', 'desc' => 'You must be at least 18 years old to create an account or play on Kadi Kings. No exceptions.'],
-                    ['icon' => '🇰🇪', 'title' => 'Legal Jurisdiction', 'desc' => 'Kadi Kings operates under Kenyan law (License BK-0001273). You must comply with the laws of your own jurisdiction.'],
+                    ['icon' => '🔞', 'title' => '18+ Only', 'desc' => 'You must be at least 18 years old to create an account or play on Kadi. No exceptions.'],
+                    ['icon' => '🇰🇪', 'title' => 'Legal Jurisdiction', 'desc' => 'Kadi operates under Kenyan law (License BK-0001273). You must comply with the laws of your own jurisdiction.'],
                     ['icon' => '✋', 'title' => 'One Account Per Person', 'desc' => 'Each person may hold only one account. Duplicate accounts will be suspended without notice.'],
                 ] as $item)
                     <div class="glass-card glass-card-hover p-6 relative isolate overflow-hidden">
@@ -87,7 +87,7 @@
             <div class="space-y-4">
                 @foreach ([
                     ['title' => 'Accurate Information', 'desc' => 'You must provide truthful and accurate information during registration. Fake or misleading details are grounds for immediate account termination.'],
-                    ['title' => 'Account Security', 'desc' => 'You are responsible for keeping your password and login credentials secure. Kadi Kings is not liable for unauthorized access to your account.'],
+                    ['title' => 'Account Security', 'desc' => 'You are responsible for keeping your password and login credentials secure. Kadi is not liable for unauthorized access to your account.'],
                     ['title' => 'Account Ownership', 'desc' => 'Your account is personal to you. You may not transfer, sell, or share your account with anyone else.'],
                     ['title' => 'Verification', 'desc' => 'We may require identity verification at any time. Failure to verify may result in account restrictions or suspension.'],
                 ] as $item)
@@ -116,7 +116,7 @@
                     <div class="text-4xl mb-4">⚖️</div>
                     <h3 class="font-cinzel font-bold text-lg text-[#f5c542] mb-3">Fair Play Policy</h3>
                     <p class="text-sm text-[#f5f5f0]/70 leading-relaxed">
-                        Every game on Kadi Kings is fair and random. The server manages all shuffling, dealing, and card resolution.
+                        Every game on Kadi is fair and random. The server manages all shuffling, dealing, and card resolution.
                         Any attempt to manipulate game outcomes, exploit bugs, or use automated play tools will result in permanent ban.
                     </p>
                 </div>
@@ -161,9 +161,9 @@
 
             <div class="space-y-4">
                 @foreach ([
-                    ['title' => 'Coins Have No Cash Value', 'desc' => 'Virtual coins purchased or earned on Kadi Kings hold no real-world monetary value and cannot be exchanged for cash, goods, or services outside the Platform.'],
+                    ['title' => 'Coins Have No Cash Value', 'desc' => 'Virtual coins purchased or earned on Kadi hold no real-world monetary value and cannot be exchanged for cash, goods, or services outside the Platform.'],
                     ['title' => 'No Refunds on Virtual Purchases', 'desc' => 'All purchases of virtual coins are final. We do not offer refunds, exchanges, or reversals once a transaction is confirmed via M-Pesa.'],
-                    ['title' => 'Platform Use Only', 'desc' => 'Coins may only be used within the Kadi Kings platform for gameplay purposes. Selling or trading coins outside the platform is strictly prohibited.'],
+                    ['title' => 'Platform Use Only', 'desc' => 'Coins may only be used within the Kadi platform for gameplay purposes. Selling or trading coins outside the platform is strictly prohibited.'],
                 ] as $item)
                     <div class="glass-card p-6 flex items-start gap-4 border-l-4 !border-l-[#f5c542]">
                         <div>
@@ -186,12 +186,12 @@
 
             <div class="glass-card p-8 md:p-10">
                 <p class="text-sm md:text-base text-[#6b6b6b] leading-relaxed mb-6">
-                    All content, branding, game designs, graphics, logos, and software on Kadi Kings are the property of
-                    Kadi Kings and protected by Kenyan and international intellectual property laws.
+                    All content, branding, game designs, graphics, logos, and software on Kadi are the property of
+                    Kadi and protected by Kenyan and international intellectual property laws.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @foreach ([
-                        'The Kadi Kings name, logo, and branding',
+                        'The Kadi name, logo, and branding',
                         'Game software, algorithms, and server logic',
                         'Visual design, graphics, and animations',
                         'User interface and experience design',
@@ -218,7 +218,7 @@
 
             <div class="glass-card p-8 md:p-10 border-l-4 !border-l-[#ff6b6b]">
                 <p class="text-sm md:text-base text-[#6b6b6b] leading-relaxed mb-4">
-                    Kadi Kings is provided "as is" without warranties of any kind. We do not guarantee uninterrupted or
+                    Kadi is provided "as is" without warranties of any kind. We do not guarantee uninterrupted or
                     error-free service. To the fullest extent permitted by law:
                 </p>
                 <ul class="text-sm text-[#f5f5f0]/70 leading-relaxed space-y-3">
@@ -232,7 +232,7 @@
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="text-[#ff6b6b] mt-0.5">•</span>
-                        <span>Our total liability shall not exceed the amount you paid to Kadi Kings in the past 12 months.</span>
+                        <span>Our total liability shall not exceed the amount you paid to Kadi in the past 12 months.</span>
                     </li>
                 </ul>
             </div>

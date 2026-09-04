@@ -6,7 +6,7 @@
             </span>
         </div>
 
-        <x-auth-header :title="__('Join KADI KINGS')" :description="__('Create your account and claim your welcome bonus.')" />
+        <x-auth-header :title="__('Join KADI')" :description="__('Create your account and claim your welcome bonus.')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />

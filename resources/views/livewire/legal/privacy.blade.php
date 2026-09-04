@@ -41,7 +41,7 @@
                     <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">The Short Version</div>
                     <h2 class="font-cinzel font-bold text-xl md:text-2xl text-[#f5f5f0] mb-3">Your Privacy Matters</h2>
                     <p class="text-sm md:text-base text-[#6b6b6b] leading-relaxed">
-                        Kadi Kings collects only the information needed to provide you with a fair, secure, and enjoyable gaming
+                        Kadi collects only the information needed to provide you with a fair, secure, and enjoyable gaming
                         experience. We never sell your personal data to third parties. This policy explains what we collect,
                         why we collect it, and how we protect it.
                     </p>
@@ -207,7 +207,7 @@
             <div class="space-y-4">
                 @foreach ([
                     ['title' => 'Essential Cookies', 'desc' => 'Required for the platform to function — session management, authentication, and security. These cannot be disabled.'],
-                    ['title' => 'Analytics Cookies', 'desc' => 'Help us understand how players use Kadi Kings so we can improve the experience. All data is anonymized.'],
+                    ['title' => 'Analytics Cookies', 'desc' => 'Help us understand how players use Kadi` so we can improve the experience. All data is anonymized.'],
                     ['title' => 'Preference Cookies', 'desc' => 'Remember your settings like theme preferences and language. You can clear these at any time from your browser.'],
                 ] as $item)
                     <div class="glass-card p-6 flex items-start gap-4 border-l-4 !border-l-[#f5c542]">
@@ -297,7 +297,7 @@
                     <div class="font-cinzel text-[10px] text-[#ff6b6b]/60 uppercase tracking-[0.25em] mb-2">Important</div>
                     <h2 class="font-cinzel font-bold text-xl md:text-2xl text-[#f5f5f0] mb-3">Children's Privacy</h2>
                     <p class="text-sm md:text-base text-[#6b6b6b] leading-relaxed">
-                        Kadi Kings is not intended for anyone under the age of 18. We do not knowingly collect data from
+                        Kadi is not intended for anyone under the age of 18. We do not knowingly collect data from
                         minors. If we discover that a minor has created an account, we will immediately terminate it
                         and delete all associated data.
                     </p>
@@ -317,7 +317,7 @@
             <div class="glass-card p-8 md:p-10">
                 <p class="text-sm md:text-base text-[#6b6b6b] leading-relaxed">
                     We may update this Privacy Policy from time to time. When we make significant changes, we will
-                    notify you through the Platform or via email. Your continued use of Kadi Kings after changes
+                    notify you through the Platform or via email. Your continued use of Kadi after changes
                     are posted means you accept the updated policy. We recommend checking this page periodically.
                 </p>
             </div>
