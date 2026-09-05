@@ -13,6 +13,7 @@ use App\Livewire\Ads\Wallets;
 use App\Livewire\Coins\BuyCoins;
 use App\Livewire\Coins\EarnCoins;
 use App\Livewire\Dashboard;
+use App\Livewire\GameGuide;
 use App\Livewire\Games;
 use App\Livewire\Guest\GamesList;
 use App\Livewire\Legal\Privacy;
@@ -73,6 +74,7 @@ Route::get('/', Welcome::class)->name('home');
 // Route::get('/lobby', GamesList::class)->name('guest.games');
 // Route::get('/sportsbook', GuestSportsbookPage::class)->name('sportsbook');
 Route::get('/how-to', Rules::class)->name('rules');
+Route::get('/games', GameGuide::class)->name('game-guide');
 
 // Sportsbook data API — public, serves cache.json directly
 // Route::get('/sportsbook/data', function () {

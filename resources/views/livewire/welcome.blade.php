@@ -138,13 +138,11 @@
 
                         <div class="h-px bg-gradient-to-r from-transparent via-[#f5c542]/20 to-transparent mb-5"></div>
                         @php
-                            $seed = (int) date('YmdH');
-                            mt_srand($seed);
                             $prizes = [
-                                ['rank'=>1,'label'=>'1st Place',            'emoji'=>'🥇','amount'=> 110452931 + mt_rand(-500000,500000), 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
-                                ['rank'=>2,'label'=>'Runner-Up',            'emoji'=>'🥈','amount'=>  25016384 + mt_rand(-200000,200000), 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
-                                ['rank'=>3,'label'=>'Semis (x2 Losers)',    'emoji'=>'🥉','amount'=>   9978624 + mt_rand(-100000,100000), 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
-                                ['rank'=>4,'label'=>'Quarters (x4 Losers)', 'emoji'=>'🎯','amount'=>   3107899 + mt_rand(-50000, 50000),  'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
+                                ['rank'=>1,'label'=>'1st Place',            'emoji'=>'🥇','amount'=> 110452969, 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
+                                ['rank'=>2,'label'=>'Runner-Up',            'emoji'=>'🥈','amount'=>  25016339, 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
+                                ['rank'=>3,'label'=>'Semis (x2 Losers)',    'emoji'=>'🥉','amount'=>   9978584, 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
+                                ['rank'=>4,'label'=>'Quarters (x4 Losers)', 'emoji'=>'🎯','amount'=>   3086378, 'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
                             ];
                         @endphp
 
