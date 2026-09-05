@@ -9,6 +9,7 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class KadiApiService
 {
@@ -22,7 +23,10 @@ class KadiApiService
         $this->http = Http::withHeaders([
             'x-api-key' => config('services.kadi_api.key'),
             'Accept' => 'application/json',
-        ])->baseUrl($this->baseUrl);
+        ])->baseUrl($this->baseUrl)
+            ->beforeSending(function ($request) {
+                $request->withHeader('Idempotency-Key', Str::uuid()->toString());
+            });
     }
 
     /**

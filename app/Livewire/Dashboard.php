@@ -37,7 +37,9 @@ class Dashboard extends Component
      * authoritative; the kadi-accounts mirror is only a fallback.
      */
     public function buildPlayKadiUrl(): void
-    {}
+    {
+        //
+    }
 
     /**
      * Deterministic "live" lobby numbers derived from the time of day:
