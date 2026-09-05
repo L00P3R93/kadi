@@ -22,11 +22,9 @@ class KadiApiService
         $this->baseUrl = config('services.kadi_api.url');
         $this->http = Http::withHeaders([
             'x-api-key' => config('services.kadi_api.key'),
+            'Idempotency-Key', Str::uuid()->toString().
             'Accept' => 'application/json',
-        ])->baseUrl($this->baseUrl)
-            ->beforeSending(function ($request) {
-                $request->withHeader('Idempotency-Key', Str::uuid()->toString());
-            });
+        ])->baseUrl($this->baseUrl);
     }
 
     /**
