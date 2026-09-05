@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\DetectCurrency;
+use App\Http\Middleware\LogoutInactiveUsers;
 use App\Http\Middleware\SetCacheHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             DetectCurrency::class,
             SetCacheHeaders::class,
+            LogoutInactiveUsers::class,
         ]);
 
         $middleware->alias([

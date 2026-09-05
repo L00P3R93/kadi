@@ -85,7 +85,7 @@
 
                             @include('partials.kadi-play-form')
                         @else
-                            <a href="{{ route('register') }}"
+                            <a href="{{ route('login') }}"
                                class="font-cinzel inline-flex items-center gap-2.5
                                   rounded-full px-7 py-3.5 text-sm font-bold
                                   bg-[#f5c542] text-[#0a0a0a]

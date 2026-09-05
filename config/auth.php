@@ -114,4 +114,18 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Idle Timeout (minutes)
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define the number of minutes a user can be inactive before
+    | being forcibly logged out. This applies to all authenticated users and
+    | overrides the "remember me" functionality. The session's last activity
+    | timestamp is checked on every request.
+    |
+    */
+
+    'idle_timeout' => (int) env('AUTH_IDLE_TIMEOUT', 30),
+
 ];
