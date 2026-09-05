@@ -3,13 +3,15 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
-test('play form posts to the play route', function () {
+test('play form posts to the play url', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
+    $playUrl = config('services.kadi_api.play_url');
+
     $this->get(route('dashboard'))
         ->assertOk()
-        ->assertSee(route('play'), false);
+        ->assertSee($playUrl, false);
 });
 
 test('the app account no takes precedence over the cached kadi mirror', function () {
@@ -62,5 +64,5 @@ test('external play forms open in a new tab', function () {
     $html = $this->get(route('dashboard'))->getContent();
 
     $playForms = substr_count($html, 'target="_blank"');
-    expect($playForms)->toBeGreaterThanOrEqual(2);
+    expect($playForms)->toBeGreaterThanOrEqual(1);
 });

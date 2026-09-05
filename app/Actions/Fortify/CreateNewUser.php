@@ -45,7 +45,7 @@ class CreateNewUser implements CreatesNewUsers
         Cache::put(
             "user.kadi_password_hash.{$user->id}",
             Hash::make($input['password']),
-            now()->addMinutes(30)
+            now()->addHours(24)
         );
         $user->assignRole('player');
 

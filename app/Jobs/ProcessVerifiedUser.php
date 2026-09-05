@@ -33,7 +33,20 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
     {
         $this->user->refresh();
 
-        if ($this->user->isLinked()) {
+        // Atomic lock: refresh and check linked_id inside a transaction with
+        // row-level locking to prevent two concurrent jobs from both seeing
+        // isLinked() === false and creating duplicate records.
+        $alreadyLinked = DB::transaction(function () {
+            $locked = User::lockForUpdate()->find($this->user->id);
+
+            if ($locked->isLinked()) {
+                return true;
+            }
+
+            return false;
+        });
+
+        if ($alreadyLinked) {
             return;
         }
 
@@ -44,10 +57,39 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
         $kadiPasswordHash = $cached !== null ? (string) $cached : null;
 
         $customerId = $this->registerWithKadiApi();
+
+        if ($customerId === null) {
+            Log::error('ProcessVerifiedUser: KadiApi registration returned null for user '.$this->user->id.'. Aborting remaining steps.');
+
+            return;
+        }
+
         $bugsId = $this->registerWithBugsApi();
         $this->fetchAndCacheCustomerProfile($customerId);
         $this->insertIntoKadiDatabase($kadiPasswordHash, $customerId);
         $this->sendWelcomeEmail();
+    }
+
+    /**
+     * Atomically claim this user for linking by setting linked_id only if it
+     * is currently null. Returns the customer_id on success, null on failure.
+     */
+    private function claimUserForLinking(int $customerId): bool
+    {
+        $updated = DB::table('users')
+            ->where('id', $this->user->id)
+            ->whereNull('linked_id')
+            ->update(['linked_id' => $customerId]);
+
+        if ($updated === 0) {
+            Log::warning('ProcessVerifiedUser: Could not claim user '.$this->user->id.' — linked_id already set to '.($this->user->linked_id ?? 'null'));
+
+            return false;
+        }
+
+        $this->user->refresh();
+
+        return true;
     }
 
     /**
@@ -67,9 +109,13 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
             $response = KadiApi::createCustomer($userArr);
 
             if (isset($response['customer_id'])) {
-                $this->user->update(['linked_id' => $response['customer_id']]);
+                $customerId = (int) $response['customer_id'];
 
-                return $response['customer_id'];
+                if (! $this->claimUserForLinking($customerId)) {
+                    return null;
+                }
+
+                return $customerId;
             }
         } catch (RequestException|ConnectionException $e) {
             Log::error('KadiApi registration failed for user '.$this->user->id.': '.$e->getMessage(), $userArr);
@@ -108,25 +154,33 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Insert a new account record into the kadi database.
+     * Insert or update the account record in the kadi database.
+     *
+     * Uses upsert to be idempotent — if the row already exists (e.g. from a
+     * previous partial run), it updates instead of failing with a duplicate
+     * key error.
      *
      * `$passwordHash` is a one-way bcrypt hash of the user's registration
      * password (never plaintext). The KadiApi/game side must verify logins
      * with password_verify() against this column.
      */
-    private function insertIntoKadiDatabase(?string $passwordHash, ?int $customerId): void
+    private function insertIntoKadiDatabase(?string $passwordHash, int $customerId): void
     {
         try {
             $userName = explode(' ', $this->user->name);
-            DB::connection('kadi')->table('accounts')->insert([
-                'id' => $customerId,
-                'name' => $userName[0],
-                'phone' => $this->user->phone,
-                'email' => $this->user->email,
-                'password' => $passwordHash,
-                'outh' => $customerId,
-                'google_id' => $this->user->account_no,
-            ]);
+
+            DB::connection('kadi')->table('accounts')->upsert([
+                [
+                    'id' => $customerId,
+                    'name' => $userName[0],
+                    'phone' => $this->user->phone,
+                    'email' => $this->user->email,
+                    'password' => $passwordHash,
+                    'outh' => $customerId,
+                    'google_id' => $this->user->account_no,
+                ],
+            ], 'id', ['name', 'phone', 'email', 'password', 'outh', 'google_id']);
+
             Cache::forget("user.kadi_password_hash.{$this->user->id}");
         } catch (\Throwable $e) {
             Log::error('Kadi DB insert failed for user '.$this->user->id.': '.$e->getMessage());
@@ -141,12 +195,8 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
     /**
      * Fetch and cache the full customer profile from KadiApi for 1 hour.
      */
-    private function fetchAndCacheCustomerProfile(?int $customerId): void
+    private function fetchAndCacheCustomerProfile(int $customerId): void
     {
-        if ($customerId === null) {
-            return;
-        }
-
         try {
             $response = KadiApi::getCustomer($customerId);
 

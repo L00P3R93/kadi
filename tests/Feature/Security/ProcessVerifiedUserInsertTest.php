@@ -4,6 +4,7 @@ use App\Facades\KadiApi;
 use App\Jobs\ProcessVerifiedUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -34,12 +35,12 @@ beforeEach(function () {
 
     Mail::fake();
     Http::fake();
-
-    KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
-    KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
 });
 
 test('job inserts the bcrypt hash — never plaintext — into kadi accounts', function () {
+    KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
+    KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+
     $user = User::factory()->create(['linked_id' => null, 'phone' => '254712345678']);
 
     Cache::put("user.kadi_password_hash.{$user->id}", Hash::make('registration-secret'), now()->addMinutes(30));
@@ -55,6 +56,9 @@ test('job inserts the bcrypt hash — never plaintext — into kadi accounts', f
 });
 
 test('job clears the hash cache after a successful insert', function () {
+    KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
+    KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+
     $user = User::factory()->create(['linked_id' => null, 'phone' => '254712345678']);
 
     Cache::put("user.kadi_password_hash.{$user->id}", Hash::make('registration-secret'), now()->addMinutes(30));
@@ -65,6 +69,9 @@ test('job clears the hash cache after a successful insert', function () {
 });
 
 test('google-only users insert with a null password', function () {
+    KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
+    KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+
     $user = User::factory()->create(['linked_id' => null, 'phone' => null]);
 
     (new ProcessVerifiedUser($user))->handle();
@@ -72,4 +79,47 @@ test('google-only users insert with a null password', function () {
     $row = DB::connection('kadi')->table('accounts')->where('id', 4242)->first();
 
     expect($row->password)->toBeNull();
+});
+
+test('job is idempotent — running twice does not create duplicate accounts', function () {
+    KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
+    KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+
+    $user = User::factory()->create(['linked_id' => null, 'phone' => '254712345678']);
+
+    Cache::put("user.kadi_password_hash.{$user->id}", Hash::make('secret'), now()->addHours(24));
+
+    (new ProcessVerifiedUser($user))->handle();
+    (new ProcessVerifiedUser($user))->handle();
+
+    $count = DB::connection('kadi')->table('accounts')->count();
+    expect($count)->toBe(1);
+
+    $row = DB::connection('kadi')->table('accounts')->where('id', 4242)->first();
+    expect($row->email)->toBe($user->email);
+});
+
+test('job returns early if user is already linked', function () {
+    $user = User::factory()->create(['linked_id' => 9999]);
+
+    (new ProcessVerifiedUser($user))->handle();
+
+    $count = DB::connection('kadi')->table('accounts')->count();
+    expect($count)->toBe(0);
+});
+
+test('job aborts remaining steps if kadiapi throws an exception', function () {
+    KadiApi::shouldReceive('createCustomer')->once()->andThrow(
+        ConnectionException::class,
+        'Connection timed out'
+    );
+
+    $user = User::factory()->create(['linked_id' => null, 'phone' => '254712345678']);
+
+    (new ProcessVerifiedUser($user))->handle();
+
+    expect($user->fresh()->linked_id)->toBeNull();
+
+    $count = DB::connection('kadi')->table('accounts')->count();
+    expect($count)->toBe(0);
 });
