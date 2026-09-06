@@ -24,9 +24,6 @@ class LogoutInactiveUsers
                 $request->session()->regenerateToken();
 
                 if ($user) {
-                    $user->remember_token = null;
-                    $user->save();
-
                     DB::table('sessions')
                         ->where('user_id', $user->getAuthIdentifier())
                         ->delete();
