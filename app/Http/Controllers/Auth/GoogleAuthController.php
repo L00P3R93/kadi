@@ -96,13 +96,13 @@ class GoogleAuthController extends Controller
             // session and no remember token exist until a valid code passes.
             $request->session()->put([
                 'login.id' => $user->getKey(),
-                'login.remember' => true,
+                'login.remember' => false,
             ]);
 
             return redirect()->route('two-factor.login');
         }
 
-        Auth::login($user, remember: true);
+        Auth::login($user, remember: false);
 
         $request->session()->regenerate();
 
