@@ -4,13 +4,16 @@ namespace App\Livewire;
 
 use App\Facades\KadiApi;
 use App\Models\User;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -87,6 +90,27 @@ class Welcome extends Component
         }
 
         return [];
+    }
+
+    #[Computed]
+    public function hasUnverifiedEmail(): bool
+    {
+        $user = auth()->user();
+
+        return $user && $user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail();
+    }
+
+    public function resendVerificationNotification(): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->hasVerifiedEmail()) {
+            return;
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        Session::flash('status', 'verification-link-sent');
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View

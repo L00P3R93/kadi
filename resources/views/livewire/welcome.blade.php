@@ -1,6 +1,23 @@
 <div>
+    {{-- ===================== EMAIL VERIFICATION BANNER ===================== --}}
+    @if ($this->hasUnverifiedEmail)
+        <div class="fixed top-16 left-0 right-0 z-40 mx-auto max-w-7xl rounded-b-lg border border-t-0 border-amber-700/40 bg-amber-900/20 px-4 py-3 text-sm text-amber-400">
+            {{ __('Please verify your email address. Check your inbox for the verification link.') }}
+
+            <span class="ml-1 cursor-pointer underline hover:text-amber-300" wire:click.prevent="resendVerificationNotification">
+                {{ __('Resend verification email') }}
+            </span>
+
+            @if (session('status') === 'verification-link-sent')
+                <span class="ml-2 font-medium text-green-400">
+                    {{ __('A new verification link has been sent to your email address.') }}
+                </span>
+            @endif
+        </div>
+    @endif
+
     {{-- ===================== HERO ===================== --}}
-    <section class="relative overflow-hidden bg-[#0a0a0a] min-h-[420px] md:min-h-[480px] flex items-center">
+    <section class="relative overflow-hidden bg-[#0a0a0a] min-h-[420px] md:min-h-[480px] flex items-center {{ $this->hasUnverifiedEmail ? 'pt-16' : '' }}">
 
         {{-- Radial gold glow behind left content --}}
         <div class="absolute top-1/2 left-1/4 -translate-x-1/2 -translate-y-1/2
@@ -72,11 +89,13 @@
                         @auth
                             <button type="button"
                                     onclick="document.getElementById('kadiPlayForm').submit()"
+                                    @if ($this->hasUnverifiedEmail) disabled @endif
                                     class="font-cinzel inline-flex items-center gap-2.5
                                       rounded-full px-7 py-3.5 text-sm font-bold
                                       bg-[#f5c542] text-[#0a0a0a]
                                       hover:bg-[#ffde74]
-                                      hover:-translate-y-0.5 transition-all duration-300">
+                                      {{ $this->hasUnverifiedEmail ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-0.5' }}
+                                      transition-all duration-300">
                                 Play Kadi
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
@@ -412,7 +431,8 @@
                         @csrf
                         <input type="hidden" name="ggid" value="{{ $googleId }}">
                         <button type="submit"
-                           class="btn-casino-primary inline-block rounded-full px-8 py-4 no-underline">
+                           @if ($this->hasUnverifiedEmail) disabled @endif
+                           class="btn-casino-primary inline-block rounded-full px-8 py-4 no-underline {{ $this->hasUnverifiedEmail ? 'opacity-50 cursor-not-allowed' : '' }}">
                             Play Kadi →
                         </button>
                     </form>

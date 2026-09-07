@@ -62,6 +62,14 @@
                         @endauth
                     </div>
 
+                    {{-- Wallet + notifications (mobile only) --}}
+                    @auth
+                        <div class="flex items-center gap-2 md:hidden">
+                            <livewire:wallet-balance wire:key="wallet-balance-mobile" />
+                            <livewire:notifications-bell wire:key="notifications-bell-mobile" />
+                        </div>
+                    @endauth
+
                     {{-- Hamburger (mobile only) --}}
                     <button
                         @click="menuOpen = !menuOpen"
@@ -106,35 +114,16 @@
                     --}}
 
                     @auth
-{{--                        <a href="{{ route('buy-coins') }}" @click="menuOpen = false" wire:navigate--}}
-{{--                           class="py-3 text-sm transition {{ request()->routeIs('buy-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Buy Coins</a>--}}
-{{--                        <a href="{{ route('earn-coins') }}" @click="menuOpen = false" wire:navigate--}}
-{{--                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Free Coins</a>--}}
-{{--                        <a href="{{ url('/marketing/ad-campaigns') }}" @click="menuOpen = false" wire:navigate--}}
-{{--                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Campaigns</a>--}}
-                        <a href="{{ route('profile') }}" @click="menuOpen = false" wire:navigate
-                           class="py-3 text-sm transition {{ request()->routeIs('earn-coins') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Profile</a>
-                    @endauth
-
-                    {{-- Auth CTA — mobile only --}}
-                    <div class="py-4">
-                        @auth
-                            <div class="flex flex-col gap-1">
-                                <div class="py-1.5">
-                                    <livewire:wallet-balance wire:key="wallet-balance-mobile" />
-                                </div>
-                                <div class="py-1.5" @click="menuOpen = false">
-                                    <livewire:notifications-bell wire:key="notifications-bell-mobile" />
-                                </div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button
-                                        type="submit"
-                                        @click="menuOpen = false"
-                                        class="flex items-center gap-2 py-3 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0 w-full">
-                                    </button>
-                                </form>
-                            </div>
+                        <div class="py-4">
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button
+                                    type="submit"
+                                    @click="menuOpen = false"
+                                    class="flex items-center gap-2 py-3 text-sm font-semibold text-[#f5c542] transition hover:text-[#ffde74] cursor-pointer bg-transparent border-0 p-0 w-full">
+                                </button>
+                            </form>
+                        </div>
                         @else
                             <div class="flex flex-col gap-3">
                                 <a href="{{ route('login') }}" @click="menuOpen = false" wire:navigate
