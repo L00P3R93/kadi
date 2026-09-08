@@ -12,7 +12,8 @@
         {{-- Welcome card --}}
         <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
             <h2 class="mb-2 text-2xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">
-                Welcome back, {{ auth()->user()->name }}! 🎉
+                @include('partials.greeting', ['slot' => ', '])
+                <span class="text-[#f5f5f0]">{{ strtok(auth()->user()->name, ' ') }}</span> 🎉
             </h2>
             <p class="mb-6 text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">Ready to play? Your luck starts now.</p>
             <div class="flex flex-wrap gap-3">
@@ -52,7 +53,8 @@
     </div>
 
     {{-- ── Featured Bonus + Live Jackpot row ── --}}
-     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    {{--
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section class="flex flex-col">
             <div class="mb-4">
                 <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f5c542]/10 border border-[#f5c542]/30 text-[#f5c542] text-xs tracking-[0.25em] uppercase" style="font-family: 'Outfit', sans-serif;">
@@ -75,7 +77,7 @@
                         </span>
                     </h2>
                     <p class="text-gray-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl" style="font-family: 'Outfit', sans-serif;">
-                        Deposit today and unlock premium tables, free spins, and high-stakes tournaments designed for serious players. Enjoy a sleek experience built around class, excitement, and instant action.
+                        Deposit today and get bonus coins to use at the Kadi tables. Whether you're playing singles or entering tournaments, your welcome bonus gives you a head start.
                     </p>
                     <div class="flex flex-wrap gap-4">
                         <a href="{{ route('wallet') }}" wire:navigate
@@ -148,7 +150,7 @@
             </div>
         </section>
     </div>
-
+    --}}
     {{-- ── Popular Games ── --}}
     <section id="popular-games">
         <div class="text-center mb-8">
@@ -225,6 +227,7 @@
     --}}
 
     {{-- ── Recent Transactions ── --}}
+    {{--
     <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
         <div class="mb-6 flex items-center justify-between">
             <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Recent Transactions</h3>
@@ -279,6 +282,8 @@
             </div>
         @endif
     </div>
+    --}}
+
 
     {{-- Coming Soon Modal --}}
     <flux:modal wire:model="showComingSoonModal" class="max-w-sm">

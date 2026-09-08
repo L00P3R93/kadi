@@ -5,7 +5,7 @@ Hi {{ $user->name }},
 Welcome to {{ config('app.name') }} — your account is set up and ready to go.
 
 
-Login & Play Now:
+PLAY NOW:
 "{{ $appUrl }}/login"
 
 ---

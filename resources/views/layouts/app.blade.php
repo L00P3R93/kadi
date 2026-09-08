@@ -420,7 +420,8 @@
                     </button>
 
                     <div class="hidden text-sm text-[#f5f5f0]/60 lg:block">
-                        Welcome back, <span class="text-[#f5f5f0]">{{ auth()->user()->name }}</span>
+                        @include('partials.greeting', ['slot' => ', '])
+                        <span class='text-[#f5f5f0]'>{{ strtok(auth()->user()->name, ' ') }}</span>
                     </div>
 
                     <div class="flex items-center gap-4">

@@ -73,6 +73,7 @@
                         </button>
                         <button
                             wire:click="openWithdraw"
+                            disabled
                             class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
                         >
                             - Withdraw Funds

@@ -67,7 +67,7 @@ class Dashboard extends Component
      */
     public function progressiveJackpot(CarbonImmutable $now): int
     {
-        return 2_097_152 + $now->secondsSinceMidnight() * 11;
+        return 110_452_969 + $now->secondsSinceMidnight() * 11;
     }
 
     /**
