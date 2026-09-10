@@ -22,7 +22,6 @@ class KadiApiService
         $this->baseUrl = config('services.kadi_api.url');
         $this->http = Http::withHeaders([
             'x-api-key' => config('services.kadi_api.key'),
-            'Idempotency-Key' => Str::uuid()->toString(),
             'Accept' => 'application/json',
         ])->baseUrl($this->baseUrl);
     }
@@ -44,11 +43,15 @@ class KadiApiService
      *
      * @throws RequestException|ConnectionException
      */
-    public function post(string $endpoint, array $data = [], string $bodyType = 'json'): array
+    public function post(string $endpoint, array $data = [], string $bodyType = 'json', ?string $idempotencyKey = null): array
     {
+        $request = $this->http->withHeaders([
+            'Idempotency-Key' => $idempotencyKey ?? Str::uuid()->toString(),
+        ]);
+
         $response = $bodyType === 'form'
-            ? $this->http->asForm()->post($endpoint, $data)
-            : $this->http->post($endpoint, $data);
+            ? $request->asForm()->post($endpoint, $data)
+            : $request->post($endpoint, $data);
 
         return $response->throw()->json('data') ?? [];
     }
@@ -58,11 +61,15 @@ class KadiApiService
      *
      * @throws RequestException|ConnectionException
      */
-    public function put(string $endpoint, array $data = [], string $bodyType = 'json'): array
+    public function put(string $endpoint, array $data = [], string $bodyType = 'json', ?string $idempotencyKey = null): array
     {
+        $request = $this->http->withHeaders([
+            'Idempotency-Key' => $idempotencyKey ?? Str::uuid()->toString(),
+        ]);
+
         $response = $bodyType === 'form'
-            ? $this->http->asForm()->put($endpoint, $data)
-            : $this->http->put($endpoint, $data);
+            ? $request->asForm()->put($endpoint, $data)
+            : $request->put($endpoint, $data);
 
         return $response->throw()->json('data') ?? [];
     }
@@ -92,7 +99,14 @@ class KadiApiService
      */
     public function createCustomer(array $data): array
     {
-        return $this->http->post('customers', $data)
+        // Deterministic key: retries for the same customer reuse the same key
+        // (so KadiApi returns the original result instead of 409), while
+        // different customers always get distinct keys.
+        $key = 'customer-create-'.($data['account_no'] ?? $data['google_id'] ?? Str::uuid()->toString());
+
+        $request = $this->http->withHeaders(['Idempotency-Key' => $key]);
+
+        return $request->post('customers', $data)
             ->throw()
             ->json() ?? [];
     }
@@ -104,9 +118,11 @@ class KadiApiService
      */
     public function getTransactions(int $customerId, string $type = 'all'): array
     {
-        return $this->http->post('customers/transactions/'.encryptOpenSSL($customerId), [
-            'payment_type' => $type,
-        ])->throw()->json() ?? [];
+        return $this->http
+            ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
+            ->post('customers/transactions/'.encryptOpenSSL($customerId), [
+                'payment_type' => $type,
+            ])->throw()->json() ?? [];
     }
 
     /**
@@ -164,6 +180,7 @@ class KadiApiService
     {
         try {
             $response = $this->http
+                ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
                 ->post('deposits/'.encryptOpenSSL($user->linked_id), [
                     'amount' => (string) $amount,
                 ])
@@ -184,6 +201,7 @@ class KadiApiService
     {
         try {
             $response = $this->http
+                ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
                 ->post('load/'.encryptOpenSSL($user->linked_id), [
                     'amount' => (string) $options['price'],
                     'type' => $options['type'],
@@ -214,6 +232,7 @@ class KadiApiService
     {
         try {
             $response = $this->http
+                ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
                 ->post('withdrawals/'.encryptOpenSSL($user->linked_id), [
                     'amount' => (string) $amount,
                 ])
