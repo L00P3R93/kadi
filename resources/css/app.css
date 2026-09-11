@@ -236,6 +236,22 @@
   letter-spacing: 0.04em;
 }
 
+/* ─── Smooth in-page anchor scrolling ──────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ─── Hide scrollbar on horizontally-scrolling strips ──── */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── Sports: countdown box ─────────────────────────────── */
 .countdown-box {
   background: rgba(50, 200, 80, 0.08);

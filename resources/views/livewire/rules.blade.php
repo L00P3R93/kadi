@@ -3,7 +3,7 @@
         categories: {
             play: {
                 label: 'Play Cards', ranks: '4 · 5 · 6 · 7 · 9 · 10', color: '#f5c542', glow: 'rgba(245,197,66,0.35)', icon: '🂡',
-                desc: 'The backbone of every hand. Play a card that matches either the suit or the rank of the top card on the discard pile — no special effects, just tempo and timing.'
+                desc: 'The backbone of every hand. Play a card that matches either the suit or the rank of the top card on the discard pile — no special effects, just tempo and timing. Hold several matching cards? Chain them in one turn, for example 4♠ → 4♥ → 4♦ → 4♣.'
             },
             jump: {
                 label: 'Jump Cards', ranks: 'Jack (J)', color: '#60a5fa', glow: 'rgba(96,165,250,0.35)', icon: '🂫',
@@ -11,7 +11,7 @@
             },
             question: {
                 label: 'Question Cards', ranks: 'Queen (Q) · 8', color: '#c084fc', glow: 'rgba(192,132,252,0.35)', icon: '🂭',
-                desc: 'Puts the next player on the spot. They must answer with a matching Play Card (4, 5, 6, 7, 9 or 10) of the same suit or rank — fail to answer and it\'s straight to the draw pile.'
+                desc: 'Puts the next player on the spot. They must answer with a matching Play Card (4, 5, 6, 7, 9 or 10) of the same suit or rank — fail to answer and it\'s straight to the draw pile. Queens and 8s can chain onto each other, but only when they share the same rank.'
             },
             kickback: {
                 label: 'Kickback Cards', ranks: 'King (K)', color: '#50e870', glow: 'rgba(80,232,112,0.35)', icon: '🂮',
@@ -19,7 +19,7 @@
             },
             penalty: {
                 label: 'Penalty Cards', ranks: '2 · 3 · Joker', color: '#ff6b6b', glow: 'rgba(255,107,107,0.35)', icon: '🃏',
-                desc: 'Force the next player to draw 2, 3, or 5 cards. Counter with a matching Penalty Card of the same suit, or neutralize entirely with an Ace. The black Joker matches Spades &amp; Clubs — the red Joker matches Hearts &amp; Diamonds.'
+                desc: 'Force the next player to draw 2, 3, or 5 cards. Chain a matching Penalty Card to pass it along instead of drawing, or neutralize it entirely with an Ace. The black Joker matches Spades &amp; Clubs — the red Joker matches Hearts &amp; Diamonds. See <a href=\'#chaining\' class=\'underline decoration-dotted underline-offset-4 hover:text-[#f5f5f0]\'>chaining rules</a> below for every valid combo.'
             },
             ace: {
                 label: 'Ace Cards', ranks: 'Ace (A)', color: '#ffde74', glow: 'rgba(255,222,116,0.35)', icon: '🂱',
@@ -79,27 +79,21 @@
             <p class="text-gray-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
                 Four suits. Six card types. One winner. Learn how every hand of Kadi is dealt, played, and won — then take it to the table.
             </p>
-
-            {{-- Quick nav --}}
-            <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
-                @foreach ([
-                    ['href' => '#objective', 'label' => 'Objective'],
-                    ['href' => '#setup', 'label' => 'Setup & Dealing'],
-                    ['href' => '#card-types', 'label' => 'Card Types'],
-                    ['href' => '#gameplay', 'label' => 'Gameplay'],
-                    ['href' => '#winning', 'label' => 'Winning'],
-                ] as $link)
-                    <a href="{{ $link['href'] }}"
-                       class="rounded-full border border-[#f5c542]/20 bg-white/[0.03] px-4 py-1.5 text-xs text-[#f5f5f0]/70 transition hover:border-[#f5c542]/50 hover:text-[#f5c542] hover:bg-[#f5c542]/5">
-                        {{ $link['label'] }}
-                    </a>
-                @endforeach
-            </div>
         </div>
     </section>
 
+    @include('partials.quick-nav', ['links' => [
+        ['href' => '#objective', 'label' => 'Objective'],
+        ['href' => '#setup', 'label' => 'Setup & Dealing'],
+        ['href' => '#card-types', 'label' => 'Card Types'],
+        ['href' => '#chaining', 'label' => 'Chaining'],
+        ['href' => '#gameplay', 'label' => 'Gameplay'],
+        ['href' => '#winning', 'label' => 'Winning'],
+        ['href' => '#strategy', 'label' => 'Strategy'],
+    ]])
+
     {{-- ===================== OBJECTIVE ===================== --}}
-    <section id="objective" class="scroll-mt-24 py-16 md:py-20 bg-[#0a0a0a]">
+    <section id="objective" class="scroll-mt-36 py-16 md:py-20 bg-[#0a0a0a]">
         <div class="mx-auto max-w-5xl px-6">
             <div class="glass-card p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 border-l-4 !border-l-[#f5c542]">
                 <div class="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center bg-gradient-to-b from-[#1a1200] to-[#0a0a0a] border-2 border-[#f5c542]/40 text-4xl md:text-5xl"
@@ -120,7 +114,7 @@
     </section>
 
     {{-- ===================== SETUP & DEALING ===================== --}}
-    <section id="setup" class="scroll-mt-24 py-16 md:py-20" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
+    <section id="setup" class="scroll-mt-36 py-16 md:py-20" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
         <div class="mx-auto max-w-6xl px-6">
             <div class="mb-12 text-center">
                 <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">Before The First Move</div>
@@ -150,7 +144,7 @@
     </section>
 
     {{-- ===================== CARD CLASSIFICATIONS (interactive tabs) ===================== --}}
-    <section id="card-types" class="scroll-mt-24 py-16 md:py-20 bg-[#0a0a0a]">
+    <section id="card-types" class="scroll-mt-36 py-16 md:py-20 bg-[#0a0a0a]">
         <div class="mx-auto max-w-6xl px-6">
             <div class="mb-12 text-center">
                 <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">Know Your Arsenal</div>
@@ -201,8 +195,62 @@
         </div>
     </section>
 
+    {{-- ===================== CHAINING & COMBOS ===================== --}}
+    <section id="chaining" class="scroll-mt-36 py-16 md:py-20" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
+        <div class="mx-auto max-w-6xl px-6">
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Chaining &amp; Combos</h2>
+                <p class="mt-3 text-sm text-[#6b6b6b] max-w-2xl mx-auto">A single turn isn't limited to one card. Play several compatible cards back to back — here's what's allowed.</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+
+                {{-- Rank chain --}}
+                <div class="glass-card glass-card-hover p-6">
+                    <div class="text-2xl mb-3">🂡</div>
+                    <h3 class="font-cinzel text-sm font-bold text-[#f5c542] uppercase tracking-wide mb-2">Standard Chains</h3>
+                    <p class="text-xs text-[#6b6b6b] leading-relaxed mb-4">Each card must match the one before it. A chain ends when you run out of compatible cards, choose to stop, or a card effect forces it to end.</p>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        @foreach (['4♠', '4♥', '4♦', '4♣'] as $i => $card)
+                            @if($i > 0)<span class="text-[#f5c542]/40 text-xs">→</span>@endif
+                            <span class="inline-flex items-center justify-center min-w-[2.25rem] rounded-md border border-[#f5c542]/30 bg-[#f5c542]/5 px-2 py-1 text-xs font-cinzel font-bold text-[#f5c542]">{{ $card }}</span>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Question chain --}}
+                <div class="glass-card glass-card-hover p-6">
+                    <div class="text-2xl mb-3">🂭</div>
+                    <h3 class="font-cinzel text-sm font-bold text-[#c084fc] uppercase tracking-wide mb-2">Question Chains</h3>
+                    <p class="text-xs text-[#6b6b6b] leading-relaxed mb-4">Queens and 8s can be chained onto each other, but only when they share the same rank. Once a valid Answer Card is played, the Question ends.</p>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        @foreach (['Q♠', 'Q♥', '7♥'] as $i => $card)
+                            @if($i > 0)<span class="text-[#c084fc]/40 text-xs">→</span>@endif
+                            <span class="inline-flex items-center justify-center min-w-[2.25rem] rounded-md border border-[#c084fc]/30 bg-[#c084fc]/5 px-2 py-1 text-xs font-cinzel font-bold text-[#c084fc]">{{ $card }}</span>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Penalty chain --}}
+                <div class="glass-card glass-card-hover p-6">
+                    <div class="text-2xl mb-3">🃏</div>
+                    <h3 class="font-cinzel text-sm font-bold text-[#ff6b6b] uppercase tracking-wide mb-2">Penalty Chains</h3>
+                    <p class="text-xs text-[#6b6b6b] leading-relaxed mb-4">Pass a penalty on instead of drawing. Only the most recently played Penalty Card's effect applies to whoever can't continue the chain.</p>
+                    <ul class="space-y-1.5 text-xs text-[#f5f5f0]/70">
+                        <li class="flex items-center gap-1.5"><span class="font-cinzel font-bold text-[#ff6b6b]">2</span><span class="text-[#ff6b6b]/40">→</span><span class="font-cinzel font-bold text-[#ff6b6b]">2</span></li>
+                        <li class="flex items-center gap-1.5"><span class="font-cinzel font-bold text-[#ff6b6b]">3</span><span class="text-[#ff6b6b]/40">→</span><span class="font-cinzel font-bold text-[#ff6b6b]">3</span></li>
+                        <li>2 or 3 → matching same-suit 2 or 3</li>
+                        <li class="flex items-center gap-1.5"><span class="font-cinzel font-bold text-[#ff6b6b]">Joker</span><span class="text-[#ff6b6b]/40">→</span><span class="font-cinzel font-bold text-[#ff6b6b]">Joker</span></li>
+                        <li>Red Joker ↔ red 2 or 3</li>
+                        <li>Black Joker ↔ black 2 or 3</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- ===================== GAMEPLAY MECHANICS ===================== --}}
-    <section id="gameplay" class="scroll-mt-24 py-16 md:py-20" style="background: linear-gradient(160deg, #0a0a0a 0%, #120d00 50%, #0a0a0a 100%);">
+    <section id="gameplay" class="scroll-mt-36 py-16 md:py-20" style="background: linear-gradient(160deg, #0a0a0a 0%, #120d00 50%, #0a0a0a 100%);">
         <div class="mx-auto max-w-5xl px-6">
             <div class="mb-12 text-center">
                 <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">How A Turn Works</div>
@@ -237,7 +285,7 @@
     </section>
 
     {{-- ===================== WINNING THE GAME ===================== --}}
-    <section id="winning" class="scroll-mt-24 py-16 md:py-20 bg-[#0a0a0a]">
+    <section id="winning" class="scroll-mt-36 py-16 md:py-20 bg-[#0a0a0a]">
         <div class="mx-auto max-w-5xl px-6">
             <div class="mb-12 text-center">
                 <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">The Final Card</div>
@@ -266,11 +314,11 @@
                     <div class="text-4xl mb-4">⚠️</div>
                     <h3 class="font-cinzel font-bold text-lg text-[#ff6b6b] mb-3">Finishing Restrictions</h3>
                     <p class="text-sm text-[#f5f5f0]/70 leading-relaxed mb-4">
-                        You <span class="text-[#ff6b6b] font-semibold">cannot win</span> if your final card is one of these —
-                        and you cannot win if a Joker sits on top of the discard pile before your last move.
+                        Your final card <span class="text-[#ff6b6b] font-semibold">must</span> be a standard Play Card
+                        (4, 5, 6, 7, 9 or 10). Finish on any of these instead and you don't win:
                     </p>
                     <div class="flex flex-wrap gap-2">
-                        @foreach (['2', '3', 'Joker', 'King', 'Jack', 'Ace'] as $card)
+                        @foreach (['2', '3', 'Joker', '8', 'Queen', 'King', 'Jack', 'Ace'] as $card)
                             <span class="inline-flex items-center justify-center min-w-[2.5rem] rounded-lg border border-[#ff6b6b]/40 bg-[#ff6b6b]/10 px-2.5 py-1 text-xs font-cinzel font-bold text-[#ff6b6b]">
                                 {{ $card }}
                             </span>
@@ -279,14 +327,44 @@
                 </div>
             </div>
 
+            {{-- Kadiless --}}
+            <div class="mt-6 glass-card p-8 relative overflow-hidden border-l-4 !border-l-[#ff6b6b]">
+                <div class="text-4xl mb-4">🚫</div>
+                <h3 class="font-cinzel font-bold text-lg text-[#ff6b6b] mb-3">Going Kadiless</h3>
+                <p class="text-sm text-[#f5f5f0]/70 leading-relaxed">
+                    Land on a restricted card as your last move and you become <span class="text-[#ff6b6b] font-semibold">Kadiless</span> —
+                    you don't win, and you also lose the ability to defend anyone else from winning. If another player is
+                    already Kadiless, nobody at the table can win until the board clears.
+                </p>
+            </div>
+
             {{-- Final callout --}}
             <div class="mt-6 glass-card px-6 py-5 flex items-center gap-4">
                 <div class="text-2xl flex-shrink-0">🏁</div>
                 <p class="text-sm text-[#6b6b6b] leading-relaxed">
                     To secure the win, your winning card <em class="not-italic text-[#f5f5f0]">and</em> the board state
-                    immediately before it must be entirely clear of restricted cards. Play clean, play smart, and empty your hand.
+                    immediately before it must be entirely clear of restricted cards — a Joker can't be sitting on top of
+                    the discard pile the moment before your last move. Play clean, play smart, and empty your hand.
                 </p>
             </div>
+        </div>
+    </section>
+
+    {{-- ===================== STRATEGY / ESSENCE OF KADI ===================== --}}
+    <section id="strategy" class="scroll-mt-36 py-16 md:py-20 bg-[#0a0a0a]">
+        <div class="mx-auto max-w-3xl px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0] mb-6" style="font-family: 'Cinzel', serif;">The Essence of Kadi</h2>
+            <p class="font-cinzel text-xl md:text-2xl leading-snug text-[#f5c542] mb-6">
+                Not a game of matching cards — a battle of strategy, timing and psychology.
+            </p>
+            <p class="text-sm md:text-base text-[#6b6b6b] leading-relaxed max-w-2xl mx-auto">
+                The strongest players study their opponents: the cards they hesitate to play, the suits they avoid,
+                the chains they're quietly building. Every move should have a purpose — know when to strike, when
+                to hold back, and when to force a rival into an uncomfortable decision.
+            </p>
+            <p class="mt-6 text-sm md:text-base font-cinzel tracking-wide text-[#f5f5f0]">
+                Outthink. Outplay. Outfox.
+            </p>
         </div>
     </section>
 
@@ -321,4 +399,6 @@
             </div>
         </div>
     </section>
+
+    @include('partials.back-to-top')
 </div>

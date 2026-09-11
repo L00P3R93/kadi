@@ -38,30 +38,55 @@
             <p class="text-gray-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
                 From head-to-head singles to high-stakes jackpots — pick your game, place your bet, and take home real winnings.
             </p>
+        </div>
+    </section>
 
-            {{-- Quick nav --}}
-            <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+    @include('partials.quick-nav', ['links' => [
+        ['href' => '#how-it-works', 'label' => 'How It Works'],
+        ['href' => '#single', 'label' => 'Single Games'],
+        ['href' => '#tournaments', 'label' => 'Tournaments'],
+        ['href' => '#jackpots', 'label' => 'Jackpots'],
+    ]])
+
+    {{-- ===================== HOW IT WORKS ===================== --}}
+    <section id="how-it-works" class="scroll-mt-36 py-16 md:py-20" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
+        <div class="mx-auto max-w-6xl px-6">
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">How It Works</h2>
+                <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Every ticket follows the same simple idea, whether it's a quick single game or a multi-round Jackpot.</p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
                 @foreach ([
-                    ['href' => '#single', 'label' => 'Single Games'],
-                    ['href' => '#tournaments', 'label' => 'Tournaments'],
-                    ['href' => '#jackpots', 'label' => 'Jackpots'],
-                ] as $link)
-                    <a href="{{ $link['href'] }}"
-                       class="rounded-full border border-[#f5c542]/20 bg-white/[0.03] px-4 py-1.5 text-xs text-[#f5f5f0]/70 transition hover:border-[#f5c542]/50 hover:text-[#f5c542] hover:bg-[#f5c542]/5">
-                        {{ $link['label'] }}
-                    </a>
+                    ['n' => '01', 'icon' => '🎟️', 'title' => 'Buy a Ticket', 'desc' => 'One ticket is one attempt — a single game, a tournament run, or a Jackpot campaign. No extra lives: lose it, and you buy a fresh ticket to try again.'],
+                    ['n' => '02', 'icon' => '⚔️', 'title' => 'Win to Advance', 'desc' => 'Single games finish in one match. Tournaments and Jackpots move you forward one 1 vs 1 win at a time, level by level.'],
+                    ['n' => '03', 'icon' => '💾', 'title' => 'Progress Is Saved', 'desc' => 'Stepped away mid-tournament or mid-Jackpot? No problem — your level is remembered. Come back in an hour or next week and you\'ll face other players at your same stage.'],
+                    ['n' => '04', 'icon' => '🏆', 'title' => 'Claim Your Prize', 'desc' => 'Reach the final stage and the prize is yours — paid straight into your wallet.'],
+                ] as $step)
+                    <div class="glass-card glass-card-hover p-6 relative isolate overflow-hidden">
+                        <span class="pointer-events-none select-none absolute top-3 right-4 z-0 font-cinzel font-black text-3xl md:text-4xl leading-none text-[#f5c542] opacity-10">{{ $step['n'] }}</span>
+                        <div class="relative z-10">
+                            <div class="text-3xl mb-4">{{ $step['icon'] }}</div>
+                            <h3 class="font-cinzel text-sm font-bold text-[#f5c542] uppercase tracking-wide mb-2">{{ $step['title'] }}</h3>
+                            <p class="text-xs text-[#6b6b6b] leading-relaxed">{{ $step['desc'] }}</p>
+                        </div>
+                    </div>
                 @endforeach
             </div>
         </div>
     </section>
 
     {{-- ===================== SINGLE GAMES ===================== --}}
-    <section id="single" class="scroll-mt-24 py-16 md:py-20 bg-[#0a0a0a]">
+    <section id="single" class="scroll-mt-36 py-16 md:py-20 bg-[#0a0a0a]">
         <div class="mx-auto max-w-5xl px-6">
             <div class="mb-12 text-center">
                 <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">Head to Head</div>
                 <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Single Games</h2>
                 <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Challenge a single opponent. Pick your stake, win big. The more players at the table, the higher the payout.</p>
+                <div class="mt-5 inline-flex items-center gap-2.5 rounded-full border border-[#f5c542]/15 bg-white/[0.03] px-4 py-2 text-xs text-[#f5f5f0]/70">
+                    <span class="text-sm">🎟️</span>
+                    One ticket, one game. Win or lose, grab another ticket anytime to play again.
+                </div>
             </div>
 
             {{-- Mode selector pills --}}
@@ -209,12 +234,16 @@
     </section>
 
     {{-- ===================== TOURNAMENTS ===================== --}}
-    <section id="tournaments" class="scroll-mt-24 py-16 md:py-20" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
+    <section id="tournaments" class="scroll-mt-36 py-16 md:py-20" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
         <div class="mx-auto max-w-5xl px-6">
             <div class="mb-12 text-center">
                 <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">Elimination Brackets</div>
                 <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Tournaments</h2>
                 <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Battle through multiple rounds of elimination. The deeper you go, the bigger the multiplier — up to ×28.8.</p>
+                <div class="mt-5 inline-flex items-center gap-2.5 rounded-full border border-[#f5c542]/15 bg-white/[0.03] px-4 py-2 text-xs text-[#f5f5f0]/70">
+                    <span class="text-sm">💾</span>
+                    Win a round to advance. Stop anytime — your progress saves, and you'll return to players at your same level.
+                </div>
             </div>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -344,12 +373,16 @@
     </section>
 
     {{-- ===================== JACKPOTS ===================== --}}
-    <section id="jackpots" class="scroll-mt-24 py-16 md:py-20 bg-[#0a0a0a]">
+    <section id="jackpots" class="scroll-mt-36 py-16 md:py-20 bg-[#0a0a0a]">
         <div class="mx-auto max-w-6xl px-6">
             <div class="mb-12 text-center">
                 <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">The Big Leagues</div>
                 <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Jackpots</h2>
                 <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Multi-table elimination brackets with massive prize pools. Entry fees fund the entire prize structure.</p>
+                <div class="mt-5 inline-flex items-center gap-2.5 rounded-full border border-[#f5c542]/15 bg-white/[0.03] px-4 py-2 text-xs text-[#f5f5f0]/70">
+                    <span class="text-sm">💾</span>
+                    Play at your own pace — progress saves between games, so pick up right where you left off.
+                </div>
             </div>
 
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -539,4 +572,6 @@
             </div>
         </div>
     </section>
+
+    @include('partials.back-to-top')
 </div>
