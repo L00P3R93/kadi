@@ -10,7 +10,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Buy Coins | Kadi Online')]
+#[Title('Buy Coins | Kadi')]
 class BuyCoins extends Component
 {
     public array $kadiCustomer = [];

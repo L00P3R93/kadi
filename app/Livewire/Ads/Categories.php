@@ -10,7 +10,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Ad Categories | Kadi Online')]
+#[Title('Ad Categories | Kadi')]
 class Categories extends Component
 {
     public bool $showFormModal = false;

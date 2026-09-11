@@ -14,6 +14,10 @@ class Terms extends Component
 {
     public function render(): \Illuminate\Contracts\View\View|Factory|View
     {
-        return view('livewire.legal.terms');
+        return view('livewire.legal.terms')
+            ->layoutData([
+                'description' => 'Read the Terms of Service for Kadi, Kenya\'s online card game platform.',
+                'page' => 'terms',
+            ]);
     }
 }

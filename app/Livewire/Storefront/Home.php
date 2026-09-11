@@ -14,7 +14,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Promotions | Kadi Online')]
+#[Title('Promotions | Kadi')]
 class Home extends Component
 {
     /**

@@ -41,7 +41,7 @@ class Rules extends Component
 
         $googleId = $profile['google_id'] ?? null;
 
-        $this->playKadiUrl = 'https://kadi-kings.co.ke'.($googleId ? '?ggid='.$googleId : '');
+        $this->playKadiUrl = config('services.kadi_api.play_url').($googleId ? '?ggid='.$googleId : '');
     }
 
     private function refreshProfile(User $user, string $cacheKey): array

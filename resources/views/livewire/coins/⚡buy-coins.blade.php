@@ -219,7 +219,7 @@
             <div class="flex items-center gap-2 text-[11px] text-[#6b6b6b]">
                 <span class="mpesa-dot"></span> Payments processed securely via M-Pesa STK push
             </div>
-            <p class="text-[10px] text-gray-700">Coins are non-refundable and have no cash value outside Kadi Online.</p>
+            <p class="text-[10px] text-gray-700">Coins are non-refundable and have no cash value outside Kadi.</p>
         </div>
     </div>
 

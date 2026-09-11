@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\DetectCurrency;
 use App\Http\Middleware\LogoutInactiveUsers;
+use App\Http\Middleware\RedirectLegacyDomain;
 use App\Http\Middleware\SetCacheHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(prepend: [
+            RedirectLegacyDomain::class,
+        ]);
+
         $middleware->web(append: [
             DetectCurrency::class,
             SetCacheHeaders::class,

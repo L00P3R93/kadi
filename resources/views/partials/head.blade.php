@@ -2,6 +2,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#f5c542">
 
+@if ($verification = config('services.analytics.google_site_verification'))
+<meta name="google-site-verification" content="{{ $verification }}">
+@endif
+
 {{-- Performance: Preconnect to asset origins --}}
 <link rel="preconnect" href="{{ config('app.url') }}">
 <link rel="dns-prefetch" href="{{ config('app.url') }}">
@@ -19,9 +23,15 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Cinzel+Decorative:wght@400;700;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
+
+@if ($gaId = config('services.analytics.ga_measurement_id'))
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ $gaId }}');
+</script>
+@endif

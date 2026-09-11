@@ -13,7 +13,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Campaigns | Kadi Online')]
+#[Title('Campaigns | Kadi')]
 class Campaigns extends Component
 {
     public bool $showFormModal = false;

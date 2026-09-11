@@ -14,6 +14,10 @@ class Privacy extends Component
 {
     public function render(): \Illuminate\Contracts\View\View|Factory|View
     {
-        return view('livewire.legal.privacy');
+        return view('livewire.legal.privacy')
+            ->layoutData([
+                'description' => 'Read the Privacy Policy for Kadi, Kenya\'s online card game platform.',
+                'page' => 'privacy',
+            ]);
     }
 }

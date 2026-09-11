@@ -4,7 +4,7 @@
 ])
 @php
     $appUrl   = rtrim(config('app.url', 'https://kadi.online'), '/');
-    $siteName = config('app.name', 'Kadi Online');
+    $siteName = config('app.name', 'Kadi');
     $emit     = ! $noindex;
     $isHome   = $emit && $page === 'home';
     $isGames  = $emit && $page === 'games';
@@ -40,15 +40,7 @@
     "@@context": "https://schema.org",
     "@@type": "WebSite",
     "name": "{{ $siteName }}",
-    "url": "{{ $appUrl }}",
-    "potentialAction": {
-        "@@type": "SearchAction",
-        "target": {
-            "@@type": "EntryPoint",
-            "urlTemplate": "{{ $appUrl }}/lobby?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-    }
+    "url": "{{ $appUrl }}"
 }
 </script>
 @endif

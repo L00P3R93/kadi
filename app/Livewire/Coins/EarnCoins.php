@@ -18,7 +18,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Earn Coins | Kadi Online')]
+#[Title('Earn Coins | Kadi')]
 class EarnCoins extends Component
 {
     /** @var Collection<int, Ad> Today's randomly-selected ads (up to 5). */

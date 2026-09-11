@@ -35,11 +35,16 @@ return [
         ],
     ],
 
+    'analytics' => [
+        'ga_measurement_id' => env('GA_MEASUREMENT_ID'),
+        'google_site_verification' => env('GOOGLE_SITE_VERIFICATION'),
+    ],
+
     'kadi_api' => [
         'url' => env('API_URL'),
         'key' => env('API_KEY'),
         'image_url' => env('KADI_IMAGE_URL', 'https://gameapi.kadi.online/kadi/images'),
-        'play_url' => env('KADI_PLAY_URL', 'https://kadi-kings.co.ke'),
+        'play_url' => env('KADI_PLAY_URL', 'https://kadi.online'),
     ],
 
     'bugs_api' => [

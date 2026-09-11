@@ -6,13 +6,20 @@
 ])
 
 @php
-    $siteName      = config('app.name', 'Kadi Online');
+    $siteName      = config('app.name', 'Kadi');
     $appUrl        = rtrim(config('app.url', 'https://kadi.online'), '/');
     $resolvedTitle = filled($title) ? $title : $siteName;
     $resolvedDesc  = filled($description)
         ? $description
         : 'Kenya\'s online competitive Kadi game anytime, anywhere';
-    $ogImage   = $appUrl . '/images/og-default-angel.png';
+    $ogImages = [
+        'home'       => 'og-default.png',
+        'rules'      => 'og-how-to.png',
+        'game-guide' => 'og-games-guide.png',
+        'terms'      => 'og-terms.png',
+        'privacy'    => 'og-privacy.png',
+    ];
+    $ogImage = $appUrl . '/images/' . ($ogImages[$page] ?? 'og-default.png');
     $canonical = $appUrl . request()->getPathInfo();
 @endphp
 

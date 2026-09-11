@@ -1,5 +1,5 @@
 @unless (request()->cookie('kadi_preloaded'))
-    <div id="kadi-preloader" class="kadi-preloader" role="status" aria-live="polite" aria-label="Loading Kadi Online">
+    <div id="kadi-preloader" class="kadi-preloader" role="status" aria-live="polite" aria-label="Loading Kadi">
         <span class="casino-floater kadi-preloader__floater" style="top:15%; left:10%; font-size:2rem; animation-duration:7s;">♠</span>
         <span class="casino-floater kadi-preloader__floater" style="top:72%; left:16%; font-size:1.5rem; animation-duration:9s; animation-delay:1s;">♥</span>
         <span class="casino-floater kadi-preloader__floater" style="top:18%; right:12%; font-size:1.75rem; animation-duration:8s; animation-delay:.5s;">♦</span>

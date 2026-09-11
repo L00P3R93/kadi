@@ -56,7 +56,7 @@ class Show extends Component
         $this->dispatch('cart-updated');
     }
 
-    #[Title('Product | Kadi Online')]
+    #[Title('Product | Kadi')]
     public function render(): Factory|View|\Illuminate\View\View
     {
         return view('livewire.storefront.product.show')->layout('layouts.app');

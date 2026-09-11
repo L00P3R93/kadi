@@ -129,7 +129,7 @@
                 ] as $step)
                     <div class="glass-card glass-card-hover p-6">
                         <div class="text-3xl mb-4">
-                            <img src="{{ $step['icon'] }}" alt="{{ $step['title'] }}" width="80" height="80">
+                            <img src="{{ $step['icon'] }}" alt="{{ $step['title'] }}" width="80" height="80" loading="lazy" decoding="async">
                         </div>
                         <h3 class="font-cinzel text-sm font-bold text-[#f5c542] uppercase tracking-wide mb-2">{{ $step['title'] }}</h3>
                         <p class="text-xs text-[#6b6b6b] leading-relaxed">{{ $step['desc'] }}</p>

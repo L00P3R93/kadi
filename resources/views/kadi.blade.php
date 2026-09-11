@@ -396,7 +396,7 @@ console.log(window.GAME_AUTH);
 <div id="fullscreenPrompt" class="hidden">
   <div class="prompt-content">
     <h2>Your Quest Awaits</h2>
-    <p>For the ultimate Kadi Online experience, go fullscreen and claim your throne</p>
+    <p>For the ultimate Kadi experience, go fullscreen and claim your throne</p>
 	<button id="installBtn" style="margin-top:10px;">Install Web App</button>
     <button id="iosBtn" style="margin-top:10px;">Add to Home Screen (iOS)</button>
     <button id="fullscreenBtn">Enter Fullscreen</button>
@@ -650,7 +650,7 @@ window.addEventListener("beforeinstallprompt", e => {
 
 installBtn.addEventListener("click", async () => {
   if (isStandalone()) {
-    alert("Kadi Online is already installed.");
+    alert("Kadi is already installed.");
     return;
   }
   if (deferredPrompt) {
@@ -664,7 +664,7 @@ installBtn.addEventListener("click", async () => {
 
 iosBtn.addEventListener("click", () => {
   if (isStandalone()) {
-    alert("Kadi Online is already installed.");
+    alert("Kadi is already installed.");
     return;
   }
   if (isIos()) {
