@@ -27,6 +27,20 @@ class KadiApiService
     }
 
     /**
+     * Clone the shared client and attach an Idempotency-Key header.
+     *
+     * withHeaders() mutates and returns the same PendingRequest instance, so
+     * calling it directly on $this->http would leak every prior key onto
+     * subsequent requests. Cloning first keeps $this->http untouched.
+     */
+    protected function withIdempotencyKey(?string $idempotencyKey = null): PendingRequest
+    {
+        return (clone $this->http)->withHeaders([
+            'Idempotency-Key' => $idempotencyKey ?? Str::uuid()->toString(),
+        ]);
+    }
+
+    /**
      * Make a GET request
      *
      * @throws RequestException|ConnectionException
@@ -45,9 +59,7 @@ class KadiApiService
      */
     public function post(string $endpoint, array $data = [], string $bodyType = 'json', ?string $idempotencyKey = null): array
     {
-        $request = $this->http->withHeaders([
-            'Idempotency-Key' => $idempotencyKey ?? Str::uuid()->toString(),
-        ]);
+        $request = $this->withIdempotencyKey($idempotencyKey);
 
         $response = $bodyType === 'form'
             ? $request->asForm()->post($endpoint, $data)
@@ -63,9 +75,7 @@ class KadiApiService
      */
     public function put(string $endpoint, array $data = [], string $bodyType = 'json', ?string $idempotencyKey = null): array
     {
-        $request = $this->http->withHeaders([
-            'Idempotency-Key' => $idempotencyKey ?? Str::uuid()->toString(),
-        ]);
+        $request = $this->withIdempotencyKey($idempotencyKey);
 
         $response = $bodyType === 'form'
             ? $request->asForm()->put($endpoint, $data)
@@ -104,9 +114,8 @@ class KadiApiService
         // different customers always get distinct keys.
         $key = 'customer-create-'.($data['account_no'] ?? $data['google_id'] ?? Str::uuid()->toString());
 
-        $request = $this->http->withHeaders(['Idempotency-Key' => $key]);
-
-        return $request->post('customers', $data)
+        return $this->withIdempotencyKey($key)
+            ->post('customers', $data)
             ->throw()
             ->json() ?? [];
     }
@@ -116,10 +125,9 @@ class KadiApiService
      *
      * @throws RequestException|ConnectionException
      */
-    public function getTransactions(int $customerId, string $type = 'all'): array
+    public function getTransactions(int $customerId, string $type = 'all', ?string $idempotencyKey = null): array
     {
-        return $this->http
-            ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
+        return $this->withIdempotencyKey($idempotencyKey)
             ->post('customers/transactions/'.encryptOpenSSL($customerId), [
                 'payment_type' => $type,
             ])->throw()->json() ?? [];
@@ -130,9 +138,10 @@ class KadiApiService
      *
      * @throws RequestException|ConnectionException
      */
-    public function updateCustomer(int $customerId, array $data): array
+    public function updateCustomer(int $customerId, array $data, ?string $idempotencyKey = null): array
     {
-        return $this->http->put('customers/'.encryptOpenSSL($customerId), $data)
+        return $this->withIdempotencyKey($idempotencyKey)
+            ->put('customers/'.encryptOpenSSL($customerId), $data)
             ->throw()
             ->json() ?? [];
     }
@@ -155,9 +164,9 @@ class KadiApiService
      *
      * @throws RequestException|ConnectionException
      */
-    public function uploadProfilePic(int $customerId, string $filePath, string $filename): array
+    public function uploadProfilePic(int $customerId, string $filePath, string $filename, ?string $idempotencyKey = null): array
     {
-        return $this->http
+        return $this->withIdempotencyKey($idempotencyKey)
             ->attach('pic', fopen($filePath, 'r'), $filename)
             ->post('customers/'.encryptOpenSSL($customerId).'/pic')
             ->throw()
@@ -169,18 +178,18 @@ class KadiApiService
      *
      * @throws RequestException|ConnectionException
      */
-    public function delete(string $endpoint): array
+    public function delete(string $endpoint, ?string $idempotencyKey = null): array
     {
-        return $this->http->delete($endpoint)
+        return $this->withIdempotencyKey($idempotencyKey)
+            ->delete($endpoint)
             ->throw()
             ->json('data') ?? [];
     }
 
-    public function stkDeposit(User $user, int $amount): bool
+    public function stkDeposit(User $user, int $amount, ?string $idempotencyKey = null): bool
     {
         try {
-            $response = $this->http
-                ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
+            $response = $this->withIdempotencyKey($idempotencyKey)
                 ->post('deposits/'.encryptOpenSSL($user->linked_id), [
                     'amount' => (string) $amount,
                 ])
@@ -197,11 +206,10 @@ class KadiApiService
         }
     }
 
-    public function stkLoad(User $user, array $options): bool
+    public function stkLoad(User $user, array $options, ?string $idempotencyKey = null): bool
     {
         try {
-            $response = $this->http
-                ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
+            $response = $this->withIdempotencyKey($idempotencyKey)
                 ->post('load/'.encryptOpenSSL($user->linked_id), [
                     'amount' => (string) $options['price'],
                     'type' => $options['type'],
@@ -228,11 +236,10 @@ class KadiApiService
      * Payload  : ['amount' => string]
      * Response : ['status' => 'success'|'failed', ...]   (confirm against staging)
      */
-    public function withdraw(User $user, float $amount): bool
+    public function withdraw(User $user, float $amount, ?string $idempotencyKey = null): bool
     {
         try {
-            $response = $this->http
-                ->withHeaders(['Idempotency-Key' => Str::uuid()->toString()])
+            $response = $this->withIdempotencyKey($idempotencyKey)
                 ->post('withdrawals/'.encryptOpenSSL($user->linked_id), [
                     'amount' => (string) $amount,
                 ])
