@@ -49,7 +49,7 @@ class Welcome extends Component
     {
         return Cache::remember('kadi.live_players', now()->addMinutes(5), function () {
             try {
-                $response = Http::get('https://gameapi.kadikings.co.ke/kadi/get_user_totals.php')
+                $response = Http::get('https://gameapi.kadi.online/kadi/get_user_totals.php')
                     ->throw()
                     ->json();
 

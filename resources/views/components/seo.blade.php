@@ -6,8 +6,8 @@
 ])
 
 @php
-    $siteName      = config('app.name', 'Angel Palace');
-    $appUrl        = rtrim(config('app.url', 'https://kadikings.co.ke'), '/');
+    $siteName      = config('app.name', 'Kadi Online');
+    $appUrl        = rtrim(config('app.url', 'https://kadi.online'), '/');
     $resolvedTitle = filled($title) ? $title : $siteName;
     $resolvedDesc  = filled($description)
         ? $description

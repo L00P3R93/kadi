@@ -8,4 +8,4 @@ Disallow: /wallet
 Disallow: /settings/
 Disallow: /api/
 
-Sitemap: https://kadikings.co.ke/sitemap.xml
+Sitemap: https://kadi.online/sitemap.xml

@@ -12,7 +12,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Title('Ad Wallet | Kadi Kings')]
+#[Title('Ad Wallet | Kadi Online')]
 class Wallets extends Component
 {
     use WithPagination;

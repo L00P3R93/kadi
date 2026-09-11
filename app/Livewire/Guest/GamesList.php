@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Casino Games — Slots & Table Games | Kadi Kings')]
+#[Title('Casino Games — Slots & Table Games | Kadi Online')]
 class GamesList extends Component
 {
     public Collection $games;
@@ -32,7 +32,7 @@ class GamesList extends Component
         return view('livewire.guest.games-list')
             ->layout('layouts.guest')
             ->layoutData([
-                'description' => 'Browse all casino games at Kadi Kings — slots, blackjack, roulette, poker, and live dealer games available in Kenya.',
+                'description' => 'Browse all casino games at Kadi Online — slots, blackjack, roulette, poker, and live dealer games available in Kenya.',
                 'page' => 'games',
             ]);
     }

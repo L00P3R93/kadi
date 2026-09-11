@@ -251,7 +251,7 @@
                 <div class="text-2xl flex-shrink-0">📧</div>
                 <p class="text-sm text-[#6b6b6b] leading-relaxed">
                     To exercise any of these rights, contact us at
-                    <span class="text-[#f5c542]">support@kadikings.co.ke</span>.
+                    <span class="text-[#f5c542]">support@kadi.online</span>.
                     We will respond within 30 days of your request.
                 </p>
             </div>
@@ -337,7 +337,7 @@
                 We're transparent about how we handle your information. Reach out anytime.
             </p>
             <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="mailto:support@kadikings.co.ke"
+                <a href="mailto:support@kadi.online"
                    class="btn-casino-primary inline-block rounded-full px-8 py-4 no-underline">
                     Contact Support →
                 </a>

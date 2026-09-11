@@ -63,7 +63,7 @@ class KadiProfileImageService
                 quality: 70
             );
 
-            // Upload to game.kadikings.co.ke
+            // Upload to game.kadi.online
             $response = Http::attach(
                 'pic', fopen($mainPath, 'r'), basename($mainPath)
             )->attach(

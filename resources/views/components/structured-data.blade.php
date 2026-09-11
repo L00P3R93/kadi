@@ -3,8 +3,8 @@
     'noindex' => false,
 ])
 @php
-    $appUrl   = rtrim(config('app.url', 'https://kadikings.co.ke'), '/');
-    $siteName = config('app.name', 'Angel Palace');
+    $appUrl   = rtrim(config('app.url', 'https://kadi.online'), '/');
+    $siteName = config('app.name', 'Kadi Online');
     $emit     = ! $noindex;
     $isHome   = $emit && $page === 'home';
     $isGames  = $emit && $page === 'games';
@@ -26,7 +26,7 @@
     "contactPoint": {
         "@@type": "ContactPoint",
         "contactType": "customer support",
-        "email": "support@kadikings.co.ke",
+        "email": "support@kadi.online",
         "availableLanguage": ["English", "Swahili"]
     },
     "sameAs": []
@@ -59,7 +59,7 @@
     "@@context": "https://schema.org",
     "@@type": "WebPage",
     "name": "Casino Games \u2014 Slots & Table Games | {{ $siteName }}",
-    "description": "Browse all casino games at Kadi Kings \u2014 slots, blackjack, roulette, and more.",
+    "description": "Browse all casino games at Kadi Online \u2014 slots, blackjack, roulette, and more.",
     "url": "{{ $appUrl }}/lobby",
     "breadcrumb": {
         "@@type": "BreadcrumbList",

@@ -9,7 +9,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-#[Title('Campaign Details | Kadi Kings')]
+#[Title('Campaign Details | Kadi Online')]
 class ShowCampaign extends Component
 {
     public AdCampaign $campaign;

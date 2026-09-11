@@ -43,7 +43,7 @@ class Show extends Component
             ->paginate(24);
     }
 
-    #[Title('Category | Kadi Kings')]
+    #[Title('Category | Kadi Online')]
     public function render(): Factory|View|\Illuminate\View\View
     {
         return view('livewire.storefront.category.show', [

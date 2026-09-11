@@ -9,7 +9,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Pricing Tiers | Kadi Kings')]
+#[Title('Pricing Tiers | Kadi Online')]
 class PricingTiers extends Component
 {
     public bool $showFormModal = false;

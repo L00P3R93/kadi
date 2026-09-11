@@ -253,7 +253,7 @@
                     <h3 class="font-cinzel font-bold text-lg text-[#f5c542] mb-3">Your Right to Leave</h3>
                     <p class="text-sm text-[#f5f5f0]/70 leading-relaxed">
                         You may close your account at any time by contacting us at
-                        <span class="text-[#f5c542]">support@kadikings.co.ke</span>.
+                        <span class="text-[#f5c542]">support@kadi.online</span>.
                         Once closed, any remaining virtual coins will be forfeited and cannot be recovered.
                     </p>
                 </div>
@@ -305,7 +305,7 @@
                 If anything in these terms is unclear, reach out. We're here to help.
             </p>
             <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="mailto:support@kadikings.co.ke"
+                <a href="mailto:support@kadi.online"
                    class="btn-casino-primary inline-block rounded-full px-8 py-4 no-underline">
                     Contact Support →
                 </a>

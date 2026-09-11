@@ -28,7 +28,7 @@ class FetchSportsbookOdds extends Command
 
         $this->info('');
         $this->info('╔══════════════════════════════════════════╗');
-        $this->info('║   ANGEL PALACE — Sportsbook Cache Fetch  ║');
+        $this->info('║   KADI ONLINE — Sportsbook Cache Fetch   ║');
         $this->info('╚══════════════════════════════════════════╝');
         $this->info('Started: '.now()->format('Y-m-d H:i:s').' EAT');
         $this->info('Region:  uk');

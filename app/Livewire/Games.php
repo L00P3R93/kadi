@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Casino Games | Angel Palace')]
+#[Title('Casino Games | Kadi Online')]
 class Games extends Component
 {
     public Collection $games;
