@@ -1,4 +1,4 @@
-{{-- Floating "back to top" button — appears once the reader has scrolled past the hero. --}}
+{{-- Floating "back to top" button. Appears once the reader has scrolled past the hero. --}}
 <div
     x-data="{ show: false }"
     x-init="window.addEventListener('scroll', () => { show = window.scrollY > 700 }, { passive: true })"

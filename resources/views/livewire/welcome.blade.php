@@ -158,10 +158,10 @@
                         <div class="h-px bg-gradient-to-r from-transparent via-[#f5c542]/20 to-transparent mb-5"></div>
                         @php
                             $prizes = [
-                                ['rank'=>1,'label'=>'1st Place',            'emoji'=>'🥇','amount'=> 110452969, 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
-                                ['rank'=>2,'label'=>'Runner-Up',            'emoji'=>'🥈','amount'=>  25016339, 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
-                                ['rank'=>3,'label'=>'Semis (x2 Losers)',    'emoji'=>'🥉','amount'=>   9978584, 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
-                                ['rank'=>4,'label'=>'Quarters (x4 Losers)', 'emoji'=>'🎯','amount'=>   3086378, 'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
+                                ['rank'=>1,'label'=>'1st Place',            'icon'=>'medal-first-place','amount'=> 110452969, 'color'=>'#FFD700','glow'=>'rgba(255,215,0,0.4)'],
+                                ['rank'=>2,'label'=>'Runner-Up',            'icon'=>'medal-second-place','amount'=>  25016339, 'color'=>'#C0C0C0','glow'=>'rgba(192,192,192,0.3)'],
+                                ['rank'=>3,'label'=>'Semis (x2 Losers)',    'icon'=>'medal-third-place','amount'=>   9978584, 'color'=>'#CD7F32','glow'=>'rgba(205,127,50,0.3)'],
+                                ['rank'=>4,'label'=>'Quarters (x4 Losers)', 'icon'=>'target-02','amount'=>   3086378, 'color'=>'#60a5fa','glow'=>'rgba(96,165,250,0.25)'],
                             ];
                         @endphp
 
@@ -193,9 +193,9 @@
                         >
                             @foreach($prizes as $i => $prize)
                                 <div class="flex items-center gap-3">
-                                    <span class="text-2xl flex-shrink-0 leading-none"
-                                          style="filter: drop-shadow(0 0 8px {{ $prize['glow'] }});">
-                                        {{ $prize['emoji'] }}
+                                    <span class="flex-shrink-0 leading-none"
+                                          style="color: {{ $prize['color'] }}; filter: drop-shadow(0 0 8px {{ $prize['glow'] }});">
+                                        @svg('hugeicons-'.$prize['icon'], 'size-6')
                                     </span>
                                     <div class="flex-1 min-w-0">
                                         <div class="text-[10px] font-semibold uppercase tracking-widest"
@@ -223,9 +223,11 @@
                             </span>
                         </div>
                     </div>
-                    <div class="absolute -top-2 -right-2 w-16 h-16 pointer-events-none"
+                    {{--
+                     <div class="absolute -top-2 -right-2 w-16 h-16 rounded-full pointer-events-none"
                          style="background: radial-gradient(circle at top right, rgba(245,197,66,0.15), transparent 70%);">
                     </div>
+                    --}}
                 </div>
 
                 {{-- ══ RIGHT: Kadi Table Showcase ══

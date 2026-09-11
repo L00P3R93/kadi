@@ -1,4 +1,4 @@
-<div x-data="{ activeTab: 'single' }">
+<div x-data="{ activeTab: 'single2' }">
 
     {{-- ===================== HERO ===================== --}}
     <section class="relative overflow-hidden bg-[#0a0a0a] min-h-[380px] md:min-h-[440px] flex items-center">
@@ -36,7 +36,7 @@
                 PLAY. WIN. REPEAT.
             </h1>
             <p class="text-gray-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-                From head-to-head singles to high-stakes jackpots — pick your game, place your bet, and take home real winnings.
+                From head-to-head singles to high-stakes jackpots, pick your game, place your bet, and take home real winnings.
             </p>
         </div>
     </section>
@@ -58,18 +58,15 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
                 @foreach ([
-                    ['n' => '01', 'icon' => '🎟️', 'title' => 'Buy a Ticket', 'desc' => 'One ticket is one attempt — a single game, a tournament run, or a Jackpot campaign. No extra lives: lose it, and you buy a fresh ticket to try again.'],
-                    ['n' => '02', 'icon' => '⚔️', 'title' => 'Win to Advance', 'desc' => 'Single games finish in one match. Tournaments and Jackpots move you forward one 1 vs 1 win at a time, level by level.'],
-                    ['n' => '03', 'icon' => '💾', 'title' => 'Progress Is Saved', 'desc' => 'Stepped away mid-tournament or mid-Jackpot? No problem — your level is remembered. Come back in an hour or next week and you\'ll face other players at your same stage.'],
-                    ['n' => '04', 'icon' => '🏆', 'title' => 'Claim Your Prize', 'desc' => 'Reach the final stage and the prize is yours — paid straight into your wallet.'],
+                    ['icon' => 'ticket-01', 'title' => 'Buy a Ticket', 'desc' => 'One ticket is one attempt: a single game, a tournament run, or a Jackpot campaign. No extra lives: lose it, and you buy a fresh ticket to try again.'],
+                    ['icon' => 'fencing', 'title' => 'Win to Advance', 'desc' => 'Single games finish in one match. Tournaments and Jackpots move you forward one 1 vs 1 win at a time, level by level.'],
+                    ['icon' => 'floppy-disk', 'title' => 'Progress Is Saved', 'desc' => 'Stepped away mid-tournament or mid-Jackpot? No problem, your level is remembered. Come back in an hour or next week and you\'ll face other players at your same stage.'],
+                    ['icon' => 'champion', 'title' => 'Claim Your Prize', 'desc' => 'Reach the final stage and the prize is yours, paid straight into your wallet.'],
                 ] as $step)
-                    <div class="glass-card glass-card-hover p-6 relative isolate overflow-hidden">
-                        <span class="pointer-events-none select-none absolute top-3 right-4 z-0 font-cinzel font-black text-3xl md:text-4xl leading-none text-[#f5c542] opacity-10">{{ $step['n'] }}</span>
-                        <div class="relative z-10">
-                            <div class="text-3xl mb-4">{{ $step['icon'] }}</div>
-                            <h3 class="font-cinzel text-sm font-bold text-[#f5c542] uppercase tracking-wide mb-2">{{ $step['title'] }}</h3>
-                            <p class="text-xs text-[#6b6b6b] leading-relaxed">{{ $step['desc'] }}</p>
-                        </div>
+                    <div class="glass-card glass-card-hover p-6">
+                        <div class="text-[#f5c542] mb-4">@svg('hugeicons-'.$step['icon'], 'size-9')</div>
+                        <h3 class="font-cinzel text-sm font-bold text-[#f5c542] uppercase tracking-wide mb-2">{{ $step['title'] }}</h3>
+                        <p class="text-xs text-[#6b6b6b] leading-relaxed">{{ $step['desc'] }}</p>
                     </div>
                 @endforeach
             </div>
@@ -84,7 +81,7 @@
                 <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Single Games</h2>
                 <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Challenge a single opponent. Pick your stake, win big. The more players at the table, the higher the payout.</p>
                 <div class="mt-5 inline-flex items-center gap-2.5 rounded-full border border-[#f5c542]/15 bg-white/[0.03] px-4 py-2 text-xs text-[#f5f5f0]/70">
-                    <span class="text-sm">🎟️</span>
+                    <span>@svg('hugeicons-ticket-01', 'size-4')</span>
                     One ticket, one game. Win or lose, grab another ticket anytime to play again.
                 </div>
             </div>
@@ -94,17 +91,17 @@
                 <button @click="activeTab = 'single2'"
                         :class="activeTab === 'single2' ? 'border-[#f5c542] bg-[#f5c542]/10 text-[#f5c542] shadow-[0_0_16px_rgba(245,197,66,0.2)]' : 'border-[#f5c542]/15 text-[#f5f5f0]/60'"
                         class="flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-200">
-                    <span class="text-lg">⚔️</span> vs 2
+                    <span>@svg('hugeicons-fencing', 'size-4')</span> vs 2
                 </button>
                 <button @click="activeTab = 'single3'"
                         :class="activeTab === 'single3' ? 'border-[#f5c542] bg-[#f5c542]/10 text-[#f5c542] shadow-[0_0_16px_rgba(245,197,66,0.2)]' : 'border-[#f5c542]/15 text-[#f5f5f0]/60'"
                         class="flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-200">
-                    <span class="text-lg">🗡️</span> vs 3
+                    <span>@svg('hugeicons-user-group', 'size-4')</span> vs 3
                 </button>
                 <button @click="activeTab = 'single4'"
                         :class="activeTab === 'single4' ? 'border-[#f5c542] bg-[#f5c542]/10 text-[#f5c542] shadow-[0_0_16px_rgba(245,197,66,0.2)]' : 'border-[#f5c542]/15 text-[#f5f5f0]/60'"
                         class="flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-200">
-                    <span class="text-lg">🏰</span> vs 4
+                    <span>@svg('hugeicons-castle', 'size-4')</span> vs 4
                 </button>
             </div>
 
@@ -112,10 +109,10 @@
             <div x-show="activeTab === 'single2'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="glass-card overflow-hidden border-l-4 !border-l-[#f5c542]">
                     <div class="flex items-center gap-3 px-6 py-4 border-b border-[#f5c542]/10">
-                        <span class="text-2xl">⚔️</span>
+                        <span class="text-[#f5c542]">@svg('hugeicons-fencing', 'size-6')</span>
                         <div>
                             <h3 class="font-cinzel font-bold text-[#f5c542] text-sm uppercase tracking-wide">2-Player Match</h3>
-                            <p class="text-xs text-[#6b6b6b]">Winner takes all — 1.9× your stake</p>
+                            <p class="text-xs text-[#6b6b6b]">Winner takes all: 1.9× your stake</p>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -153,10 +150,10 @@
             <div x-show="activeTab === 'single3'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="glass-card overflow-hidden border-l-4 !border-l-[#60a5fa]">
                     <div class="flex items-center gap-3 px-6 py-4 border-b border-[#60a5fa]/10">
-                        <span class="text-2xl">🗡️</span>
+                        <span class="text-[#60a5fa]">@svg('hugeicons-user-group', 'size-6')</span>
                         <div>
                             <h3 class="font-cinzel font-bold text-[#60a5fa] text-sm uppercase tracking-wide">3-Player Match</h3>
-                            <p class="text-xs text-[#6b6b6b]">Outplay two rivals — 2.85× your stake</p>
+                            <p class="text-xs text-[#6b6b6b]">Outplay two rivals: 2.85× your stake</p>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -194,10 +191,10 @@
             <div x-show="activeTab === 'single4'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="glass-card overflow-hidden border-l-4 !border-l-[#c084fc]">
                     <div class="flex items-center gap-3 px-6 py-4 border-b border-[#c084fc]/10">
-                        <span class="text-2xl">🏰</span>
+                        <span class="text-[#c084fc]">@svg('hugeicons-castle', 'size-6')</span>
                         <div>
                             <h3 class="font-cinzel font-bold text-[#c084fc] text-sm uppercase tracking-wide">4-Player Match</h3>
-                            <p class="text-xs text-[#6b6b6b]">Dominate the table — 3.8× your stake</p>
+                            <p class="text-xs text-[#6b6b6b]">Dominate the table: 3.8× your stake</p>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -237,33 +234,32 @@
     <section id="tournaments" class="scroll-mt-36 py-16 md:py-20" style="background-color:#111111;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(245,197,66,0.03) 40px,rgba(245,197,66,0.03) 41px);">
         <div class="mx-auto max-w-5xl px-6">
             <div class="mb-12 text-center">
-                <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">Elimination Brackets</div>
                 <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Tournaments</h2>
-                <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Battle through multiple rounds of elimination. The deeper you go, the bigger the multiplier — up to ×28.8.</p>
+                <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Battle through multiple rounds of elimination. The deeper you go, the bigger the multiplier, up to ×28.8.</p>
                 <div class="mt-5 inline-flex items-center gap-2.5 rounded-full border border-[#f5c542]/15 bg-white/[0.03] px-4 py-2 text-xs text-[#f5f5f0]/70">
-                    <span class="text-sm">💾</span>
-                    Win a round to advance. Stop anytime — your progress saves, and you'll return to players at your same level.
+                    <span>@svg('hugeicons-floppy-disk', 'size-4')</span>
+                    Win a round to advance. Stop anytime: your progress saves, and you'll return to players at your same level.
                 </div>
             </div>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 
                 {{-- 3 Rounds --}}
-                <div class="glass-card overflow-hidden border-t-4 !border-t-[#60a5fa] group hover:shadow-[0_0_30px_rgba(96,165,250,0.12)] transition-all duration-300">
+                <div class="glass-card overflow-hidden border-t-4 !border-t-[#CD7F32] group hover:shadow-[0_0_30px_rgba(205,127,50,0.15)] transition-all duration-300">
                     <div class="px-6 py-5 text-center border-b border-white/5">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#60a5fa]/10 border border-[#60a5fa]/30 text-2xl mb-3">🥉</div>
-                        <div class="font-cinzel text-[10px] text-[#60a5fa]/60 uppercase tracking-[0.25em] mb-1">Bronze Tier</div>
-                        <h3 class="font-cinzel font-bold text-lg text-[#60a5fa]">3 Rounds</h3>
-                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#60a5fa]/10 border border-[#60a5fa]/30 px-3 py-1">
-                            <span class="font-cinzel text-xs font-bold text-[#60a5fa]">×7.2</span>
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#CD7F32]/10 border border-[#CD7F32]/30 text-[#CD7F32] mb-3">@svg('hugeicons-medal-third-place', 'size-7')</div>
+                        <div class="font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.25em] mb-1">Bronze Tier</div>
+                        <h3 class="font-cinzel font-bold text-lg text-[#CD7F32]">3 Rounds</h3>
+                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#CD7F32]/10 border border-[#CD7F32]/30 px-3 py-1">
+                            <span class="font-cinzel text-xs font-bold text-[#CD7F32]">×7.2</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="border-b border-[#60a5fa]/10">
-                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#60a5fa]/60 uppercase tracking-[0.2em]">Stake</th>
-                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#60a5fa]/60 uppercase tracking-[0.2em]">Wins</th>
+                                <tr class="border-b border-[#CD7F32]/10">
+                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Stake</th>
+                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Wins</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -278,9 +274,9 @@
                                     ];
                                 @endphp
                                 @foreach($t3 as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#60a5fa]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                    <tr class="border-b border-white/5 hover:bg-[#CD7F32]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
                                         <td class="px-5 py-2.5 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
-                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#60a5fa]">KSh {{ number_format($row['win']) }}</td>
+                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#CD7F32]">KSh {{ number_format($row['win']) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -289,21 +285,21 @@
                 </div>
 
                 {{-- 4 Rounds --}}
-                <div class="glass-card overflow-hidden border-t-4 !border-t-[#f5c542] group hover:shadow-[0_0_30px_rgba(245,197,66,0.12)] transition-all duration-300">
+                <div class="glass-card overflow-hidden border-t-4 !border-t-[#C0C0C0] group hover:shadow-[0_0_30px_rgba(192,192,192,0.12)] transition-all duration-300">
                     <div class="px-6 py-5 text-center border-b border-white/5">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#f5c542]/10 border border-[#f5c542]/30 text-2xl mb-3">🥈</div>
-                        <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-1">Silver Tier</div>
-                        <h3 class="font-cinzel font-bold text-lg text-[#f5c542]">4 Rounds</h3>
-                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#f5c542]/10 border border-[#f5c542]/30 px-3 py-1">
-                            <span class="font-cinzel text-xs font-bold text-[#f5c542]">×14.4</span>
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#C0C0C0]/10 border border-[#C0C0C0]/30 text-[#C0C0C0] mb-3">@svg('hugeicons-medal-second-place', 'size-7')</div>
+                        <div class="font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.25em] mb-1">Silver Tier</div>
+                        <h3 class="font-cinzel font-bold text-lg text-[#C0C0C0]">4 Rounds</h3>
+                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#C0C0C0]/10 border border-[#C0C0C0]/30 px-3 py-1">
+                            <span class="font-cinzel text-xs font-bold text-[#C0C0C0]">×14.4</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="border-b border-[#f5c542]/10">
-                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.2em]">Stake</th>
-                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.2em]">Wins</th>
+                                <tr class="border-b border-[#C0C0C0]/10">
+                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Stake</th>
+                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Wins</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -318,9 +314,9 @@
                                     ];
                                 @endphp
                                 @foreach($t4 as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#f5c542]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                    <tr class="border-b border-white/5 hover:bg-[#C0C0C0]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
                                         <td class="px-5 py-2.5 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
-                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#f5c542]">KSh {{ number_format($row['win']) }}</td>
+                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#C0C0C0]">KSh {{ number_format($row['win']) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -329,21 +325,21 @@
                 </div>
 
                 {{-- 5 Rounds --}}
-                <div class="glass-card overflow-hidden border-t-4 !border-t-[#ffde74] group hover:shadow-[0_0_30px_rgba(255,222,116,0.12)] transition-all duration-300">
+                <div class="glass-card overflow-hidden border-t-4 !border-t-[#FFD700] group hover:shadow-[0_0_30px_rgba(255,215,0,0.15)] transition-all duration-300">
                     <div class="px-6 py-5 text-center border-b border-white/5">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#ffde74]/10 border border-[#ffde74]/30 text-2xl mb-3">🥇</div>
-                        <div class="font-cinzel text-[10px] text-[#ffde74]/60 uppercase tracking-[0.25em] mb-1">Gold Tier</div>
-                        <h3 class="font-cinzel font-bold text-lg text-[#ffde74]">5 Rounds</h3>
-                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#ffde74]/10 border border-[#ffde74]/30 px-3 py-1">
-                            <span class="font-cinzel text-xs font-bold text-[#ffde74]">×28.8</span>
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700] mb-3">@svg('hugeicons-medal-first-place', 'size-7')</div>
+                        <div class="font-cinzel text-[10px] text-[#FFD700]/60 uppercase tracking-[0.25em] mb-1">Gold Tier</div>
+                        <h3 class="font-cinzel font-bold text-lg text-[#FFD700]">5 Rounds</h3>
+                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 px-3 py-1">
+                            <span class="font-cinzel text-xs font-bold text-[#FFD700]">×28.8</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="border-b border-[#ffde74]/10">
-                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#ffde74]/60 uppercase tracking-[0.2em]">Stake</th>
-                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#ffde74]/60 uppercase tracking-[0.2em]">Wins</th>
+                                <tr class="border-b border-[#FFD700]/10">
+                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#FFD700]/60 uppercase tracking-[0.2em]">Stake</th>
+                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#FFD700]/60 uppercase tracking-[0.2em]">Wins</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -358,9 +354,9 @@
                                     ];
                                 @endphp
                                 @foreach($t5 as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#ffde74]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                    <tr class="border-b border-white/5 hover:bg-[#FFD700]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
                                         <td class="px-5 py-2.5 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
-                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#ffde74]">KSh {{ number_format($row['win']) }}</td>
+                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#FFD700]">KSh {{ number_format($row['win']) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -376,12 +372,11 @@
     <section id="jackpots" class="scroll-mt-36 py-16 md:py-20 bg-[#0a0a0a]">
         <div class="mx-auto max-w-6xl px-6">
             <div class="mb-12 text-center">
-                <div class="font-cinzel text-[10px] text-[#f5c542]/60 uppercase tracking-[0.25em] mb-2">The Big Leagues</div>
                 <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Jackpots</h2>
                 <p class="mt-3 text-sm text-[#6b6b6b] max-w-xl mx-auto">Multi-table elimination brackets with massive prize pools. Entry fees fund the entire prize structure.</p>
                 <div class="mt-5 inline-flex items-center gap-2.5 rounded-full border border-[#f5c542]/15 bg-white/[0.03] px-4 py-2 text-xs text-[#f5f5f0]/70">
-                    <span class="text-sm">💾</span>
-                    Play at your own pace — progress saves between games, so pick up right where you left off.
+                    <span>@svg('hugeicons-floppy-disk', 'size-4')</span>
+                    Play at your own pace. Progress saves between games, so pick up right where you left off.
                 </div>
             </div>
 
@@ -391,9 +386,9 @@
                 <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#FFD700] group hover:shadow-[0_0_40px_rgba(255,215,0,0.15)] transition-all duration-300">
                     <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(255,215,0,0.1), transparent 70%);"></div>
                     <div class="px-6 py-6 text-center border-b border-[#FFD700]/10 relative">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#FFD700]/10 border-2 border-[#FFD700]/40 text-3xl mb-3"
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#FFD700]/10 border-2 border-[#FFD700]/40 text-[#FFD700] mb-3"
                              style="box-shadow: 0 0 30px rgba(255,215,0,0.2);">
-                            👑
+                            @svg('hugeicons-crown', 'size-8')
                         </div>
                         <div class="font-cinzel text-[10px] text-[#FFD700]/60 uppercase tracking-[0.25em] mb-1">Gold Jackpot</div>
                         <h3 class="font-cinzel font-black text-xl text-[#FFD700]">Gold JP</h3>
@@ -413,16 +408,16 @@
                             <tbody>
                                 @php
                                     $goldJp = [
-                                        ['emoji' => '🥇', 'label' => '1st Place',    'prize' => '110,452,969'],
-                                        ['emoji' => '🥈', 'label' => 'Runner-Up',    'prize' => '25,016,339'],
-                                        ['emoji' => '🥉', 'label' => 'Semis (2)',    'prize' => '9,978,584'],
-                                        ['emoji' => '🎯', 'label' => 'Quarters (4)', 'prize' => '3,086,378'],
+                                        ['icon' => 'medal-first-place', 'label' => '1st Place',    'prize' => '110,452,969'],
+                                        ['icon' => 'medal-second-place', 'label' => 'Runner-Up',    'prize' => '25,016,339'],
+                                        ['icon' => 'medal-third-place', 'label' => 'Semis (2)',    'prize' => '9,978,584'],
+                                        ['icon' => 'target-02', 'label' => 'Quarters (4)', 'prize' => '3,086,378'],
                                     ];
                                 @endphp
                                 @foreach($goldJp as $row)
                                     <tr class="border-b border-white/5 hover:bg-[#FFD700]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
                                         <td class="px-5 py-3">
-                                            <span class="mr-2">{{ $row['emoji'] }}</span>
+                                            <span class="mr-2 inline-flex align-middle text-[#FFD700]">@svg('hugeicons-'.$row['icon'], 'size-4')</span>
                                             <span class="text-[#f5f5f0]/80">{{ $row['label'] }}</span>
                                         </td>
                                         <td class="px-5 py-3 text-right font-cinzel font-bold text-[#FFD700]">KSh {{ $row['prize'] }}</td>
@@ -441,9 +436,9 @@
                 <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#CD7F32] group hover:shadow-[0_0_40px_rgba(205,127,50,0.15)] transition-all duration-300">
                     <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(205,127,50,0.1), transparent 70%);"></div>
                     <div class="px-6 py-6 text-center border-b border-[#CD7F32]/10 relative">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#CD7F32]/10 border-2 border-[#CD7F32]/40 text-3xl mb-3"
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#CD7F32]/10 border-2 border-[#CD7F32]/40 text-[#CD7F32] mb-3"
                              style="box-shadow: 0 0 30px rgba(205,127,50,0.2);">
-                            🏆
+                            @svg('hugeicons-medal-third-place', 'size-8')
                         </div>
                         <div class="font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.25em] mb-1">Bronze Jackpot</div>
                         <h3 class="font-cinzel font-black text-xl text-[#CD7F32]">Bronze JP</h3>
@@ -463,16 +458,16 @@
                             <tbody>
                                 @php
                                     $bronzeJp = [
-                                        ['emoji' => '🥇', 'label' => '1st Place',    'prize' => '3,451,655'],
-                                        ['emoji' => '🥈', 'label' => 'Runner-Up',    'prize' => '781,760'],
-                                        ['emoji' => '🥉', 'label' => 'Semis (2)',    'prize' => '311,830'],
-                                        ['emoji' => '🎯', 'label' => 'Quarters (4)', 'prize' => '96,449'],
+                                        ['icon' => 'medal-first-place', 'label' => '1st Place',    'prize' => '3,451,655'],
+                                        ['icon' => 'medal-second-place', 'label' => 'Runner-Up',    'prize' => '781,760'],
+                                        ['icon' => 'medal-third-place', 'label' => 'Semis (2)',    'prize' => '311,830'],
+                                        ['icon' => 'target-02', 'label' => 'Quarters (4)', 'prize' => '96,449'],
                                     ];
                                 @endphp
                                 @foreach($bronzeJp as $row)
                                     <tr class="border-b border-white/5 hover:bg-[#CD7F32]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
                                         <td class="px-5 py-3">
-                                            <span class="mr-2">{{ $row['emoji'] }}</span>
+                                            <span class="mr-2 inline-flex align-middle text-[#CD7F32]">@svg('hugeicons-'.$row['icon'], 'size-4')</span>
                                             <span class="text-[#f5f5f0]/80">{{ $row['label'] }}</span>
                                         </td>
                                         <td class="px-5 py-3 text-right font-cinzel font-bold text-[#CD7F32]">KSh {{ $row['prize'] }}</td>
@@ -491,9 +486,9 @@
                 <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#C0C0C0] group hover:shadow-[0_0_40px_rgba(192,192,192,0.12)] transition-all duration-300">
                     <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(192,192,192,0.08), transparent 70%);"></div>
                     <div class="px-6 py-6 text-center border-b border-[#C0C0C0]/10 relative">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#C0C0C0]/10 border-2 border-[#C0C0C0]/40 text-3xl mb-3"
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#C0C0C0]/10 border-2 border-[#C0C0C0]/40 text-[#C0C0C0] mb-3"
                              style="box-shadow: 0 0 30px rgba(192,192,192,0.15);">
-                            🥈
+                            @svg('hugeicons-medal-second-place', 'size-8')
                         </div>
                         <div class="font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.25em] mb-1">Silver Jackpot</div>
                         <h3 class="font-cinzel font-black text-xl text-[#C0C0C0]">Silver JP</h3>
@@ -513,16 +508,16 @@
                             <tbody>
                                 @php
                                     $silverJp = [
-                                        ['emoji' => '🥇', 'label' => '1st Place',    'prize' => '86,291'],
-                                        ['emoji' => '🥈', 'label' => 'Runner-Up',    'prize' => '19,544'],
-                                        ['emoji' => '🥉', 'label' => 'Semis (2)',    'prize' => '7,795'],
-                                        ['emoji' => '🎯', 'label' => 'Quarters (4)', 'prize' => '2,441'],
+                                        ['icon' => 'medal-first-place', 'label' => '1st Place',    'prize' => '86,291'],
+                                        ['icon' => 'medal-second-place', 'label' => 'Runner-Up',    'prize' => '19,544'],
+                                        ['icon' => 'medal-third-place', 'label' => 'Semis (2)',    'prize' => '7,795'],
+                                        ['icon' => 'target-02', 'label' => 'Quarters (4)', 'prize' => '2,441'],
                                     ];
                                 @endphp
                                 @foreach($silverJp as $row)
                                     <tr class="border-b border-white/5 hover:bg-[#C0C0C0]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
                                         <td class="px-5 py-3">
-                                            <span class="mr-2">{{ $row['emoji'] }}</span>
+                                            <span class="mr-2 inline-flex align-middle text-[#C0C0C0]">@svg('hugeicons-'.$row['icon'], 'size-4')</span>
                                             <span class="text-[#f5f5f0]/80">{{ $row['label'] }}</span>
                                         </td>
                                         <td class="px-5 py-3 text-right font-cinzel font-bold text-[#C0C0C0]">KSh {{ $row['prize'] }}</td>
@@ -551,7 +546,7 @@
                 Pick Your Game. Place Your Bet.
             </h2>
             <p class="mb-8 text-[#f5f5f0]/60 max-w-lg mx-auto" style="font-family: 'Outfit', sans-serif;">
-                From quick singles to massive jackpots — there's a game mode for every player and every budget.
+                From quick singles to massive jackpots, there's a game mode for every player and every budget.
             </p>
             <div class="flex flex-wrap items-center justify-center gap-3">
                 @auth
