@@ -11,6 +11,7 @@ class RedirectLegacyDomain
     private const LEGACY_HOSTS = [
         'kadikings.co.ke',
         'www.kadikings.co.ke',
+        'www.kadi.online',
     ];
 
     public function handle(Request $request, Closure $next): Response
