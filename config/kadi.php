@@ -1,5 +1,12 @@
 <?php
 
+// SHA-256 hashes (hex) from a comma separated env var. Anything that is not exactly 64 hex characters
+// is dropped, so a typo can never become a key that half-works.
+$keyHashes = fn (string $name) => array_values(array_filter(array_map(
+    fn (string $hash) => strtolower(trim($hash)),
+    explode(',', (string) env($name, '')),
+), fn (string $hash) => preg_match('/^[a-f0-9]{64}$/', $hash) === 1));
+
 return [
 
     /*
@@ -38,10 +45,14 @@ return [
          * `php artisan push-api:key`. List two hashes while rotating. Empty (or no valid entry)
          * means the API is disabled and every request is refused.
          */
-        'key_hashes' => array_values(array_filter(array_map(
-            fn (string $hash) => strtolower(trim($hash)),
-            explode(',', (string) env('PUSH_API_KEY_HASHES', '')),
-        ), fn (string $hash) => preg_match('/^[a-f0-9]{64}$/', $hash) === 1)),
+        'key_hashes' => $keyHashes('PUSH_API_KEY_HASHES'),
+
+        /*
+         * Keys allowed to send a system-wide broadcast to EVERY registered device. Deliberately a
+         * separate list from `key_hashes`: the per-player key must not be able to notify everyone.
+         * Same format and rotation rules. Empty disables broadcasts.
+         */
+        'broadcast_key_hashes' => $keyHashes('PUSH_API_BROADCAST_KEY_HASHES'),
 
         // Optional extra layer: only these caller IPs may use the API (comma separated PUSH_API_ALLOWED_IPS).
         // Empty means any IP with a valid key. Behind a proxy/CDN, configure trusted proxies first.
@@ -55,6 +66,18 @@ return [
         'default_ttl' => 900,                                                          // seconds a push may wait for an offline device
         'max_ttl' => 86400,
         'allowed_urgencies' => ['very-low', 'low', 'normal'],                          // `high` is reserved for security alerts
+
+        // System-wide broadcasts (announcements only: maintenance, tournaments, new versions).
+        'broadcast_default_ttl' => 3600,                                               // announcements may wait longer than a turn alert
+        'broadcast_per_hour' => (int) env('PUSH_API_BROADCAST_PER_HOUR', 6),           // per broadcast key
+        'broadcast_per_day' => (int) env('PUSH_API_BROADCAST_PER_DAY', 4),             // across all keys and the command
+        'broadcast_chunk_size' => 200,                                                 // devices per queued job
+
+        // Optional dedicated queue name for broadcast jobs (PUSH_API_BROADCAST_QUEUE), so a big send
+        // cannot delay per-player pushes. null = the default queue. A worker MUST listen on the name
+        // (`queue:work redis --queue=broadcasts`) or broadcasts are never sent. Anything that is not a
+        // plain queue name is ignored.
+        'broadcast_queue' => preg_match('/^[A-Za-z0-9_\-]{1,64}$/', (string) env('PUSH_API_BROADCAST_QUEUE')) === 1 ? (string) env('PUSH_API_BROADCAST_QUEUE') : null,
     ],
 
     'push' => [

@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SendPushApiRequest;
 use App\Models\User;
 use App\Notifications\PushMessageNotification;
+use App\Support\PushApiIdempotency;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,9 +24,7 @@ use Illuminate\Support\Str;
  */
 class PushApiController extends Controller
 {
-    private const IDEMPOTENCY_TTL_HOURS = 24;
-
-    public function __invoke(SendPushApiRequest $request): JsonResponse
+    public function __invoke(SendPushApiRequest $request, PushApiIdempotency $idempotency): JsonResponse
     {
         $keyId = (string) $request->attributes->get('push_api_key_id');
         $data = $request->validated();
@@ -38,33 +36,7 @@ class PushApiController extends Controller
         }
 
         // Retried requests (timeouts, network blips) must never send a second push.
-        $cacheKey = "push-api:idempotency:{$keyId}:{$idempotencyKey}";
-        $fingerprint = $this->fingerprint($data);
-
-        if ($stored = Cache::get($cacheKey)) {
-            return $this->replay($stored, $fingerprint);
-        }
-
-        $lock = Cache::lock($cacheKey.':lock', 30);
-
-        if (! $lock->get()) {
-            return response()->json(['message' => 'A request with this Idempotency-Key is still being processed.'], 409);
-        }
-
-        try {
-            // Someone may have finished between our first check and taking the lock.
-            if ($stored = Cache::get($cacheKey)) {
-                return $this->replay($stored, $fingerprint);
-            }
-
-            $body = $this->deliver($keyId, $data);
-
-            Cache::put($cacheKey, ['fingerprint' => $fingerprint, 'body' => $body], now()->addHours(self::IDEMPOTENCY_TTL_HOURS));
-
-            return response()->json($body, 202);
-        } finally {
-            $lock->release();
-        }
+        return $idempotency->run($keyId, $idempotencyKey, $data, fn () => $this->deliver($keyId, $data));
     }
 
     /**
@@ -162,30 +134,5 @@ class PushApiController extends Controller
                 ...$counts,
             ],
         ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $stored
-     */
-    private function replay(array $stored, string $fingerprint): JsonResponse
-    {
-        if (! hash_equals($stored['fingerprint'], $fingerprint)) {
-            return response()->json(['message' => 'This Idempotency-Key was already used with a different request.'], 422);
-        }
-
-        return response()->json($stored['body'], 202)->header('Idempotent-Replay', 'true');
-    }
-
-    /**
-     * Stable across recipient order and duplicate ids, so an identical retry always matches.
-     *
-     * @param  array<string, mixed>  $data
-     */
-    private function fingerprint(array $data): string
-    {
-        $data['recipients'] = collect($data['recipients'])->map(fn ($id) => (string) $id)->unique()->sort()->values()->all();
-        ksort($data);
-
-        return hash('sha256', (string) json_encode($data));
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Requests\SendPushApiRequest;
+use App\Jobs\SendPushBroadcastChunk;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -73,4 +74,65 @@ test('every request field in the rules is documented', function () {
     foreach ($fields as $field) {
         expect(pushApiDocMentions($field))->toBeTrue("`{$field}` is validated but not documented");
     }
+});
+
+test('the broadcast endpoints, commands and env vars the doc names exist', function () {
+    foreach (['store' => '/api/v1/push-broadcasts', 'show' => '/api/v1/push-broadcasts/{broadcast}', 'destroy' => '/api/v1/push-broadcasts/{broadcast}'] as $name => $uri) {
+        $route = Route::getRoutes()->getByName("api.v1.push-broadcasts.{$name}");
+        expect($route)->not->toBeNull()->and('/'.$route->uri())->toBe($uri);
+    }
+
+    foreach (['/api/v1/push-broadcasts', 'push:broadcast', 'push-api:key --broadcast', 'dry_run', 'PUSH_API_BROADCAST_KEY_HASHES', 'PUSH_API_BROADCAST_PER_HOUR', 'PUSH_API_BROADCAST_PER_DAY'] as $claim) {
+        expect(pushApiDocMentions($claim))->toBeTrue("the doc no longer mentions `{$claim}`");
+    }
+
+    expect(in_array('push:broadcast', array_keys(Artisan::all()), true))->toBeTrue();
+
+    $example = file_get_contents(base_path('.env.example'));
+    expect(preg_match('/^PUSH_API_BROADCAST_KEY_HASHES=$/m', $example))->toBe(1, 'the broadcast key hashes must be present and blank in .env.example');
+});
+
+test('the doc and the code agree on the broadcast numbers', function () {
+    $config = config('kadi.push_api');
+
+    expect($config['broadcast_per_hour'])->toBe(6)
+        ->and($config['broadcast_per_day'])->toBe(4)
+        ->and($config['broadcast_chunk_size'])->toBe(200)
+        ->and($config['broadcast_default_ttl'])->toBe(3600);
+
+    foreach (['| Broadcasts per hour, per broadcast key | 6 |', '| Broadcasts per 24 hours, all keys and the command together | 4 |', 'jobs of 200 devices each', '`ttl` defaults to 3600 seconds'] as $claim) {
+        expect(pushApiDocMentions($claim))->toBeTrue("the doc no longer states `{$claim}`");
+    }
+
+    $job = new SendPushBroadcastChunk('id', 1, 2);
+    expect($job->timeout)->toBe(60)->and(pushApiDocMentions('job timeout 60s'))->toBeTrue();
+});
+
+test('the doc is honest about who a broadcast cannot reach', function () {
+    foreach (['every registered device', 'signed out by the idle timeout', 'never turned notifications on', 'signed out explicitly'] as $claim) {
+        expect(pushApiDocMentions($claim))->toBeTrue("the doc no longer says `{$claim}`");
+    }
+});
+
+test('the dedicated broadcast worker section matches the code', function () {
+    foreach (['kadionline-broadcast-worker', '--queue=broadcasts', 'PUSH_API_BROADCAST_QUEUE=broadcasts', 'queues:broadcasts', 'REDIS_QUEUE_RETRY_AFTER=120', '--timeout=90'] as $claim) {
+        expect(pushApiDocMentions($claim))->toBeTrue("the doc no longer mentions `{$claim}`");
+    }
+
+    // The queue setting is read from that env var, blank in the example file, and the jobs honour it.
+    expect(preg_match('/^PUSH_API_BROADCAST_QUEUE=$/m', file_get_contents(base_path('.env.example'))))->toBe(1)
+        ->and(array_key_exists('broadcast_queue', config('kadi.push_api')))->toBeTrue();
+
+    // The worker's --timeout must stay above the job's own timeout, as in every push worker.
+    expect((new SendPushBroadcastChunk('id', 1, 2))->timeout)->toBeLessThan(90);
+});
+
+test('the PHP client example in the doc is valid PHP and uses the real endpoints', function () {
+    preg_match('/### PHP client example.*?```php\n(.*?)\n```/s', pushApiDoc(), $match);
+    $code = $match[1] ?? '';
+
+    expect($code)->toContain('class KadiBroadcastClient')->toContain('/api/v1/push-broadcasts')->toContain('Idempotency-Key');
+
+    // Throws a ParseError on a syntax mistake.
+    expect(token_get_all($code, TOKEN_PARSE))->not->toBeEmpty();
 });
