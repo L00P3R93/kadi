@@ -19,18 +19,21 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * On success it stores a short, non-secret key identifier in the request attributes
  * (`push_api_key_id`) for rate limiting, idempotency scoping and audit logs.
+ *
+ * Route parameter `broadcast` (`push.api:broadcast`) checks the separate broadcast key list, so the
+ * per-player key cannot send system-wide announcements. Without it the normal key list is used.
  */
 class AuthenticatePushApiKey
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string $scope = 'messages'): Response
     {
         $request->headers->set('Accept', 'application/json');
 
         /** @var list<string> $hashes */
-        $hashes = config('kadi.push_api.key_hashes', []);
+        $hashes = config($scope === 'broadcast' ? 'kadi.push_api.broadcast_key_hashes' : 'kadi.push_api.key_hashes', []);
 
         if ($hashes === []) {
-            return response()->json(['message' => 'The push API is not enabled.'], 503);
+            return response()->json(['message' => $scope === 'broadcast' ? 'Push broadcasts are not enabled.' : 'The push API is not enabled.'], 503);
         }
 
         if (! $this->ipAllowed($request)) {
