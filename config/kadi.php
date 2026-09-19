@@ -31,6 +31,32 @@ return [
     |
     */
 
+    'push_api' => [
+        /*
+         * SHA-256 hashes (hex) of the bearer keys the game server may use, comma separated in
+         * PUSH_API_KEY_HASHES. Only hashes live in .env; generate a key and its hash with
+         * `php artisan push-api:key`. List two hashes while rotating. Empty (or no valid entry)
+         * means the API is disabled and every request is refused.
+         */
+        'key_hashes' => array_values(array_filter(array_map(
+            fn (string $hash) => strtolower(trim($hash)),
+            explode(',', (string) env('PUSH_API_KEY_HASHES', '')),
+        ), fn (string $hash) => preg_match('/^[a-f0-9]{64}$/', $hash) === 1)),
+
+        // Optional extra layer: only these caller IPs may use the API (comma separated PUSH_API_ALLOWED_IPS).
+        // Empty means any IP with a valid key. Behind a proxy/CDN, configure trusted proxies first.
+        'allowed_ips' => array_values(array_filter(array_map('trim', explode(',', (string) env('PUSH_API_ALLOWED_IPS', ''))))),
+
+        'max_recipients' => 100,                                                       // per request
+        'requests_per_minute' => (int) env('PUSH_API_REQUESTS_PER_MINUTE', 600),       // per key
+        'failed_attempts_per_minute' => 20,                                            // bad keys, per caller IP
+        'per_user_per_hour' => (int) env('PUSH_API_PER_USER_PER_HOUR', 30),            // pushes one player may receive
+
+        'default_ttl' => 900,                                                          // seconds a push may wait for an offline device
+        'max_ttl' => 86400,
+        'allowed_urgencies' => ['very-low', 'low', 'normal'],                          // `high` is reserved for security alerts
+    ],
+
     'push' => [
         // Environments where any signed-in user may use the "Send test notification" button
         // (admins may use it everywhere). See App\Services\PushTestSender.
