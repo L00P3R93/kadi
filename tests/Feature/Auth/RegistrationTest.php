@@ -21,6 +21,8 @@ test('new users can register', function () {
         'phone' => '0700123456',
         'password' => 'password',
         'password_confirmation' => 'password',
+        'age_confirmed' => '1',
+        'terms' => '1',
     ]);
 
     $response->assertSessionHasNoErrors()
@@ -36,6 +38,8 @@ test('registration never persists a recoverable password outside the users table
         'phone' => '0700123456',
         'password' => 'super-secret-123',
         'password_confirmation' => 'super-secret-123',
+        'age_confirmed' => '1',
+        'terms' => '1',
     ]);
 
     $user = User::where('email', 'jane@example.com')->firstOrFail();
@@ -48,3 +52,44 @@ test('registration never persists a recoverable password outside the users table
     expect($hash)->toStartWith('$2y$');
     expect($hash)->not->toBe('super-secret-123');
 });
+
+test('registration records age confirmation and terms acceptance', function () {
+    $this->post(route('register.store'), [
+        'name' => 'John Doe',
+        'email' => 'consent@example.com',
+        'phone' => '0700123456',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'age_confirmed' => '1',
+        'terms' => '1',
+    ]);
+
+    $user = User::where('email', 'consent@example.com')->firstOrFail();
+
+    expect($user->age_confirmed_at)->not->toBeNull()
+        ->and($user->terms_accepted_at)->not->toBeNull()
+        ->and($user->terms_version)->toBe(config('kadi.terms_version'))
+        ->and($user->hasCurrentConsent())->toBeTrue();
+});
+
+test('registration is rejected without age confirmation or terms', function (array $omit) {
+    $payload = [
+        'name' => 'John Doe',
+        'email' => 'nope@example.com',
+        'phone' => '0700123456',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'age_confirmed' => '1',
+        'terms' => '1',
+    ];
+
+    $response = $this->post(route('register.store'), array_diff_key($payload, array_flip($omit)));
+
+    $response->assertSessionHasErrors($omit);
+    $this->assertGuest();
+    expect(User::where('email', 'nope@example.com')->exists())->toBeFalse();
+})->with([
+    'no age confirmation' => [['age_confirmed']],
+    'no terms' => [['terms']],
+    'neither' => [['age_confirmed', 'terms']],
+]);

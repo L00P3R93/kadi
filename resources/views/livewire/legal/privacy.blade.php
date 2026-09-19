@@ -60,7 +60,7 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                 @foreach ([
-                    ['icon' => '👤', 'title' => 'Account Info', 'desc' => 'Name, email address, phone number, and date of birth when you create an account.'],
+                    ['icon' => '👤', 'title' => 'Account Info', 'desc' => 'Name, email address, and phone number when you create an account. We do not collect your date of birth — we only record that you confirmed you are 18 or older, and which version of our Terms you accepted.'],
                     ['icon' => '💳', 'title' => 'Payment Data', 'desc' => 'M-Pesa transaction references for purchases. We never store your M-Pesa PIN or full phone number.'],
                     ['icon' => '📊', 'title' => 'Game Activity', 'desc' => 'Game history, match results, win/loss records, and gameplay statistics to power leaderboards and features.'],
                 ] as $item)

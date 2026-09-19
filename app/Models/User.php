@@ -35,8 +35,37 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail, Pas
     {
         return [
             'email_verified_at' => 'datetime',
+            'age_confirmed_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Consent columns for the current terms version. Not mass-assignable;
+     * apply with forceFill() so consent can only be set by our own code.
+     *
+     * @return array<string, mixed>
+     */
+    public static function consentAttributes(): array
+    {
+        return [
+            'age_confirmed_at' => now(),
+            'terms_accepted_at' => now(),
+            'terms_version' => config('kadi.terms_version'),
+        ];
+    }
+
+    public function hasCurrentConsent(): bool
+    {
+        return $this->age_confirmed_at !== null
+            && $this->terms_accepted_at !== null
+            && $this->terms_version === config('kadi.terms_version');
+    }
+
+    public function recordConsent(): void
+    {
+        $this->forceFill(static::consentAttributes())->save();
     }
 
     public function isLinked(): bool

@@ -57,12 +57,17 @@ test('balance card prefers the fresher wallet balance cache over the stale profi
         ->assertSee('KES 777', false);
 });
 
-test('external play forms open in a new tab', function () {
+test('dashboard play buttons submit the hidden play form', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
     $html = $this->get(route('dashboard'))->getContent();
 
-    $playForms = substr_count($html, 'target="_blank"');
-    expect($playForms)->toBeGreaterThanOrEqual(1);
+    // The play form is a hidden POST form...
+    expect($html)->toContain('id="kadiPlayForm"')
+        ->and($html)->toMatch('/<form[^>]*id="kadiPlayForm"[^>]*method="POST"/s');
+
+    // ...and the visible play buttons submit it.
+    expect(substr_count($html, "document.getElementById('kadiPlayForm').submit()"))
+        ->toBeGreaterThanOrEqual(1);
 });

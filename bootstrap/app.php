@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\DetectCurrency;
+use App\Http\Middleware\EnsureConsentGiven;
 use App\Http\Middleware\LogoutInactiveUsers;
 use App\Http\Middleware\RedirectLegacyDomain;
 use App\Http\Middleware\SetCacheHeaders;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
             DetectCurrency::class,
             SetCacheHeaders::class,
             LogoutInactiveUsers::class,
+            EnsureConsentGiven::class,
         ]);
 
         $middleware->alias([

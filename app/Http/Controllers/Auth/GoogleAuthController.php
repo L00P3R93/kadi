@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Concerns\ConsentValidationRules;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessVerifiedUser;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +16,8 @@ use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
 {
+    use ConsentValidationRules;
+
     public function redirect()
     {
         return Socialite::driver('google')->redirect();
@@ -61,21 +65,93 @@ class GoogleAuthController extends Controller
             return $this->finalizeLogin($request, $user);
         }
 
-        // Case c: brand-new Google user — create account and kick off onboarding.
-        // No plain-password cache entry; ProcessVerifiedUser handles null password gracefully.
-        $user = User::create([
+        // Case c: brand-new Google user. Google gives us neither age nor terms
+        // acceptance, so park the verified identity in the session and create
+        // the account only once the user confirms 18+ and accepts the terms.
+        $request->session()->put('google.pending', [
+            'id' => $googleUser->getId(),
             'name' => $googleUser->getName(),
             'email' => $googleUser->getEmail(),
-            'google_id' => $googleUser->getId(),
             'avatar' => $googleUser->getAvatar(),
+            'expires_at' => now()->addMinutes(15)->getTimestamp(),
+        ]);
+
+        return redirect()->route('auth.google.complete');
+    }
+
+    public function complete(Request $request): View|RedirectResponse
+    {
+        $pending = $this->pendingGoogleUser($request);
+
+        if (! $pending) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Your sign-up session expired. Please try again.']);
+        }
+
+        return view('pages::auth.google-complete', ['name' => $pending['name']]);
+    }
+
+    public function storeComplete(Request $request): RedirectResponse
+    {
+        $pending = $this->pendingGoogleUser($request);
+
+        if (! $pending) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Your sign-up session expired. Please try again.']);
+        }
+
+        $request->validate($this->consentRules(), $this->consentMessages());
+
+        // The account could have been created between the callback and now.
+        if (User::where('email', $pending['email'])->orWhere('google_id', $pending['id'])->exists()) {
+            $request->session()->forget('google.pending');
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'An account with this email already exists. Please sign in.']);
+        }
+
+        // No plain-password cache entry; ProcessVerifiedUser handles null password gracefully.
+        $user = new User([
+            'name' => $pending['name'],
+            'email' => $pending['email'],
+            'google_id' => $pending['id'],
+            'avatar' => $pending['avatar'],
             'password' => Hash::make(Str::random(32)),
             'account_no' => 'KK-'.strtoupper(uniqid()),
-            'email_verified_at' => now(),
         ]);
+        $user->forceFill([
+            'email_verified_at' => now(),
+            ...User::consentAttributes(),
+        ])->save();
+
+        $request->session()->forget('google.pending');
 
         ProcessVerifiedUser::dispatch($user);
 
         return $this->finalizeLogin($request, $user);
+    }
+
+    public function cancel(Request $request): RedirectResponse
+    {
+        $request->session()->forget('google.pending');
+
+        return redirect()->route('register');
+    }
+
+    /**
+     * @return array{id: string, name: string, email: string, avatar: ?string}|null
+     */
+    private function pendingGoogleUser(Request $request): ?array
+    {
+        $pending = $request->session()->get('google.pending');
+
+        if (! $pending || $pending['expires_at'] < now()->getTimestamp()) {
+            $request->session()->forget('google.pending');
+
+            return null;
+        }
+
+        return $pending;
     }
 
     private function markVerified(User $user): void

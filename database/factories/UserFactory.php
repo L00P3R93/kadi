@@ -51,6 +51,9 @@ class UserFactory extends Factory
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
+            'age_confirmed_at' => now(),
+            'terms_accepted_at' => now(),
+            'terms_version' => config('kadi.terms_version'),
         ];
     }
 
@@ -61,6 +64,19 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user has not yet confirmed their age or accepted the terms
+     * (e.g. accounts created before consent was collected).
+     */
+    public function withoutConsent(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'age_confirmed_at' => null,
+            'terms_accepted_at' => null,
+            'terms_version' => null,
         ]);
     }
 

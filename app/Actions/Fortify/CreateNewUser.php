@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use App\Concerns\ConsentValidationRules;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
@@ -12,7 +13,7 @@ use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
 {
-    use PasswordValidationRules, ProfileValidationRules;
+    use ConsentValidationRules, PasswordValidationRules, ProfileValidationRules;
 
     /**
      * Validate and create a newly registered user.
@@ -25,17 +26,19 @@ class CreateNewUser implements CreatesNewUsers
             ...$this->profileRules(),
             'phone' => ['required', 'string', 'min:9'],
             'password' => $this->passwordRules(),
-        ])->validate();
+            ...$this->consentRules(),
+        ], $this->consentMessages())->validate();
 
         $accountNo = 'KK-'.strtoupper(uniqid());
 
-        $user = User::create([
+        $user = new User([
             'name' => $input['name'],
             'email' => $input['email'],
             'phone' => $input['phone'],
             'account_no' => $accountNo,
             'password' => $input['password'],
         ]);
+        $user->forceFill(User::consentAttributes())->save();
 
         // The linked kadi account needs a password that matches what the user
         // registered with, so the game site can verify logins via

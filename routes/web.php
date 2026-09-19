@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\ConsentController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\GoogleLinkController;
 use App\Http\Controllers\KadiGameController;
@@ -70,6 +71,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
+Route::get('/auth/google/complete', [GoogleAuthController::class, 'complete'])->name('auth.google.complete');
+Route::post('/auth/google/complete', [GoogleAuthController::class, 'storeComplete'])->name('auth.google.complete.store');
+Route::get('/auth/google/cancel', [GoogleAuthController::class, 'cancel'])->name('auth.google.complete.cancel');
 
 Route::get('/', Welcome::class)->name('home');
 // Route::get('/lobby', GamesList::class)->name('guest.games');
@@ -95,6 +99,8 @@ Route::get('/games-guide', GameGuide::class)->name('game-guide');
 // })->name('sportsbook.event-odds');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/consent', [ConsentController::class, 'show'])->name('consent.show');
+    Route::post('/consent', [ConsentController::class, 'store'])->name('consent.store');
     Route::get('/auth/google/link', [GoogleLinkController::class, 'redirect'])->name('auth.google.link');
     Route::get('/auth/google/link/callback', [GoogleLinkController::class, 'callback'])->name('auth.google.link.callback');
 });

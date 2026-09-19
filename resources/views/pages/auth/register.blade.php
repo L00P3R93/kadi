@@ -25,6 +25,9 @@
         </a>
 
         <p class="text-xs text-center text-zinc-500 -mt-2">{{ __('Quick, easy, and secure') }}</p>
+        <p class="text-xs text-center text-zinc-500 -mt-3">
+            {{ __("You'll confirm you're :age+ and accept our terms on the next step.", ['age' => config('kadi.min_age')]) }}
+        </p>
 
         <!-- Divider -->
         <div class="flex items-center gap-3">
@@ -90,6 +93,8 @@
                 :placeholder="__('Confirm password')"
                 viewable
             />
+
+            <x-consent-fields />
 
             <div class="flex items-center justify-end">
                 <flux:button type="submit" variant="primary" class="w-full" data-test="register-user-button">

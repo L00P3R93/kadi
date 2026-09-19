@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Events\PasswordChanged;
+use App\Listeners\FlagConsentRequired;
 use App\Listeners\HandleEmailVerified;
 use App\Listeners\HandleLogin;
 use App\Listeners\RecordSecurityAudit;
@@ -56,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(Verified::class, HandleEmailVerified::class);
         Event::listen(Login::class, HandleLogin::class);
+        Event::listen(Login::class, FlagConsentRequired::class);
 
         $this->configureSecurityEventListeners();
     }
