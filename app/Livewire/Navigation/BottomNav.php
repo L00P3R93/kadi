@@ -25,20 +25,6 @@ class BottomNav extends Component
                 'route' => 'dashboard',
                 'url' => null,
             ],
-            /*[
-                'key' => 'store',
-                'type' => 'link',
-                'label' => 'Store',
-                'route' => 'storefront.home',
-                'url' => null,
-            ],
-            [
-                'key' => 'earn',
-                'type' => 'link',
-                'label' => 'Free Coins',
-                'route' => 'earn-coins',
-                'url' => null,
-            ],*/
             [
                 'key' => 'wallet',
                 'type' => 'link',
@@ -46,15 +32,6 @@ class BottomNav extends Component
                 'route' => 'wallet',
                 'url' => null,
             ],
-            /*
-            [
-                'key' => 'campaigns',
-                'type' => 'link',
-                'label' => 'Campaigns',
-                'route' => null,
-                'url' => '/marketing',
-            ],
-            */
             [
                 'key' => 'profile',
                 'type' => 'link',

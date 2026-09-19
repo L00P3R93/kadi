@@ -8,10 +8,6 @@ use App\Listeners\HandleEmailVerified;
 use App\Listeners\HandleLogin;
 use App\Listeners\RecordSecurityAudit;
 use App\Listeners\SendSecurityNotification;
-use App\Models\Ad;
-use App\Models\AdCampaign;
-use App\Observers\AdCampaignObserver;
-use App\Observers\AdObserver;
 use App\Services\BugsApiService;
 use App\Services\KadiApiService;
 use Carbon\CarbonImmutable;
@@ -53,7 +49,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-        $this->configureObservers();
 
         Event::listen(Verified::class, HandleEmailVerified::class);
         Event::listen(Login::class, HandleLogin::class);
@@ -118,11 +113,5 @@ class AppServiceProvider extends ServiceProvider
                 ->uncompromised()
             : null,
         );
-    }
-
-    protected function configureObservers(): void
-    {
-        AdCampaign::observe(AdCampaignObserver::class);
-        Ad::observe(AdObserver::class);
     }
 }

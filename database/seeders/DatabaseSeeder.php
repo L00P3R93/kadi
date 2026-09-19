@@ -15,13 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         Storage::deleteDirectory('public');
         $this->call(RoleSeeder::class);
-        $this->call(AdCategorySeeder::class);
-        $this->call(AdPricingTierSeeder::class);
         $this->call(UserSeeder::class);
-        //        $this->call(ProductCategorySeeder::class);
-        //        $this->call(ProductSeeder::class);
-        //        $this->call(ProductVariantSeeder::class);
-        //        $this->call(MerchandisingCollectionSeeder::class);
         //        $this->call(VerifiedUserSeeder::class);
     }
 }

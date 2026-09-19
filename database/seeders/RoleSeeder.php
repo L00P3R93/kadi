@@ -17,11 +17,6 @@ class RoleSeeder extends Seeder
 
         // Define Permissions
         $permissions = [
-            // Ad categories admin page (App\Livewire\Admin\AdCategories)
-            'manage ad categories',
-            'manage ad campaigns',
-            'manage ads',
-
             // Existing /admin/sportsbook page
             'manage sportsbook admin',
 
@@ -30,9 +25,6 @@ class RoleSeeder extends Seeder
             // seeding it now is what actually makes 'admin' vs 'super-admin'
             // mean something.
             'manage user roles',
-
-            // Products
-            'manage promotions',
         ];
 
         foreach ($permissions as $permission) {
@@ -46,21 +38,13 @@ class RoleSeeder extends Seeder
 
             // Day-to-day operational access — everything except role management.
             'admin' => [
-                'manage ad categories',
-                'manage ad campaigns',
-                'manage ads',
                 'manage sportsbook admin',
-                'manage promotions',
             ],
 
             // Default authenticated user. No admin permissions — access to
-            // /dashboard, /wallet, /buy-coins, /earn-coins, /play etc. is
-            // already governed by the 'auth' + 'verified' middleware, not
-            // by Spatie permissions.
-            'player' => [
-                'manage ad campaigns',
-                'manage ads',
-            ],
+            // /dashboard, /wallet, etc. is already governed by the 'auth' +
+            // 'verified' middleware, not by Spatie permissions.
+            'player' => [],
         ];
 
         foreach ($roles as $roleName => $perms) {
