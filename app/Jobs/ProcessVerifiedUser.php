@@ -6,6 +6,7 @@ use App\Facades\BugsApi;
 use App\Facades\KadiApi;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
+use App\Services\KadiAccountSync;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -167,12 +168,10 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
     private function insertIntoKadiDatabase(?string $passwordHash, int $customerId): void
     {
         try {
-            $userName = explode(' ', $this->user->name);
-
             DB::connection('kadi')->table('accounts')->upsert([
                 [
                     'id' => $customerId,
-                    'name' => $userName[0],
+                    'name' => KadiAccountSync::accountName($this->user->name),
                     'phone' => $this->user->phone,
                     'email' => $this->user->email,
                     'password' => $passwordHash,

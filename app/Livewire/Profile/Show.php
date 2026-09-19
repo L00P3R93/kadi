@@ -5,6 +5,8 @@ namespace App\Livewire\Profile;
 use App\Actions\Security\RevokeOtherSessions;
 use App\Events\PasswordChanged;
 use App\Facades\KadiApi;
+use App\Rules\AllowedName;
+use App\Services\KadiAccountSync;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -62,13 +64,15 @@ class Show extends Component
     public function updateProfile(): void
     {
         $this->validate([
-            'name' => ['required', 'min:2', 'max:100'],
+            'name' => ['required', 'min:2', 'max:100', new AllowedName],
             'email' => ['required', 'email', 'unique:users,email,'.auth()->id()],
             'idNo' => ['nullable', 'string'],
             'phoneNo' => ['nullable', 'string'],
         ]);
 
         $user = auth()->user();
+        $nameChanged = $user->name !== $this->name;
+        $previousEmail = $user->email;
 
         $userUpdate = ['name' => $this->name, 'email' => $this->email];
         // Only allow setting phone when it isn't already on record
@@ -76,6 +80,11 @@ class Show extends Component
             $userUpdate['phone'] = $this->phoneNo;
         }
         $user->update($userUpdate);
+
+        // The game reads the name from kadi.accounts, so keep it in step.
+        if ($nameChanged) {
+            app(KadiAccountSync::class)->syncName($user, $previousEmail);
+        }
 
         $customerId = $user->linked_id;
 

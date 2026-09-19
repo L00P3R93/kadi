@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         Storage::deleteDirectory('public');
         $this->call(RoleSeeder::class);
+        $this->call(BlockedNameSeeder::class);
         $this->call(UserSeeder::class);
         //        $this->call(VerifiedUserSeeder::class);
     }

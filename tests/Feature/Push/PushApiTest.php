@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Notifications\PushMessageNotification;
 use Illuminate\Notifications\SendQueuedNotifications;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -226,9 +227,17 @@ test('key hashes in .env are parsed strictly: junk and short entries are ignored
     $other = hash('sha256', 'two');
 
     $parse = function (string $value) {
+        // Override every place env() reads from, so a real value in the developer's .env cannot leak in.
+        $saved = [$_ENV['PUSH_API_KEY_HASHES'] ?? null, $_SERVER['PUSH_API_KEY_HASHES'] ?? null];
+        $_ENV['PUSH_API_KEY_HASHES'] = $_SERVER['PUSH_API_KEY_HASHES'] = $value;
         putenv("PUSH_API_KEY_HASHES={$value}");
+
         $config = require config_path('kadi.php');
+
         putenv('PUSH_API_KEY_HASHES');
+        [$env, $server] = $saved;
+        $env === null ? Arr::forget($_ENV, 'PUSH_API_KEY_HASHES') : $_ENV['PUSH_API_KEY_HASHES'] = $env;
+        $server === null ? Arr::forget($_SERVER, 'PUSH_API_KEY_HASHES') : $_SERVER['PUSH_API_KEY_HASHES'] = $server;
 
         return $config['push_api']['key_hashes'];
     };

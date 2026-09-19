@@ -3,6 +3,7 @@
 namespace App\Concerns;
 
 use App\Models\User;
+use App\Rules\AllowedName;
 use Illuminate\Validation\Rule;
 
 trait ProfileValidationRules
@@ -27,7 +28,9 @@ trait ProfileValidationRules
      */
     protected function nameRules(): array
     {
-        return ['required', 'string', 'max:255'];
+        // AllowedName is the editable blocklist (php artisan blocked-names:add). Google sign-ups never
+        // reach these rules: Google has already verified that name.
+        return ['required', 'string', 'max:255', new AllowedName];
     }
 
     /**
