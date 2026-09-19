@@ -34,13 +34,13 @@ test('the maskable icon is its own entry rather than a combined purpose', functi
 });
 
 test('the apple touch icon is opaque and the notification badge is a transparent glyph', function () {
-    $apple = imagecreatefrompng(public_path('icons/apple-touch-icon.png'));
-    $badge = imagecreatefrompng(public_path('icons/badge-72.png'));
+    $apple = imagecreatefrompng(public_path('pwa-icons/apple-touch-icon.png'));
+    $badge = imagecreatefrompng(public_path('pwa-icons/badge-72.png'));
 
-    expect(getimagesize(public_path('icons/apple-touch-icon.png'))[0])->toBe(180);
+    expect(getimagesize(public_path('pwa-icons/apple-touch-icon.png'))[0])->toBe(180);
     expect((imagecolorat($apple, 0, 0) >> 24) & 127)->toBe(0); // iOS paints transparency black
 
-    expect(getimagesize(public_path('icons/badge-72.png'))[0])->toBe(72);
+    expect(getimagesize(public_path('pwa-icons/badge-72.png'))[0])->toBe(72);
     expect((imagecolorat($badge, 0, 0) >> 24) & 127)->toBe(127); // transparent corner
 });
 
@@ -77,6 +77,35 @@ test('the service worker fingerprint matches the files clients keep precached', 
     );
 });
 
+test('the icons live in pwa-icons because Apache aliases /icons/ to its own directory', function () {
+    // On Apache, /icons/... is served from /usr/share/apache2/icons and 404s for our files, which
+    // once broke the manifest icons and the service worker install in production.
+    expect(is_dir(public_path('icons')))->toBeFalse('public/icons must not exist; keep the icons in public/pwa-icons');
+    expect(is_dir(public_path('pwa-icons')))->toBeTrue();
+
+    $offenders = collect([
+        'public/sw.js', 'public/offline.html', 'public/manifest.webmanifest',
+        'resources/views/partials/head.blade.php',
+        'resources/views/components/pwa/install-button.blade.php',
+        'resources/views/components/pwa/install-dialog.blade.php',
+        'app/Notifications/PushMessageNotification.php',
+    ])->filter(fn (string $file) => preg_match('#["\'(]/icons/#', file_get_contents(base_path($file))))->values()->all();
+
+    expect($offenders)->toBe([]);
+});
+
+test('the service worker installs even when an optional precached file is missing', function () {
+    // Look at code only: the explanatory comment in sw.js legitimately mentions addAll().
+    $sw = collect(preg_split('/\R/', file_get_contents(public_path('sw.js'))))
+        ->reject(fn (string $line) => str_starts_with(trim($line), '//') || str_starts_with(trim($line), '*') || str_starts_with(trim($line), '/*'))
+        ->implode("\n");
+
+    // cache.addAll() rejects the whole install if any one URL fails; that once disabled push in production.
+    expect($sw)->not->toContain('addAll(')
+        ->toContain('Promise.allSettled')
+        ->toContain('const [required, ...optional] = PRECACHE;');
+});
+
 test('the service worker version is a simple, non-empty label', function () {
     preg_match("/^const VERSION = '([^']+)';$/m", file_get_contents(public_path('sw.js')), $version);
 
@@ -99,7 +128,7 @@ test('pages expose the manifest, pwa meta tags and a csrf token', function () {
     $html = $this->get(route('login'))->assertOk()->getContent();
 
     expect($html)->toContain('<link rel="manifest" href="/manifest.webmanifest">')
-        ->toContain('href="/icons/apple-touch-icon.png"')
+        ->toContain('href="/pwa-icons/apple-touch-icon.png"')
         ->toContain('name="apple-mobile-web-app-capable"')
         ->toContain('name="mobile-web-app-capable"')
         ->toContain('viewport-fit=cover')

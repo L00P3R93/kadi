@@ -27,7 +27,7 @@
     >
         {{-- Icon + copy take the full first row on phones; the buttons drop to a second row. --}}
         <div class="flex min-w-0 basis-full items-center gap-4 sm:flex-1 sm:basis-auto">
-            <img src="/icons/icon-192.png" alt="" width="44" height="44" class="h-11 w-11 shrink-0 rounded-lg">
+            <img src="/pwa-icons/icon-192.png" alt="" width="44" height="44" class="h-11 w-11 shrink-0 rounded-lg">
 
             <div class="min-w-0 flex-1">
                 <p class="text-sm font-semibold text-[#f5f5f0]">Install Kadi</p>

@@ -71,8 +71,8 @@ class PushMessageNotification extends Notification implements ShouldQueue
         $message = (new WebPushMessage)
             ->title($this->title)
             ->body($this->body)
-            ->icon('/icons/icon-192.png')
-            ->badge('/icons/badge-72.png')
+            ->icon('/pwa-icons/icon-192.png')
+            ->badge('/pwa-icons/badge-72.png')
             ->data(['url' => $this->sameOriginPath($this->url)])
             ->options([
                 'TTL' => $this->ttl,

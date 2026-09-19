@@ -10,7 +10,7 @@
  *     offline page when the network itself fails.
  *   - Every push MUST show a visible notification, or iOS revokes the subscription.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE_PREFIX = 'kadi-static-';
 const STATIC_CACHE = `${CACHE_PREFIX}${VERSION}`;
 const OFFLINE_URL = '/offline.html';
@@ -19,8 +19,8 @@ const OFFLINE_URL = '/offline.html';
 // tests/Feature/Pwa/PwaAssetsTest.php recomputes it. If that test fails you changed something
 // browsers already hold, so bump VERSION above (making every browser re-download it) and paste
 // the new fingerprint here. See docs/pwa-push.md ("Service worker versioning").
-// precache-fingerprint: 479bf408a11baed9
-const PRECACHE = [OFFLINE_URL, '/icons/icon-192.png'];
+// precache-fingerprint: 60574c239b03ac8c
+const PRECACHE = [OFFLINE_URL, '/pwa-icons/icon-192.png'];
 
 // Routes the worker must leave completely alone (OAuth redirects, auth, sessions,
 // Livewire, uploads, and the Godot game assets).
@@ -30,7 +30,17 @@ const NEVER_HANDLE = new RegExp(
 );
 
 self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE)));
+    event.waitUntil(
+        caches.open(STATIC_CACHE).then(async (cache) => {
+            // Only the offline page (the first PRECACHE entry) is required. cache.addAll() would fail
+            // the WHOLE install if any single file 404s (a misrouted icon once disabled push in
+            // production), so everything else is best effort and the worker installs regardless.
+            const [required, ...optional] = PRECACHE;
+
+            await cache.add(required);
+            await Promise.allSettled(optional.map((url) => cache.add(url)));
+        })
+    );
     self.skipWaiting();
 });
 
@@ -71,7 +81,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Icons keep stable names, so serve from cache but refresh in the background.
-    if (url.pathname.startsWith('/icons/')) {
+    if (url.pathname.startsWith('/pwa-icons/')) {
         event.respondWith(staleWhileRevalidate(request));
         return;
     }
@@ -119,8 +129,8 @@ self.addEventListener('push', (event) => {
     const title = payload.title || 'Kadi';
     const options = {
         body: payload.body || '',
-        icon: payload.icon || '/icons/icon-192.png',
-        badge: payload.badge || '/icons/badge-72.png',
+        icon: payload.icon || '/pwa-icons/icon-192.png',
+        badge: payload.badge || '/pwa-icons/badge-72.png',
         image: payload.image,
         tag: payload.tag,
         data: payload.data || {},
