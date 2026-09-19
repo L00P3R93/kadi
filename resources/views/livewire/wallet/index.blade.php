@@ -25,7 +25,11 @@
         </div>
     @endif
 
-    <h1 class="text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Vault</h1>
+    {{-- Title row. The install pill shares this row so it adds no height and stays clear of the money controls. --}}
+    <div class="flex items-center justify-between gap-3">
+        <h1 class="text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Vault</h1>
+        <x-pwa.install-button variant="chip" />
+    </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 

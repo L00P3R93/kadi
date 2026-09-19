@@ -5,9 +5,6 @@
         "opencode"
     ],
     "cloud": false,
-    "packages": [
-        "filament/filament"
-    ],
     "skills": [
         "fortify-development",
         "laravel-best-practices",

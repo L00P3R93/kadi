@@ -217,8 +217,8 @@
                             class="text-sm font-medium whitespace-nowrap">Profile</span>
                     </a>
 
-
-
+                    {{-- Install app (only shows where the browser can install; see resources/js/pwa/install.js) --}}
+                    <x-pwa.install-button variant="nav" />
 
                     {{-- Logout --}}
                     <div class="mt-auto pt-4 border-t border-yellow-800/20">
@@ -283,6 +283,7 @@
         <x-structured-data :page="$page ?? 'dashboard'" :noindex="true" />
         @auth
             <livewire:phone-required />
+            <x-pwa.install-dialog />
         @endauth
         @fluxScripts
         <livewire:navigation.bottom-nav />

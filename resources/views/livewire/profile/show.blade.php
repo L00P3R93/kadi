@@ -1,4 +1,4 @@
-<div x-data="{ tab: 'info' }" class="mx-auto max-w-5xl space-y-6">
+<div x-data="{ tab: ['info', 'security', 'connected', 'notifications'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'info' }" class="mx-auto max-w-5xl space-y-6">
 {{-- google-linked session flash --}}
 @if (session('status') === 'google-linked')
     <div class="rounded-lg border border-green-700 bg-green-900/30 p-4 text-sm text-green-400">
@@ -31,7 +31,8 @@
         <div class="lg:col-span-2 space-y-4">
 
             {{-- Tab switcher --}}
-            <div class="flex gap-2 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-1.5">
+            {{-- Four tabs don't fit one row on phones, so they form a 2x2 grid there and a single row from `sm` up. --}}
+            <div class="grid grid-cols-2 gap-2 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-1.5 sm:flex">
                 <button
                     @click="tab = 'info'"
                     :class="tab === 'info' ? 'bg-[#f5c542] text-black' : 'text-[#6b6b6b] hover:text-[#f5f5f0]'"
@@ -55,6 +56,15 @@
                     style="font-family: 'Cinzel', serif;"
                 >
                     Connected Accounts
+                </button>
+                <button
+                    @click="tab = 'notifications'"
+                    :class="tab === 'notifications' ? 'bg-[#f5c542] text-black' : 'text-[#6b6b6b] hover:text-[#f5f5f0]'"
+                    class="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition"
+                    style="font-family: 'Cinzel', serif;"
+                    data-test="profile-tab-notifications"
+                >
+                    Notifications
                 </button>
             </div>
 
@@ -224,6 +234,13 @@
                 <h2 class="mb-2 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Connected Accounts</h2>
                 <p class="mb-6 text-sm text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">Link your Google account for one-click sign-in.</p>
                 <livewire:settings.link-google-account />
+            </div>
+
+            {{-- Tab 4: Notifications (browser push for this device) --}}
+            <div x-show="tab === 'notifications'" x-cloak class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-8">
+                <h2 class="mb-2 text-lg font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Notifications</h2>
+                <p class="mb-6 text-sm text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">Choose whether this device can send you alerts from Kadi.</p>
+                <x-pwa.notification-toggle />
             </div>
 
             {{-- Tab 2: Security (password + 2FA + passkeys) --}}

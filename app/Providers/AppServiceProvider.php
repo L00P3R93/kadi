@@ -3,20 +3,18 @@
 namespace App\Providers;
 
 use App\Events\PasswordChanged;
-use App\Listeners\FlagConsentRequired;
-use App\Listeners\HandleEmailVerified;
-use App\Listeners\HandleLogin;
 use App\Listeners\RecordSecurityAudit;
 use App\Listeners\SendSecurityNotification;
 use App\Services\BugsApiService;
 use App\Services\KadiApiService;
 use Carbon\CarbonImmutable;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Auth\Events\Verified;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -50,11 +48,27 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        Event::listen(Verified::class, HandleEmailVerified::class);
-        Event::listen(Login::class, HandleLogin::class);
-        Event::listen(Login::class, FlagConsentRequired::class);
+        // Listeners in app/Listeners (HandleLogin, HandleEmailVerified, FlagConsentRequired,
+        // LogPushFailure) are NOT registered here on purpose: Laravel auto-discovers any class
+        // whose handle() is type-hinted with an event, so listing one with Event::listen() as
+        // well makes it run twice per event. tests/Feature/ListenerRegistrationTest.php guards this.
+        // Only listeners that auto-discovery cannot see (like the multi-event security ones
+        // below) are registered by hand.
 
+        $this->configureRateLimiting();
         $this->configureSecurityEventListeners();
+    }
+
+    /**
+     * Push subscription endpoints: 20 requests a minute per user. Registering a
+     * device is a rare, human-paced action, so this is generous but caps abuse.
+     */
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('push', fn (Request $request) => Limit::perMinute(20)->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
+
+        // Test sends hit a real push service, so keep them well below the subscription limit.
+        RateLimiter::for('push-test', fn (Request $request) => Limit::perMinute(5)->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
     }
 
     /**
