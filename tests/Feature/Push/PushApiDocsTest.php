@@ -136,3 +136,12 @@ test('the PHP client example in the doc is valid PHP and uses the real endpoints
     // Throws a ParseError on a syntax mistake.
     expect(token_get_all($code, TOKEN_PARSE))->not->toBeEmpty();
 });
+
+test('the doc explains urgency and the switch for high, and the code agrees', function () {
+    foreach (['## Urgency and delivery', 'PUSH_API_ALLOW_HIGH_URGENCY', '`high`', '`normal` (default)'] as $claim) {
+        expect(pushApiDocMentions($claim))->toBeTrue("the doc no longer mentions `{$claim}`");
+    }
+
+    expect(config('kadi.push_api.allowed_urgencies'))->toBe(['very-low', 'low', 'normal', 'high'])
+        ->and(preg_match('/^PUSH_API_ALLOW_HIGH_URGENCY=true$/m', file_get_contents(base_path('.env.example'))))->toBe(1);
+});

@@ -141,7 +141,7 @@ test('the broadcast payload is validated', function (array $overrides, string $f
     'body too long' => [['body' => str_repeat('a', 241)], 'body'],
     'absolute url' => [['url' => 'https://evil.example/'], 'url'],
     'protocol relative url' => [['url' => '//evil.example'], 'url'],
-    'high urgency is reserved' => [['urgency' => 'high'], 'urgency'],
+    'an unknown urgency' => [['urgency' => 'critical'], 'urgency'],
     'ttl too short' => [['ttl' => 5], 'ttl'],
     'ttl too long' => [['ttl' => 86401], 'ttl'],
     'bad tag' => [['tag' => 'has space'], 'tag'],
@@ -199,6 +199,28 @@ test('a broadcast is accepted, stored and queued, never sent inside the request'
 
     Queue::assertPushed(SendPushBroadcast::class, fn ($job) => $job->broadcastId === $broadcast->id);
     Queue::assertNotPushed(SendPushBroadcastChunk::class);
+});
+
+test('a broadcast may use high urgency, and it reaches the notification sent to devices', function () {
+    Queue::fake();
+
+    $response = bcSend(bcKey(), ['urgency' => 'high'])->assertStatus(202);
+    $broadcast = PushBroadcast::findOrFail($response->json('id'));
+
+    expect($broadcast->urgency)->toBe('high');
+
+    $notification = PushBroadcastNotification::for($broadcast);
+    expect($notification->urgency)->toBe('high')
+        ->and($notification->toWebPush(new stdClass, $notification)->getOptions())->toBe(['TTL' => 3600, 'urgency' => 'high']);
+});
+
+test('push:broadcast --urgency=high is accepted', function () {
+    Queue::fake();
+    bcDevices(1);
+
+    $this->artisan('push:broadcast', ['--title' => 'Match starting', '--body' => 'Join now', '--urgency' => 'high', '--yes' => true])->assertSuccessful();
+
+    expect(PushBroadcast::firstOrFail()->urgency)->toBe('high');
 });
 
 test('defaults: a longer time to live, the site root and normal urgency', function () {
@@ -553,7 +575,7 @@ test('push:broadcast validates with the same rules as the API', function () {
     bcDevices(1);
 
     $this->artisan('push:broadcast', ['--title' => str_repeat('a', 66), '--body' => 'x', '--yes' => true])->assertExitCode(2);
-    $this->artisan('push:broadcast', ['--title' => 'ok', '--body' => 'x', '--urgency' => 'high', '--yes' => true])->assertExitCode(2);
+    $this->artisan('push:broadcast', ['--title' => 'ok', '--body' => 'x', '--urgency' => 'critical', '--yes' => true])->assertExitCode(2);
     $this->artisan('push:broadcast', ['--title' => 'ok', '--body' => 'x', '--url' => 'https://evil.example', '--yes' => true])->assertExitCode(2);
 
     expect(PushBroadcast::count())->toBe(0);
