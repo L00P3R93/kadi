@@ -1,6 +1,7 @@
 <?php
 
 use App\Concerns\ProfileValidationRules;
+use App\Services\KadiAccountSync;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -34,11 +35,18 @@ new #[Title('Profile settings')] class extends Component {
 
         $user->fill($validated);
 
+        $previousEmail = $user->getOriginal('email');
+
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
         $user->save();
+
+        // The game reads the name from kadi.accounts, so keep it in step.
+        if ($user->wasChanged('name')) {
+            app(KadiAccountSync::class)->syncName($user, $previousEmail);
+        }
 
         $this->dispatch('profile-updated', name: $user->name);
     }
