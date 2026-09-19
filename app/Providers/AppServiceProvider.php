@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\PasswordChanged;
 use App\Listeners\RecordSecurityAudit;
 use App\Listeners\SendSecurityNotification;
+use App\Models\User;
 use App\Services\BugsApiService;
 use App\Services\KadiApiService;
 use Carbon\CarbonImmutable;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -57,6 +59,17 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureRateLimiting();
         $this->configureSecurityEventListeners();
+        $this->configureLogViewerAccess();
+    }
+
+    /**
+     * The production log viewer (opcodesio/log-viewer, at /log-viewer) shows raw application logs, which
+     * can hold personal data, so only admins may open it. The gate is always defined: with no gate the
+     * package would let everyone in outside production. Guests get a 403.
+     */
+    protected function configureLogViewerAccess(): void
+    {
+        Gate::define('viewLogViewer', fn (?User $user) => $user?->isAdmin() ?? false);
     }
 
     /**

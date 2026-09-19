@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 use Tests\TestCase;
 
 /*
@@ -47,4 +48,32 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Loads config/kadi.php as if the given environment variables were set, whatever the developer's own
+ * .env says. env() reads $_ENV, $_SERVER and putenv, so all three are overridden and then restored.
+ *
+ * @param  array<string, string>  $env
+ * @return array<string, mixed>
+ */
+function kadiConfigWithEnv(array $env): array
+{
+    $saved = [];
+
+    foreach ($env as $name => $value) {
+        $saved[$name] = [$_ENV[$name] ?? null, $_SERVER[$name] ?? null];
+        $_ENV[$name] = $_SERVER[$name] = $value;
+        putenv("{$name}={$value}");
+    }
+
+    try {
+        return require config_path('kadi.php');
+    } finally {
+        foreach ($saved as $name => [$fromEnv, $fromServer]) {
+            putenv($name);
+            $fromEnv === null ? Arr::forget($_ENV, $name) : $_ENV[$name] = $fromEnv;
+            $fromServer === null ? Arr::forget($_SERVER, $name) : $_SERVER[$name] = $fromServer;
+        }
+    }
 }
