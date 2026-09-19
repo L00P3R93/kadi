@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Validator;
     {--body= : Notification text (max 240 characters)}
     {--url=/ : Site path opened when tapped, e.g. /wallet}
     {--tag= : Optional tag; a newer notification with the same tag replaces the older one}
-    {--urgency=normal : very-low, low or normal}
+    {--urgency=normal : very-low, low, normal or high (high wakes sleeping phones: use it for time-sensitive announcements)}
     {--ttl= : Seconds a push service may hold it for an offline device}
     {--dry-run : Only show how many devices would receive it}
     {--cancel= : Cancel the broadcast with this id instead of sending one}

@@ -65,7 +65,13 @@ return [
 
         'default_ttl' => 900,                                                          // seconds a push may wait for an offline device
         'max_ttl' => 86400,
-        'allowed_urgencies' => ['very-low', 'low', 'normal'],                          // `high` is reserved for security alerts
+        // `high` wakes a sleeping phone: without it Android (Doze) and iOS hold `normal` pushes back until the
+        // device is next active, so time-sensitive alerts and announcements can arrive late. Allowed by default;
+        // set PUSH_API_ALLOW_HIGH_URGENCY=false to refuse it again. Senders still default to `normal`.
+        'allowed_urgencies' => array_values(array_filter(
+            ['very-low', 'low', 'normal', 'high'],
+            fn (string $urgency) => $urgency !== 'high' || filter_var(env('PUSH_API_ALLOW_HIGH_URGENCY', true), FILTER_VALIDATE_BOOLEAN),
+        )),
 
         // System-wide broadcasts (announcements only: maintenance, tournaments, new versions).
         'broadcast_default_ttl' => 3600,                                               // announcements may wait longer than a turn alert

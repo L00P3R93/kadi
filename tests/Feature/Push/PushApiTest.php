@@ -273,7 +273,6 @@ test('the payload is validated', function (array $overrides, string $field) {
     'a url with whitespace' => [['url' => '/wallet now'], 'url'],
     'a javascript url' => [['url' => 'javascript:alert(1)'], 'url'],
     'a tag with spaces' => [['tag' => 'has spaces'], 'tag'],
-    'high urgency is reserved for security alerts' => [['urgency' => 'high'], 'urgency'],
     'an unknown urgency' => [['urgency' => 'critical'], 'urgency'],
     'a ttl that is too short' => [['ttl' => 5], 'ttl'],
     'a ttl that is too long' => [['ttl' => 999999], 'ttl'],
@@ -326,6 +325,35 @@ test('the message reaches the notification with sensible defaults, or with the c
     callApi($key, apiPayload(['recipients' => [610], 'url' => '/wallet', 'tag' => 'table-7', 'ttl' => 60, 'urgency' => 'low']))->assertStatus(202);
     Notification::assertSentTo($user, PushMessageNotification::class, fn ($n) => $n->url === '/wallet'
         && $n->tag === 'table-7' && $n->ttl === 60 && $n->urgency === 'low');
+});
+
+test('high urgency is accepted and reaches the notification, while the default stays normal', function () {
+    Notification::fake();
+    $user = apiPlayer(['linked_id' => 611]);
+    $key = apiKey();
+
+    callApi($key, apiPayload(['recipients' => [611], 'urgency' => 'high', 'ttl' => 120]))->assertStatus(202);
+    Notification::assertSentTo($user, PushMessageNotification::class, fn ($n) => $n->urgency === 'high' && $n->ttl === 120
+        && $n->toWebPush($user, $n)->getOptions() === ['TTL' => 120, 'urgency' => 'high']);
+
+    callApi($key, apiPayload(['recipients' => [611]]))->assertStatus(202);
+    Notification::assertSentTo($user, PushMessageNotification::class, fn ($n) => $n->urgency === 'normal');
+});
+
+test('high urgency can be switched off in .env, and then it is refused again', function () {
+    $parse = function (string $value) {
+        putenv("PUSH_API_ALLOW_HIGH_URGENCY={$value}");
+        $config = require config_path('kadi.php');
+        putenv('PUSH_API_ALLOW_HIGH_URGENCY');
+
+        return $config['push_api']['allowed_urgencies'];
+    };
+
+    expect($parse('true'))->toBe(['very-low', 'low', 'normal', 'high'])
+        ->and($parse('false'))->toBe(['very-low', 'low', 'normal']);
+
+    config(['kadi.push_api.allowed_urgencies' => $parse('false')]);
+    callApi(apiKey(), apiPayload(['urgency' => 'high']))->assertUnprocessable()->assertJsonValidationErrors('urgency');
 });
 
 test('recipients can be addressed by account number, ignoring case', function () {
