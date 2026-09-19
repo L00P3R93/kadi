@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\ConsentController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\GoogleLinkController;
 use App\Http\Controllers\ProfilePictureController;
+use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\PushTestController;
 use App\Livewire\Dashboard;
 use App\Livewire\GameGuide;
 use App\Livewire\Legal\Privacy;
@@ -37,6 +39,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', Show::class)->name('profile');
     Route::post('/profile/picture', [ProfilePictureController::class, 'upload'])->name('profile.picture');
     Route::get('/wallet', Index::class)->name('wallet');
+
+    // Web push device registration. Throttled per user; CSRF applies like any other web POST/DELETE.
+    Route::middleware('throttle:push')->prefix('push/subscriptions')->name('push.subscriptions.')->group(function () {
+        Route::post('/', [PushSubscriptionController::class, 'store'])->name('store');
+        Route::delete('/', [PushSubscriptionController::class, 'destroy'])->name('destroy');
+    });
+
+    // Sends a real test push to the caller's own devices. Local/staging or admin roles only (checked in the controller).
+    Route::post('push/test', PushTestController::class)->middleware('throttle:push-test')->name('push.test');
 });
 
 Route::get('/terms', Terms::class)->name('legal.terms');

@@ -7,6 +7,9 @@
         </div>
     @endif
 
+    {{-- Install suggestion (hidden unless installable, or after being dismissed) --}}
+    <x-pwa.install-button variant="banner" />
+
     {{-- ── Row 1: Welcome + Balance ── --}}
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {{-- Welcome card --}}

@@ -46,6 +46,8 @@
                 <div class="flex items-center gap-3">
                     <div class="hidden md:flex items-center gap-3">
                         @auth
+                            {{-- Install pill: only rendered visible when the browser can install (see resources/js/pwa/install.js) --}}
+                            <x-pwa.install-button variant="chip" />
                             <livewire:wallet-balance wire:key="wallet-balance-desktop" />
                             <livewire:notifications-bell wire:key="notifications-bell-desktop" />
                             <form method="POST" action="{{ route('logout') }}">
@@ -114,6 +116,9 @@
                     --}}
 
                     @auth
+                        {{-- Phones: the header is already full, so the install entry lives in this menu. --}}
+                        <x-pwa.install-button variant="menu" />
+
                         <div class="py-4">
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -190,6 +195,9 @@
         </footer>
 
         <x-structured-data :page="$page ?? 'home'" />
+        @auth
+            <x-pwa.install-dialog />
+        @endauth
         {{--
         @auth
             <livewire:phone-required />

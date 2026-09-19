@@ -103,6 +103,9 @@
                             </button>
 
                             @include('partials.kadi-play-form')
+
+                            {{-- Phones/tablets: the nav pill is desktop-only and the menu entry is easy to miss. --}}
+                            <x-pwa.install-button variant="hero" />
                         @else
                             <a href="{{ route('login') }}"
                                class="font-cinzel inline-flex items-center gap-2.5

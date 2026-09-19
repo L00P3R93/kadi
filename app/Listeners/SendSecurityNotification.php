@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\PasswordChanged;
 use App\Mail\SecurityAlertEmail;
+use App\Notifications\PushMessageNotification;
 use App\Notifications\SecurityAlert;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -47,6 +48,13 @@ class SendSecurityNotification
             Mail::to($event->user->email)->queue(
                 new SecurityAlertEmail($event->user, $message)
             );
+
+            // Additive: the same non-secret text as a queued push, only for users who turned
+            // notifications on. High urgency (this is the one push worth waking a phone for) and
+            // no tag, so a newer alert never replaces an older one still on screen.
+            if ($event->user->pushSubscriptions()->exists()) {
+                $event->user->notify(new PushMessageNotification('Security alert', $message, '/profile#security', null, 21600, 'high'));
+            }
         } catch (\Throwable $e) {
             // A mail outage must never break the underlying security flow.
             Log::error('Security notification failed: '.$e->getMessage());
