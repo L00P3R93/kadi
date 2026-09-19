@@ -608,9 +608,7 @@ test('push-api:key --broadcast prints the broadcast variable, and the plain comm
 test('broadcast key hashes in .env are parsed as strictly as the player ones', function () {
     $good = hash('sha256', 'one');
 
-    putenv("PUSH_API_BROADCAST_KEY_HASHES=junk, {$good} ,".substr($good, 0, 60));
-    $config = require config_path('kadi.php');
-    putenv('PUSH_API_BROADCAST_KEY_HASHES');
+    $config = kadiConfigWithEnv(['PUSH_API_BROADCAST_KEY_HASHES' => "junk, {$good} ,".substr($good, 0, 60)]);
 
     expect($config['push_api']['broadcast_key_hashes'])->toBe([$good]);
 });
@@ -644,13 +642,7 @@ test('with a dedicated queue configured, the dispatcher and every chunk go to it
 });
 
 test('the dedicated queue name is validated so a typo cannot become a dead queue name', function () {
-    $parse = function (string $value) {
-        putenv("PUSH_API_BROADCAST_QUEUE={$value}");
-        $config = require config_path('kadi.php');
-        putenv('PUSH_API_BROADCAST_QUEUE');
-
-        return $config['push_api']['broadcast_queue'];
-    };
+    $parse = fn (string $value) => kadiConfigWithEnv(['PUSH_API_BROADCAST_QUEUE' => $value])['push_api']['broadcast_queue'];
 
     expect($parse(''))->toBeNull()
         ->and($parse('broadcasts'))->toBe('broadcasts')
