@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticatePushApiKey;
 use App\Http\Middleware\DetectCurrency;
 use App\Http\Middleware\EnsureConsentGiven;
 use App\Http\Middleware\LogoutInactiveUsers;
@@ -8,6 +9,8 @@ use App\Http\Middleware\SetCacheHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -15,6 +18,7 @@ use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -34,8 +38,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'push.api' => AuthenticatePushApiKey::class,
         ]);
+
+        // Laravel sorts route middleware by a priority list, and ThrottleRequests is on it, so an
+        // unlisted middleware would run AFTER the throttle. The push API's rate limit is keyed by the
+        // API key, which this middleware establishes, so it must run first. Otherwise the limit
+        // silently falls back to the caller's IP and junk requests eat the real server's bucket.
+        $middleware->prependToPriorityList(before: ThrottleRequests::class, prepend: AuthenticatePushApiKey::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Server-to-server clients under /api always get JSON errors (404, 405, 500...), never
+        // an HTML page or a redirect, even if they forget the Accept header.
+        $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*') || $request->expectsJson());
     })->create();

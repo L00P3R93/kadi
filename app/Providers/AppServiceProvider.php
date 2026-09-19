@@ -67,6 +67,10 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('push', fn (Request $request) => Limit::perMinute(20)->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
 
+        // Server-to-server push API: per API key (falls back to IP), so one key cannot starve others.
+        RateLimiter::for('push-api', fn (Request $request) => Limit::perMinute((int) config('kadi.push_api.requests_per_minute'))
+            ->by($request->attributes->get('push_api_key_id') ?: $request->ip()));
+
         // Test sends hit a real push service, so keep them well below the subscription limit.
         RateLimiter::for('push-test', fn (Request $request) => Limit::perMinute(5)->by($request->user()?->getAuthIdentifier() ?: $request->ip()));
     }
