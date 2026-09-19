@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Kadi Push API Documentation</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-code: #1a1f2b;
+            --bg-sidebar: #0d1117;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --border-color: #30363d;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #bc8cff;
+            --accent-cyan: #39d2c0;
+            --sidebar-width: 280px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary); color: var(--text-primary); line-height: 1.6;
+        }
+        a { color: var(--accent-blue); }
+
+        /* SIDEBAR */
+        .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; z-index: 100; }
+        .sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .sidebar-header h1 { font-size: 18px; font-weight: 700; background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .sidebar-header p { color: var(--text-secondary); font-size: 12px; margin-top: 4px; }
+        .sidebar-header .base-url { margin-top: 10px; padding: 6px 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; font-family: monospace; font-size: 11px; color: var(--accent-cyan); word-break: break-all; }
+        .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 0; }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav li { margin: 1px 0; }
+        .sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: all 0.15s; border-left: 3px solid transparent; }
+        .sidebar-nav a:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+        .sidebar-nav a.active { color: var(--accent-blue); background: rgba(88,166,255,0.08); border-left-color: var(--accent-blue); font-weight: 500; }
+        .sidebar-nav .nav-icon { font-size: 11px; width: 18px; text-align: center; flex-shrink: 0; }
+        .sidebar-nav .nav-section { padding: 16px 20px 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+        .sidebar-nav .nav-section.hidden, .sidebar-nav ul.hidden { display: none; }
+
+        /* SEARCH */
+        .search-wrap { padding: 12px 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .search-box { position: relative; display: flex; align-items: center; }
+        .search-box input { width: 100%; padding: 8px 30px 8px 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 12px; outline: none; transition: border-color 0.15s; }
+        .search-box input::placeholder { color: var(--text-muted); }
+        .search-box input:focus { border-color: var(--accent-blue); }
+        .search-clear { position: absolute; right: 8px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; line-height: 1; display: none; padding: 2px; }
+        .search-clear.visible { display: block; }
+        .search-info { font-size: 10px; color: var(--text-muted); padding: 0 2px; margin-top: 4px; display: none; }
+        .search-info.visible { display: block; }
+        .endpoint.search-hidden, .card.search-hidden { display: none !important; }
+
+        /* MAIN */
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .content-header { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 28px 40px; position: sticky; top: 0; z-index: 50; }
+        .content-header h2 { font-size: 24px; font-weight: 600; }
+        .content-header p { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+        .content-body { padding: 32px 40px 80px; max-width: 1100px; }
+        .doc-section { display: none; }
+        .doc-section.active { display: block; }
+
+        /* CARDS */
+        .card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .card h3 { font-size: 15px; margin-bottom: 10px; color: var(--accent-orange); }
+        .card p, .card li { color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; }
+        .card ul { padding-left: 20px; margin-bottom: 8px; }
+        .card strong { color: var(--text-primary); }
+        p code, li code, td code, .card code { background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 12px; color: var(--accent-cyan); }
+        .note { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.3); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--accent-blue); margin: 10px 0; }
+        .warn { background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--accent-orange); margin: 10px 0; }
+
+        /* ENDPOINTS */
+        .endpoint { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+        .endpoint-header { display: flex; align-items: center; gap: 10px; padding: 14px 18px; cursor: pointer; user-select: none; transition: background 0.15s; }
+        .endpoint-header:hover { background: var(--bg-tertiary); }
+        .method { font-family: monospace; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; min-width: 54px; text-align: center; text-transform: uppercase; }
+        .method-get { background: rgba(63,185,80,0.15); color: var(--accent-green); }
+        .method-post { background: rgba(88,166,255,0.15); color: var(--accent-blue); }
+        .method-delete { background: rgba(248,81,73,0.15); color: var(--accent-red); }
+        .endpoint-path { font-family: monospace; font-size: 13px; color: var(--text-primary); }
+        .endpoint-desc { color: var(--text-secondary); font-size: 12px; margin-left: auto; text-align: right; }
+        .endpoint-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border-color); }
+        .endpoint.open .endpoint-body { display: block; }
+        .chevron { color: var(--text-muted); transition: transform 0.2s; font-size: 11px; }
+        .endpoint.open .chevron { transform: rotate(90deg); }
+        .tags { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+        .tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .tag-auth { border-color: var(--accent-orange); color: var(--accent-orange); }
+        .tag-rate { border-color: var(--accent-purple); color: var(--accent-purple); }
+        .tag-idempotent { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .tag-broadcast { border-color: var(--accent-red); color: var(--accent-red); }
+        .endpoint-section { margin-top: 14px; }
+        .endpoint-section h4 { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .endpoint-section p { color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; }
+        pre { background: var(--bg-code); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; overflow-x: auto; font-family: monospace; font-size: 12px; line-height: 1.5; color: var(--text-primary); margin-bottom: 10px; }
+        code { font-family: monospace; font-size: 12px; }
+        pre code { background: none; padding: 0; color: inherit; }
+        .params-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 8px; }
+        .params-table th { text-align: left; padding: 7px 10px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .params-table td { padding: 7px 10px; border: 1px solid var(--border-color); vertical-align: top; color: var(--text-secondary); }
+        .params-table td:first-child { font-family: monospace; color: var(--accent-blue); white-space: nowrap; }
+        .required { color: var(--accent-red); font-size: 10px; font-weight: 600; }
+        .optional { color: var(--text-muted); font-size: 10px; }
+        .status-code { display: inline-block; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; font-weight: 600; }
+        .s2 { background: rgba(63,185,80,0.15); color: var(--accent-green); }
+        .s4 { background: rgba(210,153,34,0.15); color: var(--accent-orange); }
+        .s5 { background: rgba(248,81,73,0.15); color: var(--accent-red); }
+        .expand-all { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 16px; transition: all 0.15s; }
+        .expand-all:hover { color: var(--text-primary); border-color: var(--accent-blue); }
+        .copy-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; white-space: nowrap; font-family: inherit; }
+        .copy-btn:hover { color: var(--accent-blue); background: rgba(88,166,255,0.1); }
+        .copy-btn.copied { color: var(--accent-green); }
+        mark { background: rgba(88,166,255,0.25); color: var(--text-primary); border-radius: 2px; padding: 0 1px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 4px; }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 60px; }
+            .sidebar-header h1, .sidebar-header p, .sidebar-header .base-url, .sidebar-nav .nav-section, .sidebar-nav a span:not(.nav-icon), .search-wrap { display: none; }
+            .sidebar-nav a { justify-content: center; padding: 10px; }
+            .main-content { margin-left: 60px; }
+            .content-header, .content-body { padding-left: 20px; padding-right: 20px; }
+            .endpoint-header { flex-wrap: wrap; }
+            .endpoint-desc { margin-left: 0; text-align: left; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h1>Kadi Push API</h1>
+        <p>Server-to-server web push</p>
+        <div class="base-url">https://kadi.online/api/v1</div>
+    </div>
+    <div class="search-wrap">
+        <div class="search-box">
+            <input type="text" id="doc-search" placeholder="Search docs... (press /)" autocomplete="off">
+            <button class="search-clear" id="search-clear" aria-label="Clear search">&times;</button>
+        </div>
+        <div class="search-info" id="search-info"></div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">Getting Started</div>
+        <ul>
+            <li><a href="#" data-section="overview" class="active"><span class="nav-icon">&#128214;</span> <span>Overview &amp; Quick Start</span></a></li>
+            <li><a href="#" data-section="auth"><span class="nav-icon">&#128274;</span> <span>Authentication</span></a></li>
+            <li><a href="#" data-section="idempotency"><span class="nav-icon">&#128257;</span> <span>Idempotency &amp; Retries</span></a></li>
+        </ul>
+        <div class="nav-section">Endpoints</div>
+        <ul>
+            <li><a href="#" data-section="push"><span class="nav-icon">&#128276;</span> <span>Player Push</span></a></li>
+            <li><a href="#" data-section="broadcast"><span class="nav-icon">&#128227;</span> <span>Broadcasts</span></a></li>
+        </ul>
+        <div class="nav-section">Reference</div>
+        <ul>
+            <li><a href="#" data-section="delivery"><span class="nav-icon">&#9889;</span> <span>Delivery &amp; Urgency</span></a></li>
+            <li><a href="#" data-section="limits"><span class="nav-icon">&#128678;</span> <span>Limits</span></a></li>
+            <li><a href="#" data-section="errors"><span class="nav-icon">&#9888;</span> <span>Errors</span></a></li>
+            <li><a href="#" data-section="examples"><span class="nav-icon">&#128187;</span> <span>Code Examples</span></a></li>
+            <li><a href="#" data-section="checklist"><span class="nav-icon">&#9989;</span> <span>Integration Checklist</span></a></li>
+        </ul>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="content-header">
+        <h2 id="section-title">Overview &amp; Quick Start</h2>
+        <p id="section-desc">What the Push API does and how to send your first notification</p>
+    </div>
+    <div class="content-body">
+
+<!-- OVERVIEW -->
+<div class="doc-section active" data-section="overview">
+<div class="card">
+<h3>What is the Push API?</h3>
+<p>An HTTPS API that lets a trusted server, in practice the <strong>game server</strong>, ask Kadi to send a web push notification to one or more players (&ldquo;it&rsquo;s your turn&rdquo;, &ldquo;your tournament starts in 5 minutes&rdquo;), or to announce something to <strong>every registered device</strong> (maintenance, new version).</p>
+<p>Kadi owns delivery: it finds the players, skips anyone who has not turned notifications on, applies limits, queues the pushes and returns a summary. Players&rsquo; devices, subscriptions and push keys never leave Kadi.</p>
+</div>
+
+<div class="card">
+<h3>The two APIs</h3>
+<table class="params-table">
+<tr><th>API</th><th>Endpoint</th><th>Audience</th><th>Key</th></tr>
+<tr><td>Player push</td><td><code>POST /api/v1/push-notifications</code></td><td>1 to 100 named players</td><td>Player key</td></tr>
+<tr><td>Broadcast</td><td><code>/api/v1/push-broadcasts</code></td><td>Every registered device</td><td>Broadcast key (separate)</td></tr>
+</table>
+<div class="note">Each key only works on its own endpoints; the other one gets <code>401</code>. A leaked &ldquo;your turn&rdquo; key can never notify everyone.</div>
+</div>
+
+<div class="card">
+<h3>Common to every request</h3>
+<ul>
+<li>JSON in, JSON out. Every response, including errors and unknown routes under <code>/api</code>, is JSON even if you forget <code>Accept</code>.</li>
+<li>No cookies, no session, no CSRF token. It is not meant to be called from a browser (no CORS headers).</li>
+<li>Use HTTPS only, and never put the key in a URL or a log.</li>
+<li><code>202 Accepted</code> means <strong>queued</strong>, not <strong>shown</strong>. See <a href="#" data-section="delivery">Delivery &amp; Urgency</a>.</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Quick start</h3>
+<p>On the Kadi server, generate a key. It prints the key (give it to the game server) and a hash (put it in Kadi&rsquo;s <code>.env</code>):</p>
+<pre>php artisan push-api:key
+
+# .env
+PUSH_API_KEY_HASHES=&lt;the hash&gt;</pre>
+<p>Reload config (<code>php artisan config:clear</code>) and restart the queue workers, then from the game server:</p>
+<pre>curl -X POST https://kadi.online/api/v1/push-notifications \
+  -H "Authorization: Bearer &lt;the key&gt;" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: table-7-turn-12" \
+  -d '{"recipients":[1042],"title":"Your turn","body":"It is your move at table 7.","url":"/dashboard","tag":"table-7"}'</pre>
+<p>Expected: <code>202 Accepted</code> with a JSON summary.</p>
+</div>
+</div>
+
+<!-- AUTH -->
+<div class="doc-section" data-section="auth">
+<div class="card">
+<h3>Bearer key</h3>
+<p>Send the key as a bearer token on every request:</p>
+<pre>Authorization: Bearer kpk_...</pre>
+<ul>
+<li>The API is <strong>disabled until a key hash is configured</strong>. With none configured every request gets <code>503</code>, so a missing setting can never leave it open.</li>
+<li>Kadi stores only the <strong>SHA-256 hash</strong> of a key (<code>PUSH_API_KEY_HASHES</code>), never the key. Presenting the hash as the key is rejected.</li>
+<li>Keys are compared in constant time. Bad keys are throttled per IP; a valid key is never blocked by other callers&rsquo; failures.</li>
+<li>Optionally restrict callers to known IPs with <code>PUSH_API_ALLOWED_IPS</code>. Other addresses get <code>403</code> before the key is even checked.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Two separate keys</h3>
+<table class="params-table">
+<tr><th>Key</th><th>Generate</th><th>Kadi <code>.env</code> variable</th><th>Works on</th></tr>
+<tr><td>Player key</td><td><code>php artisan push-api:key</code></td><td><code>PUSH_API_KEY_HASHES</code></td><td><code>/push-notifications</code></td></tr>
+<tr><td>Broadcast key</td><td><code>php artisan push-api:key --broadcast</code></td><td><code>PUSH_API_BROADCAST_KEY_HASHES</code></td><td><code>/push-broadcasts</code></td></tr>
+</table>
+<p>Both variables accept a comma separated list of hashes, which is how key rotation works without downtime.</p>
+</div>
+<div class="card">
+<h3>Rotating a key</h3>
+<ul>
+<li>Run <code>push-api:key</code> and note the new key and hash.</li>
+<li>Put <strong>both</strong> hashes in <code>.env</code> (<code>old,new</code>) and reload config.</li>
+<li>Give the game server the new key and let it switch.</li>
+<li>When nothing uses the old key, remove its hash and reload. The old key now returns <code>401</code>.</li>
+</ul>
+<div class="warn">If a key leaked, skip the overlap: replace the hash immediately.</div>
+</div>
+<div class="card">
+<h3>Required headers</h3>
+<table class="params-table">
+<tr><th>Header</th><th>Required</th><th>Notes</th></tr>
+<tr><td>Authorization</td><td><span class="required">Required</span></td><td><code>Bearer &lt;key&gt;</code>. <code>Basic</code> is rejected.</td></tr>
+<tr><td>Content-Type</td><td><span class="required">Required</span></td><td><code>application/json</code> on requests with a body.</td></tr>
+<tr><td>Idempotency-Key</td><td><span class="optional">Recommended</span> (required for real broadcasts)</td><td>8&ndash;64 characters: letters, digits, <code>-</code>, <code>_</code>.</td></tr>
+</table>
+</div>
+</div>
+
+<!-- IDEMPOTENCY -->
+<div class="doc-section" data-section="idempotency">
+<div class="card">
+<h3>Why it matters</h3>
+<p>Networks fail. If your request times out you cannot know whether Kadi received it, and re-sending would notify the player twice. An <code>Idempotency-Key</code> makes retries safe.</p>
+<ul>
+<li><strong>Same key, same request:</strong> Kadi returns the <strong>original response</strong> again (header <code>Idempotent-Replay: true</code>) and sends nothing new.</li>
+<li><strong>Same key, different request:</strong> <code>422</code>, so a bug on your side cannot silently drop a message.</li>
+<li><strong>Same key, still processing:</strong> <code>409</code>. Wait and retry with the same key.</li>
+<li>The order of <code>recipients</code> does not matter when comparing requests.</li>
+<li>Keys are remembered for <strong>24 hours</strong> and scoped to your API key.</li>
+</ul>
+<pre>Idempotency-Key: table-7-turn-12</pre>
+<div class="note">Use one key per logical event (<code>table-7-turn-12</code>) and reuse it for every retry of that event. <strong>Do not</strong> generate a fresh key per retry.</div>
+</div>
+<div class="card">
+<h3>What to retry</h3>
+<table class="params-table">
+<tr><th>Outcome</th><th>Action</th></tr>
+<tr><td>Network error / timeout</td><td>Retry with backoff, same key</td></tr>
+<tr><td><code>409</code>, <code>429</code>, <code>5xx</code></td><td>Retry with backoff (honour <code>Retry-After</code>), same key</td></tr>
+<tr><td><code>401</code>, <code>403</code>, <code>422</code></td><td><strong>Do not retry.</strong> Fix the key, IP or request.</td></tr>
+</table>
+</div>
+</div>
+
+<!-- PLAYER PUSH -->
+<div class="doc-section" data-section="push">
+<div class="endpoint open">
+<div class="endpoint-header" onclick="toggle(this)">
+<span class="method method-post">POST</span>
+<span class="endpoint-path">/api/v1/push-notifications</span>
+<span class="endpoint-desc">Push a notification to 1&ndash;100 players</span>
+<span class="chevron">&#9654;</span>
+</div>
+<div class="endpoint-body">
+<div class="tags"><span class="tag tag-auth">Player key</span><span class="tag tag-idempotent">Idempotent</span><span class="tag tag-rate">600/min per key</span></div>
+
+<div class="endpoint-section"><h4>Description</h4>
+<p>Looks up each recipient, skips players without a registered device, applies the per-player hourly cap, queues a push for every device of every remaining player, and returns a summary. Delivery is asynchronous through Kadi&rsquo;s queue.</p></div>
+
+<div class="endpoint-section"><h4>Headers</h4>
+<pre>Authorization: Bearer kpk_...
+Content-Type: application/json
+Idempotency-Key: table-7-turn-12</pre></div>
+
+<div class="endpoint-section"><h4>Request Body</h4>
+<table class="params-table">
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Rules</th></tr>
+<tr><td>recipients</td><td>array</td><td><span class="required">Required</span></td><td>1 to 100 player identifiers. Duplicates are sent once.</td></tr>
+<tr><td>by</td><td>string</td><td><span class="optional">Optional</span></td><td>How to read <code>recipients</code>: <code>linked_id</code> (default) or <code>account_no</code>.</td></tr>
+<tr><td>title</td><td>string</td><td><span class="required">Required</span></td><td>Up to 65 characters. Plain text.</td></tr>
+<tr><td>body</td><td>string</td><td><span class="required">Required</span></td><td>Up to 240 characters. Plain text.</td></tr>
+<tr><td>url</td><td>string</td><td><span class="optional">Optional</span></td><td>Where a tap goes: a <strong>site path</strong> such as <code>/wallet</code>. Must start with a single <code>/</code>. Absolute URLs, <code>//host</code> and anything with spaces are rejected. Default <code>/</code>.</td></tr>
+<tr><td>tag</td><td>string</td><td><span class="optional">Optional</span></td><td>Up to 64 characters (<code>A-Z a-z 0-9 . _ : -</code>). A newer push with the same tag <strong>replaces</strong> the older one on the device.</td></tr>
+<tr><td>urgency</td><td>string</td><td><span class="optional">Optional</span></td><td><code>very-low</code>, <code>low</code>, <code>normal</code> (default) or <code>high</code>. See <a href="#" data-section="delivery">Delivery &amp; Urgency</a>.</td></tr>
+<tr><td>ttl</td><td>integer</td><td><span class="optional">Optional</span></td><td>Seconds the push service may hold the message for an offline device: 30 to 86400. Default 900 (15 min).</td></tr>
+</table></div>
+
+<div class="endpoint-section"><h4>Identifying players (<code>by</code>)</h4>
+<table class="params-table">
+<tr><th>Value</th><th>Recipients are&hellip;</th></tr>
+<tr><td>linked_id</td><td>The <strong>customer id the game server received from Kadi</strong> when the account was created (<code>customer_id</code>, stored in Kadi as <code>linked_id</code>). Integers.</td></tr>
+<tr><td>account_no</td><td>The account number Kadi sent the game server (for example <code>KK-65F1A2B3C4D5E</code>). Matched without regard to case.</td></tr>
+</table>
+<div class="note">If one <code>linked_id</code> ever maps to more than one Kadi account, Kadi <strong>skips it</strong> (reported under <code>skipped.ambiguous</code>) instead of guessing who you meant.</div></div>
+
+<div class="endpoint-section"><h4>Example request</h4>
+<pre>POST /api/v1/push-notifications HTTP/1.1
+Host: kadi.online
+Authorization: Bearer kpk_...
+Content-Type: application/json
+Idempotency-Key: tournament-88-start
+
+{
+  "by": "linked_id",
+  "recipients": [1042, 1043, 1044, 9001],
+  "title": "Tournament starting",
+  "body": "Your tournament begins in 5 minutes.",
+  "url": "/dashboard",
+  "tag": "tournament-88",
+  "urgency": "high",
+  "ttl": 300
+}</pre></div>
+
+<div class="endpoint-section"><h4>Response</h4>
+<div style="margin-bottom:8px"><span class="status-code s2">202 Accepted</span></div>
+<pre>{
+  "status": "accepted",
+  "id": "9f1d1c3e-6f0e-4c1b-9d0c-2a6e1a5c9b11",
+  "requested": 4,
+  "queued": 2,
+  "skipped": {
+    "unknown": [9001],
+    "no_device": 1,
+    "throttled": 0,
+    "ambiguous": 0
+  }
+}</pre>
+<table class="params-table">
+<tr><th>Field</th><th>Meaning</th></tr>
+<tr><td>id</td><td>Kadi&rsquo;s id for this request. Quote it when asking about a problem.</td></tr>
+<tr><td>requested</td><td>Distinct recipients in your request.</td></tr>
+<tr><td>queued</td><td>Players who will be pushed.</td></tr>
+<tr><td>skipped.unknown</td><td>Identifiers that match no player (at most the first 100 are listed).</td></tr>
+<tr><td>skipped.no_device</td><td>Players who exist but have not turned notifications on. Nothing is sent; this is normal.</td></tr>
+<tr><td>skipped.throttled</td><td>Players who already reached their hourly cap (30/hour). The request still succeeds.</td></tr>
+<tr><td>skipped.ambiguous</td><td>Identifiers that match more than one account.</td></tr>
+</table>
+<p><code>queued + no_device + throttled + ambiguous + unknown</code> accounts for every recipient.</p></div>
+
+<div class="endpoint-section"><h4>Error responses</h4>
+<div class="tags" style="margin-top:0;margin-bottom:8px"><span class="status-code s4">401</span><span class="status-code s4">403</span><span class="status-code s4">409</span><span class="status-code s4">422</span><span class="status-code s4">429</span><span class="status-code s5">503</span></div>
+<pre>{
+  "message": "The url must be a site path starting with a single \"/\", for example /wallet.",
+  "errors": { "url": ["The url must be a site path starting with a single \"/\", for example /wallet."] }
+}</pre>
+<p>See <a href="#" data-section="errors">Errors</a> for every status.</p></div>
+</div></div>
+</div>
+
+<!-- BROADCASTS -->
+<div class="doc-section" data-section="broadcast">
+<div class="card">
+<h3>About broadcasts</h3>
+<p>For announcements to <strong>everyone</strong> (maintenance windows, tournaments, a new version), not one player. A broadcast goes to <strong>every registered device</strong>: logged-in players, and players signed out by the idle timeout (their device stays registered).</p>
+<p>It cannot reach anyone who never turned notifications on, or who signed out explicitly (signing out removes that device on purpose, so the next person on a shared device never receives your notifications). Responses say <code>devices</code>, never <code>users</code>, for that reason.</p>
+<div class="warn">Announcements only: maintenance, tournaments, new versions. Not marketing. Uses the <strong>broadcast key</strong>; the player key gets <code>401</code> here.</div>
+</div>
+
+<button class="expand-all" onclick="toggleAll('broadcast')">Expand / Collapse All</button>
+
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggle(this)">
+<span class="method method-post">POST</span>
+<span class="endpoint-path">/api/v1/push-broadcasts</span>
+<span class="endpoint-desc">Start a broadcast to every device</span>
+<span class="chevron">&#9654;</span>
+</div>
+<div class="endpoint-body">
+<div class="tags"><span class="tag tag-broadcast">Broadcast key</span><span class="tag tag-idempotent">Idempotency-Key required</span><span class="tag tag-rate">6/hour per key &middot; 4/day total</span></div>
+<div class="endpoint-section"><h4>Description</h4>
+<p>Counts the registered devices, creates the broadcast and queues it in chunks of 200 devices. Returns immediately with an id; poll the progress endpoint for results.</p></div>
+<div class="endpoint-section"><h4>Request Body</h4>
+<p>Same fields and rules as a player push (<code>title</code>, <code>body</code>, <code>url</code>, <code>tag</code>, <code>urgency</code>, <code>ttl</code>) but no <code>recipients</code>.</p>
+<table class="params-table">
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Rules</th></tr>
+<tr><td>title</td><td>string</td><td><span class="required">Required</span></td><td>Up to 65 characters. Plain text.</td></tr>
+<tr><td>body</td><td>string</td><td><span class="required">Required</span></td><td>Up to 240 characters. Plain text.</td></tr>
+<tr><td>url</td><td>string</td><td><span class="optional">Optional</span></td><td>Site path starting with a single <code>/</code>. Default <code>/</code>.</td></tr>
+<tr><td>tag</td><td>string</td><td><span class="optional">Optional</span></td><td>Defaults to one <strong>unique per broadcast</strong>, so two announcements never replace each other unless you choose so.</td></tr>
+<tr><td>urgency</td><td>string</td><td><span class="optional">Optional</span></td><td><code>very-low</code>, <code>low</code>, <code>normal</code> (default), <code>high</code>.</td></tr>
+<tr><td>ttl</td><td>integer</td><td><span class="optional">Optional</span></td><td>30 to 86400 seconds. <strong>Default 3600</strong> (1 hour) for broadcasts.</td></tr>
+<tr><td>dry_run</td><td>boolean</td><td><span class="optional">Optional</span></td><td><code>true</code> only counts the audience. Sends nothing, creates nothing, uses none of your allowance and needs no idempotency key.</td></tr>
+</table></div>
+<div class="endpoint-section"><h4>Request</h4>
+<pre>POST /api/v1/push-broadcasts HTTP/1.1
+Host: kadi.online
+Authorization: Bearer &lt;the broadcast key&gt;
+Content-Type: application/json
+Idempotency-Key: maintenance-2026-10-01
+
+{
+  "title": "Maintenance tonight",
+  "body": "Kadi will be offline 1am-2am EAT.",
+  "url": "/"
+}</pre></div>
+<div class="endpoint-section"><h4>Response</h4>
+<div style="margin-bottom:8px"><span class="status-code s2">202 Accepted</span></div>
+<pre>{ "status": "accepted", "id": "3b1f0c9e-6f0e-4d0e-9d55-3e7d2f7b2a11" }</pre>
+<p>Same key and same request returns the original response with <code>Idempotent-Replay: true</code>. Same key with different content is <code>422</code>.</p></div>
+<div class="endpoint-section"><h4>Caps</h4>
+<p>Exceeding a cap returns <code>429</code> with <code>Retry-After</code>. A refused request is <strong>not remembered</strong>: once the cap clears you can retry with the same <code>Idempotency-Key</code>. <code>503</code> means <code>PUSH_API_BROADCAST_KEY_HASHES</code> is empty (broadcasts disabled).</p></div>
+</div></div>
+
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggle(this)">
+<span class="method method-post">POST</span>
+<span class="endpoint-path">/api/v1/push-broadcasts</span>
+<span class="endpoint-desc">Dry run: check the audience first</span>
+<span class="chevron">&#9654;</span>
+</div>
+<div class="endpoint-body">
+<div class="tags"><span class="tag tag-broadcast">Broadcast key</span><span class="tag">No allowance used</span></div>
+<div class="endpoint-section"><h4>Description</h4>
+<p>Same endpoint with <code>"dry_run": true</code>. Tells you how many devices a real broadcast would reach right now. Nothing is sent or created, and no idempotency key is needed. Do this before every real send.</p></div>
+<div class="endpoint-section"><h4>Request</h4>
+<pre>{ "title": "Maintenance tonight", "body": "Kadi will be offline 1am-2am EAT.", "dry_run": true }</pre></div>
+<div class="endpoint-section"><h4>Response</h4>
+<div style="margin-bottom:8px"><span class="status-code s2">200 OK</span></div>
+<pre>{ "status": "dry_run", "devices": 1834 }</pre></div>
+</div></div>
+
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggle(this)">
+<span class="method method-get">GET</span>
+<span class="endpoint-path">/api/v1/push-broadcasts/{id}</span>
+<span class="endpoint-desc">Broadcast progress</span>
+<span class="chevron">&#9654;</span>
+</div>
+<div class="endpoint-body">
+<div class="tags"><span class="tag tag-broadcast">Broadcast key</span></div>
+<div class="endpoint-section"><h4>Path Parameters</h4>
+<table class="params-table"><tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+<tr><td>id</td><td>string (uuid)</td><td>The <code>id</code> returned when the broadcast was started.</td></tr></table></div>
+<div class="endpoint-section"><h4>Response</h4>
+<div style="margin-bottom:8px"><span class="status-code s2">200 OK</span></div>
+<pre>{
+  "id": "3b1f0c9e-6f0e-4d0e-9d55-3e7d2f7b2a11",
+  "status": "sending",
+  "devices_total": 1834,
+  "sent": 900,
+  "failed": 3,
+  "expired_removed": 12,
+  "created_at": "2026-10-01T21:58:00+00:00",
+  "started_at": "2026-10-01T21:58:02+00:00",
+  "finished_at": null
+}</pre>
+<table class="params-table">
+<tr><th>Field</th><th>Meaning</th></tr>
+<tr><td>status</td><td><code>queued</code> (waiting for a worker), <code>sending</code>, <code>done</code> or <code>cancelled</code>.</td></tr>
+<tr><td>devices_total</td><td>Devices the broadcast targets.</td></tr>
+<tr><td>sent</td><td>Devices the push service accepted.</td></tr>
+<tr><td>failed</td><td>Devices a push service refused or that could not be reached. Not retried individually.</td></tr>
+<tr><td>expired_removed</td><td>Devices the push services reported as gone. Kadi deletes them.</td></tr>
+</table>
+<div class="note">A broadcast that stays <code>queued</code> means no queue worker is serving it. Tell the Kadi operator.</div></div>
+</div></div>
+
+<div class="endpoint">
+<div class="endpoint-header" onclick="toggle(this)">
+<span class="method method-delete">DELETE</span>
+<span class="endpoint-path">/api/v1/push-broadcasts/{id}</span>
+<span class="endpoint-desc">Cancel a broadcast in progress</span>
+<span class="chevron">&#9654;</span>
+</div>
+<div class="endpoint-body">
+<div class="tags"><span class="tag tag-broadcast">Broadcast key</span></div>
+<div class="endpoint-section"><h4>Description</h4>
+<p>Stops the chunks that have not been sent yet and returns the broadcast (same shape as progress, <code>status: "cancelled"</code>). Pushes already delivered <strong>cannot be recalled</strong>.</p></div>
+<div class="endpoint-section"><h4>Responses</h4>
+<div style="margin-bottom:8px"><span class="status-code s2">200 OK</span> <span class="status-code s4">409 Conflict</span></div>
+<p><code>409</code> is returned when the broadcast has already finished.</p></div>
+</div></div>
+
+<div class="card">
+<h3>Sending from the server: <code>push:broadcast</code></h3>
+<p>Operators on the Kadi server can use the artisan command (there is no admin screen). It enforces the same content rules and daily cap.</p>
+<pre>php artisan push:broadcast --title="Maintenance tonight" --body="Kadi will be offline 1am-2am EAT." --dry-run
+php artisan push:broadcast --title="Maintenance tonight" --body="..."     # asks to confirm
+php artisan push:broadcast --status=&lt;id&gt;
+php artisan push:broadcast --cancel=&lt;id&gt;</pre>
+<p><code>--force</code> skips the caps (command only; the API has no such option) and <code>--yes</code> skips the confirmation.</p>
+</div>
+<div class="card">
+<h3>How it is sent</h3>
+<p>A broadcast is split into jobs of 200 devices. Each job sends its devices concurrently, deletes devices the push service says are gone, and adds to the counters; the last job marks the broadcast <code>done</code>. Jobs are retried up to 3 times (10s, then 60s backoff), and a retried job replaces its own notification (same tag) rather than stacking a duplicate. A very large send can delay per-player pushes unless the operator has given broadcasts their own queue worker.</p>
+</div>
+</div>
+
+<!-- DELIVERY -->
+<div class="doc-section" data-section="delivery">
+<div class="card">
+<h3>What &ldquo;accepted&rdquo; means</h3>
+<p><code>202</code> means Kadi <strong>accepted the request and queued the pushes</strong>. It does not mean the notification has been shown.</p>
+<ul>
+<li>Delivery is asynchronous, normally within seconds, through Kadi&rsquo;s queue.</li>
+<li>A player&rsquo;s device can be offline. The push service holds the message for up to <code>ttl</code> seconds, then drops it.</li>
+<li>Players may have several devices; each gets the push.</li>
+<li>There are no delivery receipts.</li>
+<li>Kadi retries a failing push up to 3 times (10s, then 60s). Subscriptions the push service reports as expired are removed automatically.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Urgency</h3>
+<p>A push goes through Google&rsquo;s, Apple&rsquo;s or Mozilla&rsquo;s push service, and <code>urgency</code> tells that service how eager to be.</p>
+<table class="params-table">
+<tr><th>urgency</th><th>What the phone does</th></tr>
+<tr><td>high</td><td>Delivered at once, even to a sleeping phone (Android Doze, an idle iPhone) with the app closed. Use for time-sensitive things: &ldquo;it is your turn&rdquo;, &ldquo;tournament starts in 5 minutes&rdquo;.</td></tr>
+<tr><td>normal <span class="optional">(default)</span></td><td>Delivered when the phone is next awake. An idle phone can hold these back for minutes or longer, until it is used again.</td></tr>
+<tr><td>low, very-low</td><td>Deferred further, for example until charging or on Wi-Fi. For &ldquo;nice to know&rdquo; content.</td></tr>
+</table>
+<ul>
+<li><strong>Use <code>high</code> only for what a player would want interrupting them.</strong> Overuse makes players switch notifications off, and push services may deprioritise abusive senders.</li>
+<li><code>high</code> changes <em>when</em> the message arrives, not <em>whether</em> it may be shown. The limits are unchanged.</li>
+<li>Combine with a short <code>ttl</code> for things that go stale (<code>"ttl": 120</code> for a turn alert).</li>
+<li>Whether a device shows anything also depends on the player&rsquo;s own settings (notifications allowed, battery optimisation, Do Not Disturb). Kadi cannot override those.</li>
+<li>Kadi can refuse <code>high</code> server-side (<code>PUSH_API_ALLOW_HIGH_URGENCY=false</code>), in which case it is a <code>422</code>.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Writing good notifications</h3>
+<ul>
+<li><strong>Plain text only.</strong> No HTML or markdown; it would appear literally.</li>
+<li><strong>Keep it non-sensitive.</strong> No balances, personal data or secrets. Lock screens are visible to others.</li>
+<li><strong>Short <code>ttl</code> for time-sensitive messages.</strong> &ldquo;It&rsquo;s your turn&rdquo; is useless an hour later; use 60&ndash;300.</li>
+<li><strong>Use <code>tag</code> to collapse repeats.</strong> A per-table tag such as <code>table-7</code> makes the newest alert replace the previous one.</li>
+<li><strong><code>url</code> is a path inside Kadi</strong>, for example <code>/dashboard</code>. Where a path does not exist yet, use <code>/</code>.</li>
+<li><strong>Do not spam.</strong></li>
+</ul>
+</div>
+</div>
+
+<!-- LIMITS -->
+<div class="doc-section" data-section="limits">
+<div class="card">
+<h3>Limits</h3>
+<table class="params-table">
+<tr><th>Limit</th><th>Value</th><th>On exceeding</th></tr>
+<tr><td>Recipients per request</td><td>100</td><td><code>422</code></td></tr>
+<tr><td>Requests per minute, per API key</td><td>600</td><td><code>429</code></td></tr>
+<tr><td>Failed authentications per minute, per IP</td><td>20</td><td><code>429</code> for further <em>bad</em> keys only. A valid key is unaffected.</td></tr>
+<tr><td>Pushes per player per hour</td><td>30</td><td>Counted in <code>skipped.throttled</code>; request still succeeds</td></tr>
+<tr><td>Title / body length</td><td>65 / 240 characters</td><td><code>422</code></td></tr>
+<tr><td>Tag length</td><td>64 characters</td><td><code>422</code></td></tr>
+<tr><td><code>ttl</code></td><td>30 to 86400 s (default 900; broadcasts 3600)</td><td><code>422</code></td></tr>
+<tr><td>Broadcasts per hour, per broadcast key</td><td>6</td><td><code>429</code> with <code>Retry-After</code></td></tr>
+<tr><td>Broadcasts per 24 hours, all keys and the command together</td><td>4</td><td><code>429</code> with <code>Retry-After</code></td></tr>
+<tr><td>Idempotency key</td><td>8&ndash;64 chars, remembered 24 hours</td><td><code>422</code></td></tr>
+</table>
+<p>The per-player cap protects players from a runaway game server: no matter what is sent, one player cannot be buzzed more than 30 times an hour through this API.</p>
+</div>
+</div>
+
+<!-- ERRORS -->
+<div class="doc-section" data-section="errors">
+<div class="card">
+<h3>Error format</h3>
+<p>All errors are JSON with a <code>message</code>. Validation errors also include <code>errors</code> per field.</p>
+<pre>{ "message": "Unauthenticated." }</pre>
+<table class="params-table">
+<tr><th>Status</th><th>Meaning</th><th>What to do</th></tr>
+<tr><td><span class="status-code s4">401</span></td><td>Missing or wrong key (or the wrong kind of key for this endpoint). Response has <code>WWW-Authenticate: Bearer</code>.</td><td>Fix the key. Do not retry blindly.</td></tr>
+<tr><td><span class="status-code s4">403</span></td><td>Caller IP is not on the allow-list.</td><td>Ask Kadi to add the server&rsquo;s IP.</td></tr>
+<tr><td><span class="status-code s4">404 / 405</span></td><td>Wrong path, unknown broadcast id, or wrong method.</td><td>Check the endpoint and id.</td></tr>
+<tr><td><span class="status-code s4">409</span></td><td>Another request with the same <code>Idempotency-Key</code> is still processing, or you tried to cancel a finished broadcast.</td><td>Wait and retry with the same key (idempotency case).</td></tr>
+<tr><td><span class="status-code s4">422</span></td><td>Validation failed, or an <code>Idempotency-Key</code> was reused for a different request, or <code>urgency: high</code> is disabled.</td><td>Fix the request. Do not retry unchanged.</td></tr>
+<tr><td><span class="status-code s4">429</span></td><td>Rate limit or broadcast cap hit. <code>Retry-After</code> tells you when.</td><td>Slow down, then retry.</td></tr>
+<tr><td><span class="status-code s5">503</span></td><td>The API (or broadcasts) is not enabled on this Kadi server.</td><td>Contact the Kadi operator.</td></tr>
+<tr><td><span class="status-code s5">5xx</span></td><td>Unexpected error.</td><td>Retry with the <strong>same</strong> <code>Idempotency-Key</code>.</td></tr>
+</table>
+</div>
+<div class="card">
+<h3>Troubleshooting</h3>
+<table class="params-table">
+<tr><th>Symptom</th><th>Likely cause</th></tr>
+<tr><td><code>503</code></td><td>Key hashes empty or invalid, or the config is cached and stale (<code>php artisan config:clear</code>).</td></tr>
+<tr><td><code>401</code> with the right key</td><td>The hash in <code>.env</code> is not the SHA-256 of that key, config not reloaded, header is <code>Basic</code> instead of <code>Bearer</code>, or the player key was used on a broadcast endpoint (or vice versa).</td></tr>
+<tr><td><code>403</code></td><td>The server&rsquo;s IP is not in <code>PUSH_API_ALLOWED_IPS</code>.</td></tr>
+<tr><td><code>202</code> but nothing arrives</td><td><code>queued: 0</code> means every recipient was skipped (check <code>skipped</code>). If <code>queued &gt; 0</code>, the queue worker may be down.</td></tr>
+<tr><td><code>skipped.no_device</code> is high</td><td>Players have not turned notifications on. Expected for many players.</td></tr>
+<tr><td>Duplicate notifications</td><td>The retry used a new <code>Idempotency-Key</code>.</td></tr>
+</table>
+</div>
+</div>
+
+<!-- EXAMPLES -->
+<div class="doc-section" data-section="examples">
+<div class="card">
+<h3>curl: push to several players</h3>
+<pre>curl -sS -X POST https://kadi.online/api/v1/push-notifications \
+  -H "Authorization: Bearer $KADI_PUSH_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: tournament-88-start" \
+  -d '{
+        "by": "linked_id",
+        "recipients": [1042, 1043, 1044],
+        "title": "Tournament starting",
+        "body": "Your tournament begins in 5 minutes.",
+        "url": "/dashboard",
+        "tag": "tournament-88",
+        "ttl": 300
+      }'</pre>
+</div>
+<div class="card">
+<h3>curl: broadcast (dry run, send, progress, cancel)</h3>
+<pre># 1. How many devices would this reach?
+curl -sS -X POST https://kadi.online/api/v1/push-broadcasts \
+  -H "Authorization: Bearer $KADI_BROADCAST_KEY" -H "Content-Type: application/json" \
+  -d '{"title":"Maintenance tonight","body":"Kadi will be offline 1am-2am EAT.","dry_run":true}'
+
+# 2. Send it (Idempotency-Key is mandatory)
+curl -sS -X POST https://kadi.online/api/v1/push-broadcasts \
+  -H "Authorization: Bearer $KADI_BROADCAST_KEY" -H "Content-Type: application/json" \
+  -H "Idempotency-Key: maintenance-2026-10-01" \
+  -d '{"title":"Maintenance tonight","body":"Kadi will be offline 1am-2am EAT.","url":"/"}'
+
+# 3. Progress / cancel
+curl -sS https://kadi.online/api/v1/push-broadcasts/&lt;id&gt; -H "Authorization: Bearer $KADI_BROADCAST_KEY"
+curl -sS -X DELETE https://kadi.online/api/v1/push-broadcasts/&lt;id&gt; -H "Authorization: Bearer $KADI_BROADCAST_KEY"</pre>
+</div>
+<div class="card">
+<h3>PHP (plain cURL)</h3>
+<pre>$payload = json_encode([
+    'recipients' =&gt; [1042],
+    'title' =&gt; 'Your turn',
+    'body' =&gt; 'It is your move at table 7.',
+    'tag' =&gt; 'table-7',
+    'urgency' =&gt; 'high',
+    'ttl' =&gt; 120,
+]);
+
+$ch = curl_init('https://kadi.online/api/v1/push-notifications');
+curl_setopt_array($ch, [
+    CURLOPT_POST =&gt; true,
+    CURLOPT_POSTFIELDS =&gt; $payload,
+    CURLOPT_RETURNTRANSFER =&gt; true,
+    CURLOPT_TIMEOUT =&gt; 10,
+    CURLOPT_HTTPHEADER =&gt; [
+        'Authorization: Bearer '.getenv('KADI_PUSH_KEY'),
+        'Content-Type: application/json',
+        'Idempotency-Key: table-7-turn-12',   // same value on every retry of this event
+    ],
+]);
+
+$response = curl_exec($ch);
+$status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+curl_close($ch);
+
+// 202: accepted. 409/429/5xx or a network error: retry later with the SAME Idempotency-Key.
+// 401/403/422: do not retry, fix the request or the key.</pre>
+</div>
+<div class="card">
+<h3>Laravel HTTP client</h3>
+<pre>use Illuminate\Support\Facades\Http;
+
+$response = Http::withToken(config('services.kadi_push.key'))
+    -&gt;withHeaders(['Idempotency-Key' =&gt; "table-{$table-&gt;id}-turn-{$turn}"])
+    -&gt;acceptJson()
+    -&gt;timeout(10)
+    -&gt;retry(3, 500, fn ($e) =&gt; $e instanceof \Illuminate\Http\Client\ConnectionException, throw: false)
+    -&gt;post('https://kadi.online/api/v1/push-notifications', [
+        'recipients' =&gt; [$player-&gt;kadi_customer_id],
+        'title' =&gt; 'Your turn',
+        'body' =&gt; 'It is your move.',
+        'tag' =&gt; "table-{$table-&gt;id}",
+        'ttl' =&gt; 120,
+    ]);
+
+$response-&gt;status();        // 202
+$response-&gt;json('queued');  // 1</pre>
+<p>Retrying with the same <code>Idempotency-Key</code> header is what makes <code>retry()</code> safe here.</p>
+</div>
+<div class="card">
+<h3>JavaScript (fetch, Node 18+)</h3>
+<pre>const res = await fetch('https://kadi.online/api/v1/push-notifications', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${process.env.KADI_PUSH_KEY}`,
+    'Content-Type': 'application/json',
+    'Idempotency-Key': 'table-7-turn-12',
+  },
+  body: JSON.stringify({
+    recipients: [1042],
+    title: 'Your turn',
+    body: 'It is your move at table 7.',
+    tag: 'table-7',
+    ttl: 120,
+  }),
+});
+
+const data = await res.json();
+if (res.status !== 202) throw new Error(`Kadi answered ${res.status}: ${data.message}`);
+console.log(data.queued, data.skipped);</pre>
+</div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="doc-section" data-section="checklist">
+<div class="card">
+<h3>Integration checklist</h3>
+<ul>
+<li>Key generated with <code>push-api:key</code>; only the <strong>hash</strong> is in Kadi&rsquo;s <code>.env</code>; the key lives in the game server&rsquo;s secret store.</li>
+<li>Config reloaded and queue workers restarted on Kadi.</li>
+<li>A test call returns <code>202</code>, and the notification appears on a device that turned notifications on.</li>
+<li>Unknown ids and players without a device are handled (not treated as errors).</li>
+<li>Every event has a stable <code>Idempotency-Key</code>, reused on retries.</li>
+<li><code>401/403/422</code> are not retried; <code>409/429/5xx</code> and network errors are retried with backoff.</li>
+<li>Titles and bodies are short, plain text and contain nothing sensitive.</li>
+<li><code>ttl</code> is short for time-sensitive events, and <code>tag</code> collapses repeated ones.</li>
+<li><code>urgency: high</code> is reserved for things that should interrupt a player.</li>
+<li>The key rotation procedure has been rehearsed once.</li>
+<li>Broadcasts: a separate key from <code>push-api:key --broadcast</code>, a <code>dry_run</code> checked first, an <code>Idempotency-Key</code> on every real send, and only announcements are broadcast.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Security notes</h3>
+<ul>
+<li>A stolen player key can only send plain-text pushes to players who opted in, capped at 30 an hour each, with a site-local link. Rotate at once.</li>
+<li>A stolen broadcast key can announce plain text to every registered device, but only 6 an hour and 4 a day in total, never with an off-site link, and a broadcast can be cancelled while it sends. It cannot push to individual players.</li>
+<li><code>url</code> must be a site path; absolute and protocol-relative URLs are rejected.</li>
+<li>Responses and Kadi&rsquo;s logs never contain the key, its hash, message text or player identifiers.</li>
+</ul>
+</div>
+</div>
+
+    </div>
+</div>
+
+<script>
+var STORAGE_KEY = 'kadi-push-docs-section';
+var BASE_URL = 'https://kadi.online';
+var DEFAULT_SECTION = 'overview';
+
+var sectionTitles = {
+    'overview': { title: 'Overview & Quick Start', desc: 'What the Push API does and how to send your first notification' },
+    'auth': { title: 'Authentication', desc: 'Bearer keys, the two key types, IP allow-list and rotation' },
+    'idempotency': { title: 'Idempotency & Retries', desc: 'Make retries safe and know what to retry' },
+    'push': { title: 'Player Push', desc: 'Send a notification to one or more players' },
+    'broadcast': { title: 'Broadcasts', desc: 'Announce to every registered device, track progress and cancel' },
+    'delivery': { title: 'Delivery & Urgency', desc: 'What accepted means, urgency levels and writing good notifications' },
+    'limits': { title: 'Limits', desc: 'Sizes, rates and caps' },
+    'errors': { title: 'Errors', desc: 'Status codes, error format and troubleshooting' },
+    'examples': { title: 'Code Examples', desc: 'curl, PHP, Laravel and JavaScript' },
+    'checklist': { title: 'Integration Checklist', desc: 'Everything to verify before going live' }
+};
+
+function toggle(el) { el.closest('.endpoint').classList.toggle('open'); }
+
+function toggleAll(sectionId) {
+    var section = document.querySelector('.doc-section[data-section="' + sectionId + '"]');
+    if (!section) return;
+    var endpoints = section.querySelectorAll('.endpoint');
+    var allOpen = Array.from(endpoints).every(function (e) { return e.classList.contains('open'); });
+    endpoints.forEach(function (e) { e.classList.toggle('open', !allOpen); });
+}
+
+function copyText(text, btn) {
+    function done() {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function () { btn.textContent = 'Copy URL'; btn.classList.remove('copied'); }, 1500);
+    }
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+    } else {
+        var input = document.createElement('input');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        done();
+    }
+}
+
+document.querySelectorAll('.endpoint-path').forEach(function (pathEl) {
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy URL';
+    btn.onclick = function (e) { e.stopPropagation(); copyText(BASE_URL + pathEl.textContent, btn); };
+    pathEl.parentNode.insertBefore(btn, pathEl.nextSibling);
+});
+
+var navLinks = document.querySelectorAll('.sidebar-nav a[data-section]');
+var docSections = document.querySelectorAll('.doc-section');
+var navSections = document.querySelectorAll('.sidebar-nav .nav-section');
+var navUls = document.querySelectorAll('.sidebar-nav ul');
+var searchInput = document.getElementById('doc-search');
+var searchClear = document.getElementById('search-clear');
+var searchInfo = document.getElementById('search-info');
+var searchTimer = null;
+
+function showSection(id) {
+    if (!sectionTitles[id]) id = DEFAULT_SECTION;
+    docSections.forEach(function (s) { s.classList.toggle('active', s.getAttribute('data-section') === id); });
+    navLinks.forEach(function (a) { a.classList.toggle('active', a.getAttribute('data-section') === id); });
+    document.getElementById('section-title').textContent = sectionTitles[id].title;
+    document.getElementById('section-desc').textContent = sectionTitles[id].desc;
+    window.scrollTo(0, 0);
+    try { localStorage.setItem(STORAGE_KEY, id); } catch (e) {}
+}
+
+function savedSection() {
+    try { return localStorage.getItem(STORAGE_KEY) || DEFAULT_SECTION; } catch (e) { return DEFAULT_SECTION; }
+}
+
+document.addEventListener('click', function (e) {
+    var target = e.target.closest('a[data-section]');
+    if (!target) return;
+    e.preventDefault();
+    clearSearch(false);
+    showSection(target.getAttribute('data-section'));
+});
+
+// Search: matches cards and endpoints; shows the first section that has a hit
+function clearSearch(restore) {
+    searchInput.value = '';
+    searchClear.classList.remove('visible');
+    searchInfo.classList.remove('visible');
+    document.querySelectorAll('.card, .endpoint').forEach(function (el) { el.classList.remove('search-hidden'); });
+    navLinks.forEach(function (a) { a.closest('li').style.display = ''; });
+    navSections.forEach(function (n) { n.classList.remove('hidden'); });
+    navUls.forEach(function (u) { u.classList.remove('hidden'); });
+    if (restore !== false) showSection(savedSection());
+}
+
+function runSearch() {
+    var query = searchInput.value.trim().toLowerCase();
+    if (!query) { clearSearch(); return; }
+    searchClear.classList.add('visible');
+
+    var total = 0, hits = {}, first = null;
+    docSections.forEach(function (section) {
+        var id = section.getAttribute('data-section');
+        section.querySelectorAll('.card, .endpoint').forEach(function (el) {
+            var match = el.textContent.toLowerCase().indexOf(query) !== -1;
+            el.classList.toggle('search-hidden', !match);
+            if (match) { total++; hits[id] = true; if (!first) first = id; }
+        });
+    });
+
+    navLinks.forEach(function (a) { a.closest('li').style.display = hits[a.getAttribute('data-section')] ? '' : 'none'; });
+    navUls.forEach(function (ul) {
+        var any = Array.from(ul.querySelectorAll('li')).some(function (li) { return li.style.display !== 'none'; });
+        ul.classList.toggle('hidden', !any);
+        if (ul.previousElementSibling) ul.previousElementSibling.classList.toggle('hidden', !any);
+    });
+
+    if (first) {
+        showSection(first);
+        docSections.forEach(function (s) {
+            s.querySelectorAll('.endpoint:not(.search-hidden)').forEach(function (ep) { ep.classList.add('open'); });
+        });
+    }
+    searchInfo.textContent = total + ' match' + (total !== 1 ? 'es' : '');
+    searchInfo.classList.add('visible');
+}
+
+searchInput.addEventListener('input', function () { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 200); });
+searchClear.addEventListener('click', function () { clearSearch(); searchInput.focus(); });
+document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); }
+    if (e.key === 'Escape' && document.activeElement === searchInput) { clearSearch(); searchInput.blur(); }
+});
+
+showSection(savedSection());
+</script>
+</body>
+</html>
