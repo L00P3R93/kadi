@@ -78,7 +78,7 @@ test('the starter list blocks impersonation, however it is dressed up', function
 test('ordinary names, including ones that only contain a blocked word inside another word, are fine', function (string $name) {
     expect(NameGuard::isBlocked($name))->toBeFalse("{$name} should be allowed");
 })->with([
-    'John Doe', 'Wanjiru Kamau', 'Sadmin', 'Administration Ola', 'Rooted Tree', 'Kadiri Musa', 'Ownership Sam', 'Systematic Jim', 'Otieno', 'Mary-Jane O\'Neil',
+    'John Doe', 'WanjiruK', 'Sadmin', 'Administration Ola', 'Rooted Tree', 'Kadiri Musa', 'Ownership Sam', 'Systematic Jim', 'Otieno', 'Mary-Jane O\'Neil',
 ]);
 
 test('a contains entry blocks the term anywhere, a word entry only as a whole word', function () {
@@ -113,7 +113,7 @@ test('an empty list blocks nothing', function () {
 test('registration refuses a blocked name, tells the player nothing about the list, and creates nobody', function () {
     test()->skipUnlessFortifyHas(Features::registration());
 
-    guardRegistration('Kadi Admin')->assertSessionHasErrors('name');
+    guardRegistration('Admin1')->assertSessionHasErrors('name');
 
     expect(session('errors')->first('name'))->toBe('That name is not available. Please use your own name.')
         ->and(session('errors')->first('name'))->not->toContain('admin');
@@ -124,7 +124,7 @@ test('registration refuses a blocked name, tells the player nothing about the li
 test('registration still accepts a normal name', function () {
     test()->skipUnlessFortifyHas(Features::registration());
 
-    guardRegistration('Wanjiru Kamau')->assertSessionHasNoErrors();
+    guardRegistration('WanjiruK')->assertSessionHasNoErrors();
 
     test()->assertAuthenticated();
 });
@@ -132,12 +132,12 @@ test('registration still accepts a normal name', function () {
 test('a name added to the list later is refused at registration straight away', function () {
     test()->skipUnlessFortifyHas(Features::registration());
 
-    guardRegistration('Champion Player', 'a@example.com')->assertSessionHasNoErrors();
+    guardRegistration('Champion1', 'a@example.com')->assertSessionHasNoErrors();
     auth()->logout();
 
-    BlockedName::create(['term' => 'champion player']);
+    BlockedName::create(['term' => 'champion']);
 
-    guardRegistration('Champion Player', 'b@example.com')->assertSessionHasErrors('name');
+    guardRegistration('Champion1', 'b@example.com')->assertSessionHasErrors('name');
 });
 
 // --- Google sign-up is exempt ----------------------------------------------
@@ -158,19 +158,19 @@ test('a google sign-up keeps the name google verified, even if it is on the list
 // --- Changing the name: the settings page ----------------------------------
 
 test('the settings page refuses a blocked new name and keeps the old one', function () {
-    $user = User::factory()->create(['name' => 'Real Person']);
+    $user = User::factory()->create(['name' => 'RealPerson']);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
-        ->set('name', 'Support Team')->set('email', $user->email)
+        ->set('name', 'Support_Team')->set('email', $user->email)
         ->call('updateProfileInformation')
         ->assertHasErrors('name');
 
-    expect($user->fresh()->name)->toBe('Real Person');
+    expect($user->fresh()->name)->toBe('RealPerson');
 });
 
 test('saving without changing the name is never blocked, even if the list grew since they joined', function () {
-    $user = User::factory()->create(['name' => 'Champion Player']);
-    BlockedName::create(['term' => 'champion player']);
+    $user = User::factory()->create(['name' => 'Champion1']);
+    BlockedName::create(['term' => 'champion']);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
         ->set('email', 'changed-email@example.com')
@@ -181,53 +181,53 @@ test('saving without changing the name is never blocked, even if the list grew s
 });
 
 test('the settings page still allows a normal name change', function () {
-    $user = User::factory()->create(['name' => 'Old Name']);
+    $user = User::factory()->create(['name' => 'OldName1']);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
-        ->set('name', 'New Name')->set('email', $user->email)
+        ->set('name', 'NewName1')->set('email', $user->email)
         ->call('updateProfileInformation')
         ->assertHasNoErrors();
 
-    expect($user->fresh()->name)->toBe('New Name');
+    expect($user->fresh()->name)->toBe('NewName1');
 });
 
 test('the settings page copies a changed name to kadi.accounts', function () {
     fakeKadiAccounts([['id' => 555, 'name' => 'Old', 'email' => 'old@example.com']]);
-    $user = User::factory()->create(['name' => 'Old Name', 'email' => 'old@example.com', 'linked_id' => 555]);
+    $user = User::factory()->create(['name' => 'OldName1', 'email' => 'old@example.com', 'linked_id' => 555]);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
-        ->set('name', 'Wanjiru Kamau')->set('email', 'old@example.com')
+        ->set('name', 'WanjiruK')->set('email', 'old@example.com')
         ->call('updateProfileInformation')->assertHasNoErrors();
 
     // The game shows a first name only, the same rule the account was created with.
-    expect(DB::connection('kadi')->table('accounts')->where('id', 555)->value('name'))->toBe('Wanjiru');
+    expect(DB::connection('kadi')->table('accounts')->where('id', 555)->value('name'))->toBe('WanjiruK');
 });
 
 test('the game account is found by customer id even when the e-mail changes in the same save', function () {
     fakeKadiAccounts([['id' => 556, 'name' => 'Old', 'email' => 'old@example.com']]);
-    $user = User::factory()->create(['name' => 'Old Name', 'email' => 'old@example.com', 'linked_id' => 556]);
+    $user = User::factory()->create(['name' => 'OldName1', 'email' => 'old@example.com', 'linked_id' => 556]);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
-        ->set('name', 'Brian Otieno')->set('email', 'brand-new@example.com')
+        ->set('name', 'BrianOtieno')->set('email', 'brand-new@example.com')
         ->call('updateProfileInformation')->assertHasNoErrors();
 
-    expect(DB::connection('kadi')->table('accounts')->where('id', 556)->value('name'))->toBe('Brian');
+    expect(DB::connection('kadi')->table('accounts')->where('id', 556)->value('name'))->toBe('BrianOtieno');
 });
 
 test('an unlinked player is found by the e-mail they had before the save', function () {
     fakeKadiAccounts([['id' => 557, 'name' => 'Old', 'email' => 'old@example.com']]);
-    $user = User::factory()->create(['name' => 'Old Name', 'email' => 'old@example.com', 'linked_id' => null]);
+    $user = User::factory()->create(['name' => 'OldName1', 'email' => 'old@example.com', 'linked_id' => null]);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
-        ->set('name', 'Grace Achieng')->set('email', 'moved@example.com')
+        ->set('name', 'GraceAchi')->set('email', 'moved@example.com')
         ->call('updateProfileInformation')->assertHasNoErrors();
 
-    expect(DB::connection('kadi')->table('accounts')->where('id', 557)->value('name'))->toBe('Grace');
+    expect(DB::connection('kadi')->table('accounts')->where('id', 557)->value('name'))->toBe('GraceAchi');
 });
 
 test('nothing is written to kadi.accounts when the name did not change', function () {
     fakeKadiAccounts([['id' => 558, 'name' => 'Untouched', 'email' => 'same@example.com']]);
-    $user = User::factory()->create(['name' => 'Same Name', 'email' => 'same@example.com', 'linked_id' => 558]);
+    $user = User::factory()->create(['name' => 'SameName1', 'email' => 'same@example.com', 'linked_id' => 558]);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
         ->set('email', 'same@example.com')->call('updateProfileInformation')->assertHasNoErrors();
@@ -239,38 +239,38 @@ test('a game database that is down never stops a profile save', function () {
     // The kadi connection points at a database that has no accounts table: the write throws.
     config(['database.connections.kadi' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
     DB::purge('kadi');
-    $user = User::factory()->create(['name' => 'Old Name', 'linked_id' => 559]);
+    $user = User::factory()->create(['name' => 'OldName1', 'linked_id' => 559]);
 
     Livewire::actingAs($user)->test('pages::settings.profile')
-        ->set('name', 'Still Saved')->set('email', $user->email)
+        ->set('name', 'StillSaved')->set('email', $user->email)
         ->call('updateProfileInformation')->assertHasNoErrors();
 
-    expect($user->fresh()->name)->toBe('Still Saved');
+    expect($user->fresh()->name)->toBe('StillSaved');
 });
 
 // --- Changing the name: the profile page -----------------------------------
 
 test('the profile page refuses a blocked new name', function () {
-    $user = User::factory()->create(['name' => 'Real Person', 'linked_id' => null]);
+    $user = User::factory()->create(['name' => 'RealPerson', 'linked_id' => null]);
 
     Livewire::actingAs($user)->test(Show::class)
-        ->set('name', 'Kadi Official')
+        ->set('name', 'Kadi_Official')
         ->call('updateProfile')
         ->assertHasErrors('name');
 
-    expect($user->fresh()->name)->toBe('Real Person');
+    expect($user->fresh()->name)->toBe('RealPerson');
 });
 
 test('the profile page copies a changed name to kadi.accounts', function () {
     fakeKadiAccounts([['id' => 600, 'name' => 'Old', 'email' => 'p@example.com']]);
-    $user = User::factory()->create(['name' => 'Old Name', 'email' => 'p@example.com', 'linked_id' => null]);
+    $user = User::factory()->create(['name' => 'OldName1', 'email' => 'p@example.com', 'linked_id' => null]);
 
     Livewire::actingAs($user)->test(Show::class)
-        ->set('name', 'Otieno Junior')
+        ->set('name', 'OtienoJnr')
         ->call('updateProfile')->assertHasNoErrors();
 
-    expect($user->fresh()->name)->toBe('Otieno Junior')
-        ->and(DB::connection('kadi')->table('accounts')->where('email', 'p@example.com')->value('name'))->toBe('Otieno');
+    expect($user->fresh()->name)->toBe('OtienoJnr')
+        ->and(DB::connection('kadi')->table('accounts')->where('email', 'p@example.com')->value('name'))->toBe('OtienoJnr');
 });
 
 // --- The helper ------------------------------------------------------------
@@ -324,7 +324,7 @@ test('blocked-names:list shows the entries', function () {
 
 test('blocked-names:check tells the operator which entry matched', function () {
     test()->artisan('blocked-names:check', ['name' => 'Kadi Support'])->expectsOutputToContain('blocked')->assertFailed();
-    test()->artisan('blocked-names:check', ['name' => 'Wanjiru Kamau'])->expectsOutputToContain('is allowed')->assertSuccessful();
+    test()->artisan('blocked-names:check', ['name' => 'WanjiruK'])->expectsOutputToContain('is allowed')->assertSuccessful();
 });
 
 test('the seeded starter list is in place after migrating', function () {

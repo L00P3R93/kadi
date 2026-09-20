@@ -2,6 +2,7 @@
 
 use App\Concerns\ProfileValidationRules;
 use App\Services\KadiAccountSync;
+use App\Support\PlayerName;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -41,7 +42,11 @@ new #[Title('Profile settings')] class extends Component {
             $user->email_verified_at = null;
         }
 
+        PlayerName::stampChange($user);
+
         $user->save();
+
+        PlayerName::clearIfResolved($user);
 
         // The game reads the name from kadi.accounts, so keep it in step.
         if ($user->wasChanged('name')) {
@@ -70,6 +75,12 @@ new #[Title('Profile settings')] class extends Component {
     }
 
     #[Computed]
+    public function nextNameChange(): ?string
+    {
+        return PlayerName::nextChangeAt(Auth::user())?->format('j F Y');
+    }
+
+    #[Computed]
     public function hasUnverifiedEmail(): bool
     {
         return Auth::user() instanceof MustVerifyEmail && ! Auth::user()->hasVerifiedEmail();
@@ -90,7 +101,12 @@ new #[Title('Profile settings')] class extends Component {
 
     <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
+            <x-player-name-field
+                wire:model="name"
+                :value="$name"
+                :label="__('Name')"
+                :locked="$this->nextNameChange !== null"
+                :locked-message="__('You can change your name once a year. You can change it again on :date.', ['date' => $this->nextNameChange])" />
 
             <div>
                 <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />

@@ -43,7 +43,7 @@ class UserFactory extends Factory
     {
         return [
             'account_no' => 'KK-'.strtoupper(uniqid()),
-            'name' => fake()->name(),
+            'name' => 'Player'.fake()->unique()->numerify('####'),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

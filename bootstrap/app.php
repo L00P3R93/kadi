@@ -3,6 +3,7 @@
 use App\Http\Middleware\AuthenticatePushApiKey;
 use App\Http\Middleware\DetectCurrency;
 use App\Http\Middleware\EnsureConsentGiven;
+use App\Http\Middleware\EnsureNameIsValid;
 use App\Http\Middleware\LogoutInactiveUsers;
 use App\Http\Middleware\RedirectLegacyDomain;
 use App\Http\Middleware\SetCacheHeaders;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SetCacheHeaders::class,
             LogoutInactiveUsers::class,
             EnsureConsentGiven::class,
+            EnsureNameIsValid::class,
         ]);
 
         $middleware->alias([

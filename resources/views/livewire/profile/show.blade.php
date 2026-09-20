@@ -164,7 +164,15 @@
                 <form wire:submit="updateProfile" class="space-y-5">
 
                     <div>
-                        <flux:input wire:model="name" :label="__('Full Name')" type="text" required />
+                        @php
+                            $nextNameChange = $this->nextNameChange();
+                        @endphp
+                        <x-player-name-field
+                            wire:model="name"
+                            :value="$name"
+                            :label="__('Player Name')"
+                            :locked="$nextNameChange !== null"
+                            :locked-message="__('You can change your name once a year. You can change it again on :date.', ['date' => $nextNameChange])" />
                         @error('name') <p class="mt-1 text-xs text-red-400">{{ $message }}</p> @enderror
                     </div>
 
