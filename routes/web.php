@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ConsentController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\GoogleLinkController;
+use App\Http\Controllers\Auth\NameUpdateController;
 use App\Http\Controllers\ProfilePictureController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PushTestController;
@@ -30,6 +31,8 @@ Route::get('/games-guide', GameGuide::class)->name('game-guide');
 Route::middleware(['auth'])->group(function () {
     Route::get('/consent', [ConsentController::class, 'show'])->name('consent.show');
     Route::post('/consent', [ConsentController::class, 'store'])->name('consent.store');
+    Route::get('/name', [NameUpdateController::class, 'show'])->name('name.edit');
+    Route::post('/name', [NameUpdateController::class, 'store'])->name('name.update');
     Route::get('/auth/google/link', [GoogleLinkController::class, 'redirect'])->name('auth.google.link');
     Route::get('/auth/google/link/callback', [GoogleLinkController::class, 'callback'])->name('auth.google.link.callback');
 });

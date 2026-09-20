@@ -4,6 +4,8 @@ namespace App\Concerns;
 
 use App\Models\User;
 use App\Rules\AllowedName;
+use App\Rules\NameChangeCooldown;
+use App\Rules\PlayerNameFormat;
 use Illuminate\Validation\Rule;
 
 trait ProfileValidationRules
@@ -30,7 +32,7 @@ trait ProfileValidationRules
     {
         // AllowedName is the editable blocklist (php artisan blocked-names:add). Google sign-ups never
         // reach these rules: Google has already verified that name.
-        return ['required', 'string', 'max:255', new AllowedName];
+        return ['bail', 'required', 'string', new PlayerNameFormat, new NameChangeCooldown, new AllowedName];
     }
 
     /**

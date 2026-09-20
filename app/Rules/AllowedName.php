@@ -3,6 +3,7 @@
 namespace App\Rules;
 
 use App\Support\NameGuard;
+use App\Support\PlayerName;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
@@ -25,7 +26,8 @@ class AllowedName implements ValidationRule
 
         $current = auth()->user()?->name;
 
-        if ($current !== null && NameGuard::normalise($current) === NameGuard::normalise($value)) {
+        // Not when they were sent to rename because this very name broke the rules.
+        if ($current !== null && ! PlayerName::isForced() && NameGuard::normalise($current) === NameGuard::normalise($value)) {
             return;
         }
 

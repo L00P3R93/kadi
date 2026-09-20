@@ -3,10 +3,11 @@
 namespace App\Livewire\Profile;
 
 use App\Actions\Security\RevokeOtherSessions;
+use App\Concerns\ProfileValidationRules;
 use App\Events\PasswordChanged;
 use App\Facades\KadiApi;
-use App\Rules\AllowedName;
 use App\Services\KadiAccountSync;
+use App\Support\PlayerName;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,8 @@ use Livewire\Component;
 #[Title('Profile | Kadi')]
 class Show extends Component
 {
+    use ProfileValidationRules;
+
     public string $name = '';
 
     public string $email = '';
@@ -64,7 +67,7 @@ class Show extends Component
     public function updateProfile(): void
     {
         $this->validate([
-            'name' => ['required', 'min:2', 'max:100', new AllowedName],
+            'name' => $this->nameRules(),
             'email' => ['required', 'email', 'unique:users,email,'.auth()->id()],
             'idNo' => ['nullable', 'string'],
             'phoneNo' => ['nullable', 'string'],
@@ -79,7 +82,10 @@ class Show extends Component
         if (empty($user->phone) && $this->phoneNo !== '') {
             $userUpdate['phone'] = $this->phoneNo;
         }
-        $user->update($userUpdate);
+        $user->fill($userUpdate);
+        PlayerName::stampChange($user);
+        $user->save();
+        PlayerName::clearIfResolved($user);
 
         // The game reads the name from kadi.accounts, so keep it in step.
         if ($nameChanged) {
@@ -202,6 +208,11 @@ class Show extends Component
         $base = rtrim(config('services.kadi_api.image_url'), '/');
 
         return $pic === 'profilepic.png' ? asset('images/avatar.png') : "{$base}{$pic}";
+    }
+
+    public function nextNameChange(): ?string
+    {
+        return PlayerName::nextChangeAt(auth()->user())?->format('j F Y');
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View

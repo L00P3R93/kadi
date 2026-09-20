@@ -16,7 +16,7 @@ test('registration screen can be rendered', function () {
 
 test('new users can register', function () {
     $response = $this->post(route('register.store'), [
-        'name' => 'John Doe',
+        'name' => 'JohnDoe',
         'email' => 'test@example.com',
         'phone' => '0700123456',
         'password' => 'password',
@@ -33,7 +33,7 @@ test('new users can register', function () {
 
 test('registration never persists a recoverable password outside the users table', function () {
     $this->post(route('register.store'), [
-        'name' => 'Jane Doe',
+        'name' => 'JaneDoe',
         'email' => 'jane@example.com',
         'phone' => '0700123456',
         'password' => 'super-secret-123',
@@ -55,7 +55,7 @@ test('registration never persists a recoverable password outside the users table
 
 test('registration records age confirmation and terms acceptance', function () {
     $this->post(route('register.store'), [
-        'name' => 'John Doe',
+        'name' => 'JohnDoe',
         'email' => 'consent@example.com',
         'phone' => '0700123456',
         'password' => 'password',
@@ -74,7 +74,7 @@ test('registration records age confirmation and terms acceptance', function () {
 
 test('registration is rejected without age confirmation or terms', function (array $omit) {
     $payload = [
-        'name' => 'John Doe',
+        'name' => 'JohnDoe',
         'email' => 'nope@example.com',
         'phone' => '0700123456',
         'password' => 'password',
