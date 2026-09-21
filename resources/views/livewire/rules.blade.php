@@ -74,7 +74,7 @@
 
             <h1 class="font-cinzel font-black text-3xl md:text-5xl text-[#f5c542] leading-tight tracking-wide mb-3"
                 style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">
-                MASTER THE ART OF KADI
+                KADI RULES: HOW TO PLAY
             </h1>
             <p class="text-gray-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
                 Four suits. Six card types. One winner. Learn how every hand of Kadi is dealt, played, and won, then take it to the table.

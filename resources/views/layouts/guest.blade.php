@@ -26,6 +26,7 @@
                     <a href="{{ route('home') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Home</a>
                     <a href="{{ route('rules') }}" wire:navigate class="text-sm transition {{ request()->routeIs('rules') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Rules</a>
                     <a href="{{ route('game-guide') }}" wire:navigate class="text-sm transition {{ request()->routeIs('game-guide') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Games & Prizes</a>
+                    <a href="{{ route('faq') }}" wire:navigate class="text-sm transition {{ request()->routeIs('faq') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">FAQ</a>
                     {{--
                     <a href="{{ route('guest.games') }}" class="text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]" wire:navigate>Casino</a>
                     <a href="{{ route('sportsbook') }}" wire:navigate class="text-sm transition {{ request()->routeIs('sportsbook') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Sports</a>
@@ -108,6 +109,8 @@
                        class="py-3 text-sm transition {{ request()->routeIs('rules') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Rules</a>
                     <a href="{{ route('game-guide') }}" @click="menuOpen = false" wire:navigate
                        class="py-3 text-sm transition {{ request()->routeIs('game-guide') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">Games & Prizes</a>
+                    <a href="{{ route('faq') }}" @click="menuOpen = false" wire:navigate
+                       class="py-3 text-sm transition {{ request()->routeIs('faq') ? 'text-[#f5c542] font-bold' : 'text-[#f5f5f0]/70 hover:text-[#f5c542]' }}">FAQ</a>
                     {{--
                     <a href="{{ route('guest.games') }}" @click="menuOpen = false" wire:navigate
                        class="py-3 text-sm text-[#f5f5f0]/70 transition hover:text-[#f5c542]">Casino</a>
@@ -167,6 +170,7 @@
                         <ul class="space-y-2">
                             <li><a href="{{ route('rules') }}" wire:navigate class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Rules & Card Guide</a></li>
                             <li><a href="{{ route('game-guide') }}" wire:navigate class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Games & Prizes</a></li>
+                            <li><a href="{{ route('faq') }}" wire:navigate class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">FAQ</a></li>
                             <li><a href="{{ route('legal.terms') }}" wire:navigate class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Terms & Conditions</a></li>
                             <li><a href="{{ route('legal.privacy') }}" wire:navigate class="text-sm text-[#6b6b6b] transition hover:text-[#f5c542]">Privacy Policy</a></li>
                             {{--

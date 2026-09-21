@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfilePictureController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PushTestController;
 use App\Livewire\Dashboard;
+use App\Livewire\Faq;
 use App\Livewire\GameGuide;
 use App\Livewire\Legal\Privacy;
 use App\Livewire\Legal\Terms;
@@ -27,6 +28,7 @@ Route::get('/auth/google/cancel', [GoogleAuthController::class, 'cancel'])->name
 Route::get('/', Welcome::class)->name('home');
 Route::get('/how-to', Rules::class)->name('rules');
 Route::get('/games-guide', GameGuide::class)->name('game-guide');
+Route::get('/faq', Faq::class)->name('faq');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/consent', [ConsentController::class, 'show'])->name('consent.show');

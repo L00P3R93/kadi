@@ -75,13 +75,13 @@
                     {{-- Tagline --}}
                     {{-- Headline — Cinzel, strong hierarchy --}}
                     <h1 class="font-cinzel font-black text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.5rem] leading-[1.05] tracking-tight mb-4">
-                        <span class="block text-white" style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">Where Fortune</span>
-                        <span class="block text-[#f5c542]" style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">Favors the Bold</span>
+                        <span class="block text-white" style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">Play Kadi Online</span>
+                        <span class="block text-[#f5c542]" style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">Fortune Favors the Bold</span>
                     </h1>
 
                     {{-- Subline --}}
                     <p class="text-gray-400 text-sm md:text-base leading-relaxed mb-7 max-w-sm">
-                        Play competitive Kadi anytime, anywhere. Enter tournaments, challenge skilled opponents, and master the game.
+                        Play the Kadi card game online, anytime, anywhere. Enter tournaments, challenge skilled opponents, and master Kadi.
                     </p>
 
                     {{-- CTA — gold used sparingly, game-authentic --}}
@@ -474,6 +474,23 @@
                     </div>
                 @endforeach
             </div>
+        </div>
+    </section>
+
+    {{-- ===================== ABOUT (crawlable copy for "kadi online", "kadi play", "kadi game", "kadi rules") ===================== --}}
+    <section id="about-kadi" class="bg-[#0a0a0a] py-16 md:py-20">
+        <div class="mx-auto max-w-4xl px-6 text-center">
+            <h2 class="mb-4 text-3xl font-bold text-[#f5f5f0] md:text-4xl" style="font-family: 'Cinzel', serif;">
+                Kadi Online: Kenya's Favourite Card Game
+            </h2>
+            <p class="mx-auto max-w-2xl text-sm leading-relaxed text-gray-400 md:text-base">
+                Kadi is the classic Kenyan card game, now playable online against real opponents. New to the game? Read the
+                <a href="{{ route('rules') }}" wire:navigate class="text-[#f5c542] underline hover:text-[#ffde74]">Kadi rules</a>
+                to learn how to play, see every mode in the
+                <a href="{{ route('game-guide') }}" wire:navigate class="text-[#f5c542] underline hover:text-[#ffde74]">Kadi games and prizes guide</a>,
+                or check the
+                <a href="{{ route('faq') }}" wire:navigate class="text-[#f5c542] underline hover:text-[#ffde74]">Kadi FAQ</a>.
+            </p>
         </div>
     </section>
 </div>

@@ -17,7 +17,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Kadi — Kenya\'s Card Game')]
+#[Title('Kadi Online — Play the Kenyan Kadi Card Game')]
 class Welcome extends Component
 {
     public string $googleId = '';
@@ -123,7 +123,7 @@ class Welcome extends Component
         ])
             ->layout('layouts.guest')
             ->layoutData([
-                'description' => 'Play Kadi — Kenya\'s own card game online. Free to join, competitive tables, deposits via M-Pesa.',
+                'description' => 'Play Kadi online, the Kenyan Kadi card game. Free to join, real opponents, tournaments with prize pools and M-Pesa deposits. Sign up and play Kadi today.',
                 'page' => 'home',
             ]);
     }

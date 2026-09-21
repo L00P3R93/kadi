@@ -33,10 +33,10 @@
 
             <h1 class="font-cinzel font-black text-3xl md:text-5xl text-[#f5c542] leading-tight tracking-wide mb-3"
                 style="text-shadow: 0 0 30px rgba(245,197,66,0.35);">
-                PLAY. WIN. REPEAT.
+                KADI GAME MODES &amp; PRIZES
             </h1>
             <p class="text-gray-400 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-                From head-to-head singles to high-stakes jackpots, pick your game, place your bet, and take home real winnings.
+                Play. Win. Repeat. From head-to-head Kadi singles to high-stakes jackpots, pick your game, place your bet, and take home real winnings.
             </p>
         </div>
     </section>

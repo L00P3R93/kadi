@@ -9,14 +9,14 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.guest')]
-#[Title('Game Guide — How to Win | Kadi')]
+#[Title('Kadi Game Modes, Tournaments & Prizes | Kadi Online')]
 class GameGuide extends Component
 {
     public function render(): Factory|View
     {
         return view('livewire.game-guide')
             ->layoutData([
-                'description' => 'Discover all Kadi game modes — single matches, tournaments, and jackpots. See stakes, multipliers, and prize pools.',
+                'description' => 'Every way to play Kadi online: 2, 3 and 4-player matches, tournaments and jackpots. See stakes, multipliers and prize pools before you play the Kadi game.',
                 'page' => 'game-guide',
             ]);
     }

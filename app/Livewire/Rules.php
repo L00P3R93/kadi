@@ -16,7 +16,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.guest')]
-#[Title('Rules & Card Guide | Kadi')]
+#[Title('Kadi Rules — How to Play the Kadi Card Game | Kadi Online')]
 class Rules extends Component
 {
     public string $playKadiUrl;
@@ -79,7 +79,7 @@ class Rules extends Component
     {
         return view('livewire.rules')
             ->layoutData([
-                'description' => 'Learn how to play Kadi, the fast-paced Kenyan card game for 2–4 players.',
+                'description' => 'Kadi rules explained: how to play Kadi, deal the cards, chain combos, use Aces, Jokers and question cards, and win by calling Kadi. A complete guide for 2–4 players.',
                 'page' => 'rules',
             ]);
     }
