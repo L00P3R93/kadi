@@ -65,7 +65,7 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        $bugsId = $this->registerWithBugsApi();
+        // $bugsId = $this->registerWithBugsApi();
         $this->fetchAndCacheCustomerProfile($customerId);
         $this->insertIntoKadiDatabase($kadiPasswordHash, $customerId);
         $this->sendWelcomeEmail();

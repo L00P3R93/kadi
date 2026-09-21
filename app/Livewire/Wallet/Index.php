@@ -4,10 +4,13 @@ namespace App\Livewire\Wallet;
 
 use App\Facades\KadiApi;
 use App\Models\User;
+use App\Services\WithdrawResult;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -92,9 +95,12 @@ class Index extends Component
 
     public bool $confirmingWithdraw = false;
 
+    /** Idempotency key for the withdrawal currently being confirmed. */
+    public ?string $withdrawKey = null;
+
     public const MIN_DEPOSIT = 10;
 
-    public const MIN_WITHDRAWAL = 100;
+    public const MIN_WITHDRAWAL = 50;
 
     public ?string $successMessage = null;
 
@@ -373,12 +379,14 @@ class Index extends Component
             return;
         }
 
+        $this->withdrawKey = (string) Str::uuid();
         $this->confirmingWithdraw = true;
     }
 
     public function cancelWithdraw(): void
     {
         $this->confirmingWithdraw = false;
+        $this->withdrawKey = null;
     }
 
     /**
@@ -409,14 +417,30 @@ class Index extends Component
             return;
         }
 
-        $this->processingWithdraw = true;
-        $success = KadiApi::withdraw($user, (float) $this->withdrawAmount);
-        $this->processingWithdraw = false;
+        // Re-entry guard: a double-tap must not start a second payout.
+        if ($this->processingWithdraw) {
+            return;
+        }
 
-        if (! $success) {
+        // One key per confirmed attempt; reused if this call is repeated.
+        $this->withdrawKey ??= (string) Str::uuid();
+
+        $this->processingWithdraw = true;
+
+        try {
+            $result = KadiApi::withdraw($user, (float) $this->withdrawAmount, $this->withdrawKey);
+        } finally {
+            $this->processingWithdraw = false;
+        }
+
+        if ($result->outcome === WithdrawResult::REJECTED) {
+            // Definitively not paid out. Do not optimistically change the
+            // balance; the API reverses any debit, so resync from it.
             $this->confirmingWithdraw = false;
-            // Do not optimistically decrement the balance.
-            $this->withdrawError = 'Withdrawal could not be processed right now. Please try again shortly.';
+            $this->withdrawKey = null;
+            $this->withdrawError = $result->message;
+            $this->reloadCustomerProfile($user);
+            $this->dispatch('wallet-refreshed');
 
             return;
         }
@@ -424,11 +448,16 @@ class Index extends Component
         $this->showWithdrawModal = false;
         $this->confirmingWithdraw = false;
         $this->withdrawAmount = '';
+        $this->withdrawKey = null;
         $this->reloadCustomerProfile($user);
         $this->loadTransactions();
         $this->dispatch('wallet-refreshed');
 
-        $this->successMessage = 'Withdrawal request received. You will receive an M-Pesa notification shortly.';
+        $this->successMessage = $result->isUnknown()
+            ? 'We are confirming your withdrawal. Check your transaction history before trying again.'
+            : 'Withdrawal sent to M-Pesa'
+                .($result->ledgerEntryId ? " (ref {$result->ledgerEntryId})" : '')
+                .'. You will receive an M-Pesa notification shortly.';
     }
 
     /**
@@ -444,7 +473,7 @@ class Index extends Component
     }
 
     /**
-     * Withdraw-specific amount rules: minimum KES 100 and at most the
+     * Withdraw-specific amount rules: minimum KES 50 and at most the
      * cached balance. Returns an error message or null when valid.
      */
     protected function validateWithdrawAmount(): ?string
@@ -466,7 +495,8 @@ class Index extends Component
      * Formatted M-Pesa number shown on confirmation steps.
      * Stored as 2547XXXXXXXX; displayed as +254 7XX XXX XXX.
      */
-    public function getMpesaPhoneProperty(): ?string
+    #[Computed]
+    public function mpesaPhone(): ?string
     {
         $phone = auth()->user()->phone ?? null;
 

@@ -228,31 +228,57 @@ class KadiApiService
     }
 
     /**
-     * Request an M-Pesa withdrawal (B2C payout) for a customer.
+     * Request an M-Pesa withdrawal (B2C payout from the wallet to the
+     * customer's registered phone).
      *
-     * Mirrors stkDeposit()/stkLoad(): try/catch, log response, return bool.
+     * Endpoint : POST withdraw/{encrypted_linked_id}   (5/min, idempotent)
+     * Payload  : ['amount' => numeric, min 1]
+     * Success  : 201 {status: "success", ledger_entry_id}
+     * Errors   : 400 balance/phone, 404 customer/wallet, 422 validation,
+     *            429 rate limit, 500 B2C failed (debit reversed by the API).
      *
-     * Endpoint : POST withdrawals/{encrypted_linked_id}  (confirm against staging)
-     * Payload  : ['amount' => string]
-     * Response : ['status' => 'success'|'failed', ...]   (confirm against staging)
+     * Pass the same $idempotencyKey on a retry of the same withdrawal so the
+     * API replays the original result instead of paying out twice. A timeout
+     * or connection error is reported as WithdrawResult::UNKNOWN because the
+     * wallet may already have been debited.
      */
-    public function withdraw(User $user, float $amount, ?string $idempotencyKey = null): bool
+    public function withdraw(User $user, float $amount, ?string $idempotencyKey = null): WithdrawResult
     {
         try {
             $response = $this->withIdempotencyKey($idempotencyKey)
-                ->post('withdrawals/'.encryptOpenSSL($user->linked_id), [
-                    'amount' => (string) $amount,
-                ])
-                ->throw()
-                ->json() ?? [];
+                ->post('withdraw/'.encryptOpenSSL($user->linked_id), [
+                    'amount' => $amount,
+                ]);
+        } catch (ConnectionException $e) {
+            Log::warning("Withdrawal connection error for user {$user->id}: {$e->getMessage()}");
 
-            Log::info("StkPush Withdrawal Response for user {$user->id}: ".($response['status'] ?? 'unknown'));
-
-            return ($response['status'] ?? '') === 'success';
+            return WithdrawResult::unknown();
         } catch (\Throwable $e) {
-            Log::error("StkPush Withdrawal Error for user {$user->id}: {$e->getMessage()}");
+            Log::error("Withdrawal error for user {$user->id}: {$e->getMessage()}");
 
-            return false;
+            return WithdrawResult::unknown();
         }
+
+        $status = $response->status();
+        $body = $response->json() ?? [];
+        $apiMessage = is_string($body['status'] ?? null) ? strtolower($body['status']) : '';
+
+        Log::info("Withdrawal response for user {$user->id}: HTTP {$status}");
+
+        if ($response->successful() && ($body['status'] ?? '') === 'success') {
+            return WithdrawResult::success($body['ledger_entry_id'] ?? null);
+        }
+
+        return match (true) {
+            $status === 400 && str_contains($apiMessage, 'phone') => WithdrawResult::rejected('We could not find a phone number on your account. Please update it and try again.'),
+            $status === 400 => WithdrawResult::rejected('Insufficient balance for this withdrawal.'),
+            $status === 404 => WithdrawResult::rejected('We could not find your wallet. Please contact support.'),
+            $status === 422 => WithdrawResult::rejected('That withdrawal amount is not valid.'),
+            $status === 429 => WithdrawResult::rejected('Too many attempts. Please wait a minute and try again.'),
+            $status === 500 => WithdrawResult::rejected('M-Pesa could not complete the withdrawal. Your balance was not charged. Please try again shortly.'),
+            // Any other 5xx/gateway response: we cannot tell whether money moved.
+            $status >= 500 => WithdrawResult::unknown(),
+            default => WithdrawResult::rejected('Withdrawal could not be processed right now. Please try again shortly.'),
+        };
     }
 }

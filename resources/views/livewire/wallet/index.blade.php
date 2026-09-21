@@ -77,14 +77,13 @@
                         </button>
                         <button
                             wire:click="openWithdraw"
-                            disabled
                             class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
                         >
                             - Withdraw Funds
                         </button>
                     </div>
 
-                    <p class="mt-4 text-center text-xs text-[#6b6b6b]">Minimum deposit: KES 10 · Minimum withdrawal: KES 100</p>
+                    <p class="mt-4 text-center text-xs text-[#6b6b6b]">Minimum deposit: KES 10 · Minimum withdrawal: KES 50</p>
                 @endif
             </div>
 
@@ -331,7 +330,7 @@
                         KES {{ number_format((float) $depositAmount) }}
                     </p>
                     <p class="text-xs text-[#6b6b6b]">
-                        via M-Pesa to <span class="font-semibold text-[#f5f5f0]/80">{{ $mpesa_phone ?? 'your registered number' }}</span>
+                        via M-Pesa to <span class="font-semibold text-[#f5f5f0]/80">{{ $this->mpesaPhone ?? 'your registered number' }}</span>
                     </p>
                 </div>
 
@@ -378,12 +377,12 @@
                     <flux:input
                         type="number"
                         wire:model="withdrawAmount"
-                        min="100"
+                        min="50"
                         step="1"
                         inputmode="numeric"
-                        placeholder="Min KES 100"
+                        placeholder="Min KES 50"
                     />
-                    <flux:text class="mt-1 text-xs">Minimum withdrawal: <span class="font-semibold text-[#f5c542]">KES 100</span></flux:text>
+                    <flux:text class="mt-1 text-xs">Minimum withdrawal: <span class="font-semibold text-[#f5c542]">KES 50</span></flux:text>
                     <flux:error name="withdrawAmount" />
                 </flux:field>
 
@@ -414,7 +413,8 @@
                         KES {{ number_format((float) $withdrawAmount) }}
                     </p>
                     <p class="text-xs text-[#6b6b6b]">
-                        via M-Pesa to <span class="font-semibold text-[#f5f5f0]/80">{{ $mpesa_phone ?? 'your registered number' }}</span>
+                        paid out by M-Pesa to your registered number
+                        <span class="font-semibold text-[#f5f5f0]/80">{{ $this->mpesaPhone }}</span>
                     </p>
                 </div>
 
