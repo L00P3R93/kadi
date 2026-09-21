@@ -245,21 +245,24 @@
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
 
                 {{-- 3 Rounds --}}
-                <div class="glass-card overflow-hidden border-t-4 !border-t-[#CD7F32] group hover:shadow-[0_0_30px_rgba(205,127,50,0.15)] transition-all duration-300">
-                    <div class="px-6 py-5 text-center border-b border-white/5">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#CD7F32]/10 border border-[#CD7F32]/30 text-[#CD7F32] mb-3">@svg('hugeicons-medal-third-place', 'size-7')</div>
-                        <div class="font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.25em] mb-1">Bronze Tier</div>
-                        <h3 class="font-cinzel font-bold text-lg text-[#CD7F32]">3 Rounds</h3>
-                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#CD7F32]/10 border border-[#CD7F32]/30 px-3 py-1">
-                            <span class="font-cinzel text-xs font-bold text-[#CD7F32]">×7.2</span>
+                <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#50C878] group hover:shadow-[0_0_40px_rgba(80,200,120,0.15)] transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(80,200,120,0.1), transparent 70%);"></div>
+                    <div class="px-6 py-6 text-center border-b border-[#50C878]/10 relative">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#50C878]/10 border-2 border-[#50C878]/40 text-[#50C878] mb-3"
+                             style="box-shadow: 0 0 30px rgba(80,200,120,0.2);">@svg('hugeicons-gem', 'size-8')
+                        </div>
+                        <div class="font-cinzel text-[10px] text-[#50C878]/60 uppercase tracking-[0.25em] mb-1">3 Rounds</div>
+                        <h3 class="font-cinzel font-black text-3xl tracking-wide text-[#50C878]">Emerald</h3>
+                        <div class="mt-2 flex items-center justify-center gap-3">
+                            <span class="inline-flex items-center rounded-full bg-[#50C878]/10 border border-[#50C878]/30 px-3 py-1 text-xs font-cinzel font-bold text-[#50C878]">×7.2</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="border-b border-[#CD7F32]/10">
-                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Stake</th>
-                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Wins</th>
+                                <tr class="border-b border-[#50C878]/10">
+                                    <th class="px-5 py-3 text-left font-cinzel text-[10px] text-[#50C878]/60 uppercase tracking-[0.2em]">Stake</th>
+                                    <th class="px-5 py-3 text-right font-cinzel text-[10px] text-[#50C878]/60 uppercase tracking-[0.2em]">Wins</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -274,9 +277,9 @@
                                     ];
                                 @endphp
                                 @foreach($t3 as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#CD7F32]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
-                                        <td class="px-5 py-2.5 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
-                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#CD7F32]">KSh {{ number_format($row['win']) }}</td>
+                                    <tr class="border-b border-white/5 hover:bg-[#50C878]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                        <td class="px-5 py-3 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
+                                        <td class="px-5 py-3 text-right font-cinzel font-bold text-[#50C878]">KSh {{ number_format($row['win']) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -285,21 +288,24 @@
                 </div>
 
                 {{-- 4 Rounds --}}
-                <div class="glass-card overflow-hidden border-t-4 !border-t-[#C0C0C0] group hover:shadow-[0_0_30px_rgba(192,192,192,0.12)] transition-all duration-300">
-                    <div class="px-6 py-5 text-center border-b border-white/5">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#C0C0C0]/10 border border-[#C0C0C0]/30 text-[#C0C0C0] mb-3">@svg('hugeicons-medal-second-place', 'size-7')</div>
-                        <div class="font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.25em] mb-1">Silver Tier</div>
-                        <h3 class="font-cinzel font-bold text-lg text-[#C0C0C0]">4 Rounds</h3>
-                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#C0C0C0]/10 border border-[#C0C0C0]/30 px-3 py-1">
-                            <span class="font-cinzel text-xs font-bold text-[#C0C0C0]">×14.4</span>
+                <div class="glass-card overflow-hidden border-t-4 !border-t-[#E0115F] group hover:shadow-[0_0_30px_rgba(224,17,95,0.12)] transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(224,17,95,0.1), transparent 70%);"></div>
+                    <div class="px-6 py-6 text-center border-b border-[#E0115F]/10 relative">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#E0115F]/10 border-2 border-[#E0115F]/40 text-[#E0115F] mb-3"
+                             style="box-shadow: 0 0 30px rgba(224,17,95,0.2);">@svg('hugeicons-diamond-01', 'size-8')
+                        </div>
+                        <div class="font-cinzel text-[10px] text-[#E0115F]/60 uppercase tracking-[0.25em] mb-1">4 Rounds</div>
+                        <h3 class="font-cinzel font-black text-3xl tracking-wide text-[#E0115F]">Ruby</h3>
+                        <div class="mt-2 flex items-center justify-center gap-3">
+                            <span class="inline-flex items-center rounded-full bg-[#E0115F]/10 border border-[#E0115F]/30 px-3 py-1 text-xs font-cinzel font-bold text-[#E0115F]">×14.4</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="border-b border-[#C0C0C0]/10">
-                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Stake</th>
-                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Wins</th>
+                                <tr class="border-b border-[#E0115F]/10">
+                                    <th class="px-5 py-3 text-left font-cinzel text-[10px] text-[#E0115F]/60 uppercase tracking-[0.2em]">Stake</th>
+                                    <th class="px-5 py-3 text-right font-cinzel text-[10px] text-[#E0115F]/60 uppercase tracking-[0.2em]">Wins</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -314,9 +320,9 @@
                                     ];
                                 @endphp
                                 @foreach($t4 as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#C0C0C0]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
-                                        <td class="px-5 py-2.5 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
-                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#C0C0C0]">KSh {{ number_format($row['win']) }}</td>
+                                    <tr class="border-b border-white/5 hover:bg-[#E0115F]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                        <td class="px-5 py-3 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
+                                        <td class="px-5 py-3 text-right font-cinzel font-bold text-[#E0115F]">KSh {{ number_format($row['win']) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -325,21 +331,24 @@
                 </div>
 
                 {{-- 5 Rounds --}}
-                <div class="glass-card overflow-hidden border-t-4 !border-t-[#FFD700] group hover:shadow-[0_0_30px_rgba(255,215,0,0.15)] transition-all duration-300">
-                    <div class="px-6 py-5 text-center border-b border-white/5">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 text-[#FFD700] mb-3">@svg('hugeicons-medal-first-place', 'size-7')</div>
-                        <div class="font-cinzel text-[10px] text-[#FFD700]/60 uppercase tracking-[0.25em] mb-1">Gold Tier</div>
-                        <h3 class="font-cinzel font-bold text-lg text-[#FFD700]">5 Rounds</h3>
-                        <div class="mt-2 inline-flex items-center gap-1 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/30 px-3 py-1">
-                            <span class="font-cinzel text-xs font-bold text-[#FFD700]">×28.8</span>
+                <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#B9F2FF] group hover:shadow-[0_0_40px_rgba(185,242,255,0.15)] transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(185,242,255,0.1), transparent 70%);"></div>
+                    <div class="px-6 py-6 text-center border-b border-[#B9F2FF]/10 relative">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#B9F2FF]/10 border-2 border-[#B9F2FF]/40 text-[#B9F2FF] mb-3"
+                             style="box-shadow: 0 0 30px rgba(185,242,255,0.2);">@svg('hugeicons-diamond-02', 'size-8')
+                        </div>
+                        <div class="font-cinzel text-[10px] text-[#B9F2FF]/60 uppercase tracking-[0.25em] mb-1">5 Rounds</div>
+                        <h3 class="font-cinzel font-black text-3xl tracking-wide text-[#B9F2FF]">Diamond</h3>
+                        <div class="mt-2 flex items-center justify-center gap-3">
+                            <span class="inline-flex items-center rounded-full bg-[#B9F2FF]/10 border border-[#B9F2FF]/30 px-3 py-1 text-xs font-cinzel font-bold text-[#B9F2FF]">×28.8</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="border-b border-[#FFD700]/10">
-                                    <th class="px-5 py-2.5 text-left font-cinzel text-[10px] text-[#FFD700]/60 uppercase tracking-[0.2em]">Stake</th>
-                                    <th class="px-5 py-2.5 text-right font-cinzel text-[10px] text-[#FFD700]/60 uppercase tracking-[0.2em]">Wins</th>
+                                <tr class="border-b border-[#B9F2FF]/10">
+                                    <th class="px-5 py-3 text-left font-cinzel text-[10px] text-[#B9F2FF]/60 uppercase tracking-[0.2em]">Stake</th>
+                                    <th class="px-5 py-3 text-right font-cinzel text-[10px] text-[#B9F2FF]/60 uppercase tracking-[0.2em]">Wins</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -354,9 +363,9 @@
                                     ];
                                 @endphp
                                 @foreach($t5 as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#FFD700]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
-                                        <td class="px-5 py-2.5 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
-                                        <td class="px-5 py-2.5 text-right font-cinzel font-bold text-[#FFD700]">KSh {{ number_format($row['win']) }}</td>
+                                    <tr class="border-b border-white/5 hover:bg-[#B9F2FF]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                        <td class="px-5 py-3 text-[#f5f5f0]/80">KSh {{ number_format($row['stake']) }}</td>
+                                        <td class="px-5 py-3 text-right font-cinzel font-bold text-[#B9F2FF]">KSh {{ number_format($row['win']) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -381,6 +390,106 @@
             </div>
 
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+
+                {{-- Bronze JP --}}
+                <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#CD7F32] group hover:shadow-[0_0_40px_rgba(205,127,50,0.15)] transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(205,127,50,0.1), transparent 70%);"></div>
+                    <div class="px-6 py-6 text-center border-b border-[#CD7F32]/10 relative">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#CD7F32]/10 border-2 border-[#CD7F32]/40 text-[#CD7F32] mb-3"
+                             style="box-shadow: 0 0 30px rgba(205,127,50,0.2);">
+                            @svg('hugeicons-medal-third-place', 'size-8')
+                        </div>
+                        <div class="font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.25em] mb-1">Bronze Jackpot</div>
+                        <h3 class="font-cinzel font-black text-xl text-[#CD7F32]">Bronze JP</h3>
+                        <div class="mt-2 flex items-center justify-center gap-3">
+                            <span class="inline-flex items-center rounded-full bg-[#CD7F32]/10 border border-[#CD7F32]/30 px-3 py-1 text-xs font-cinzel font-bold text-[#CD7F32]">KSh 20</span>
+                            <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-[#6b6b6b]">13 Games</span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-[#CD7F32]/10">
+                                    <th class="px-5 py-3 text-left font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Category</th>
+                                    <th class="px-5 py-3 text-right font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Total Prize</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $bronzeJp = [
+                                        ['icon' => 'medal-first-place', 'label' => '1st Place',    'prize' => '86,291'],
+                                        ['icon' => 'medal-second-place', 'label' => 'Runner-Up',    'prize' => '19,544'],
+                                        ['icon' => 'medal-third-place', 'label' => 'Semis (2)',    'prize' => '7,795'],
+                                        ['icon' => 'target-02', 'label' => 'Quarters (4)', 'prize' => '2,441'],
+                                    ];
+                                @endphp
+                                @foreach($bronzeJp as $row)
+                                    <tr class="border-b border-white/5 hover:bg-[#CD7F32]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                        <td class="px-5 py-3">
+                                            <span class="mr-2 inline-flex align-middle text-[#CD7F32]">@svg('hugeicons-'.$row['icon'], 'size-4')</span>
+                                            <span class="text-[#f5f5f0]/80">{{ $row['label'] }}</span>
+                                        </td>
+                                        <td class="px-5 py-3 text-right font-cinzel font-bold text-[#CD7F32]">KSh {{ $row['prize'] }}</td>
+                                    </tr>
+                                @endforeach
+                                <tr class="bg-[#CD7F32]/5">
+                                    <td class="px-5 py-3 font-cinzel font-bold text-[#CD7F32]">TOTAL</td>
+                                    <td class="px-5 py-3 text-right font-cinzel font-black text-[#CD7F32] text-base">KSh 131,189</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Silver JP --}}
+                <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#C0C0C0] group hover:shadow-[0_0_40px_rgba(192,192,192,0.12)] transition-all duration-300">
+                    <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(192,192,192,0.08), transparent 70%);"></div>
+                    <div class="px-6 py-6 text-center border-b border-[#C0C0C0]/10 relative">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#C0C0C0]/10 border-2 border-[#C0C0C0]/40 text-[#C0C0C0] mb-3"
+                             style="box-shadow: 0 0 30px rgba(192,192,192,0.15);">
+                            @svg('hugeicons-medal-second-place', 'size-8')
+                        </div>
+                        <div class="font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.25em] mb-1">Silver Jackpot</div>
+                        <h3 class="font-cinzel font-black text-xl text-[#C0C0C0]">Silver JP</h3>
+                        <div class="mt-2 flex items-center justify-center gap-3">
+                            <span class="inline-flex items-center rounded-full bg-[#C0C0C0]/10 border border-[#C0C0C0]/30 px-3 py-1 text-xs font-cinzel font-bold text-[#C0C0C0]">KSh 50</span>
+                            <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-[#6b6b6b]">17 Games</span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-[#C0C0C0]/10">
+                                    <th class="px-5 py-3 text-left font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Category</th>
+                                    <th class="px-5 py-3 text-right font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Total Prize</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $silverJp = [
+                                        ['icon' => 'medal-first-place', 'label' => '1st Place',    'prize' => '3,451,655'],
+                                        ['icon' => 'medal-second-place', 'label' => 'Runner-Up',    'prize' => '781,760'],
+                                        ['icon' => 'medal-third-place', 'label' => 'Semis (2)',    'prize' => '311,830'],
+                                        ['icon' => 'target-02', 'label' => 'Quarters (4)', 'prize' => '96,449'],
+                                    ];
+                                @endphp
+                                @foreach($silverJp as $row)
+                                    <tr class="border-b border-white/5 hover:bg-[#C0C0C0]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
+                                        <td class="px-5 py-3">
+                                            <span class="mr-2 inline-flex align-middle text-[#C0C0C0]">@svg('hugeicons-'.$row['icon'], 'size-4')</span>
+                                            <span class="text-[#f5f5f0]/80">{{ $row['label'] }}</span>
+                                        </td>
+                                        <td class="px-5 py-3 text-right font-cinzel font-bold text-[#C0C0C0]">KSh {{ $row['prize'] }}</td>
+                                    </tr>
+                                @endforeach
+                                <tr class="bg-[#C0C0C0]/5">
+                                    <td class="px-5 py-3 font-cinzel font-bold text-[#C0C0C0]">TOTAL</td>
+                                    <td class="px-5 py-3 text-right font-cinzel font-black text-[#C0C0C0] text-base">KSh 5,242,871</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 {{-- Gold JP --}}
                 <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#FFD700] group hover:shadow-[0_0_40px_rgba(255,215,0,0.15)] transition-all duration-300">
@@ -426,106 +535,6 @@
                                 <tr class="bg-[#FFD700]/5">
                                     <td class="px-5 py-3 font-cinzel font-bold text-[#FFD700]">TOTAL</td>
                                     <td class="px-5 py-3 text-right font-cinzel font-black text-[#FFD700] text-base">KSh 167,772,160</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {{-- Bronze JP --}}
-                <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#CD7F32] group hover:shadow-[0_0_40px_rgba(205,127,50,0.15)] transition-all duration-300">
-                    <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(205,127,50,0.1), transparent 70%);"></div>
-                    <div class="px-6 py-6 text-center border-b border-[#CD7F32]/10 relative">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#CD7F32]/10 border-2 border-[#CD7F32]/40 text-[#CD7F32] mb-3"
-                             style="box-shadow: 0 0 30px rgba(205,127,50,0.2);">
-                            @svg('hugeicons-medal-third-place', 'size-8')
-                        </div>
-                        <div class="font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.25em] mb-1">Bronze Jackpot</div>
-                        <h3 class="font-cinzel font-black text-xl text-[#CD7F32]">Bronze JP</h3>
-                        <div class="mt-2 flex items-center justify-center gap-3">
-                            <span class="inline-flex items-center rounded-full bg-[#CD7F32]/10 border border-[#CD7F32]/30 px-3 py-1 text-xs font-cinzel font-bold text-[#CD7F32]">KSh 50</span>
-                            <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-[#6b6b6b]">17 Games</span>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-[#CD7F32]/10">
-                                    <th class="px-5 py-3 text-left font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Category</th>
-                                    <th class="px-5 py-3 text-right font-cinzel text-[10px] text-[#CD7F32]/60 uppercase tracking-[0.2em]">Total Prize</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $bronzeJp = [
-                                        ['icon' => 'medal-first-place', 'label' => '1st Place',    'prize' => '3,451,655'],
-                                        ['icon' => 'medal-second-place', 'label' => 'Runner-Up',    'prize' => '781,760'],
-                                        ['icon' => 'medal-third-place', 'label' => 'Semis (2)',    'prize' => '311,830'],
-                                        ['icon' => 'target-02', 'label' => 'Quarters (4)', 'prize' => '96,449'],
-                                    ];
-                                @endphp
-                                @foreach($bronzeJp as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#CD7F32]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
-                                        <td class="px-5 py-3">
-                                            <span class="mr-2 inline-flex align-middle text-[#CD7F32]">@svg('hugeicons-'.$row['icon'], 'size-4')</span>
-                                            <span class="text-[#f5f5f0]/80">{{ $row['label'] }}</span>
-                                        </td>
-                                        <td class="px-5 py-3 text-right font-cinzel font-bold text-[#CD7F32]">KSh {{ $row['prize'] }}</td>
-                                    </tr>
-                                @endforeach
-                                <tr class="bg-[#CD7F32]/5">
-                                    <td class="px-5 py-3 font-cinzel font-bold text-[#CD7F32]">TOTAL</td>
-                                    <td class="px-5 py-3 text-right font-cinzel font-black text-[#CD7F32] text-base">KSh 5,242,871</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {{-- Silver JP --}}
-                <div class="relative glass-card overflow-hidden border-t-4 !border-t-[#C0C0C0] group hover:shadow-[0_0_40px_rgba(192,192,192,0.12)] transition-all duration-300">
-                    <div class="absolute top-0 right-0 w-32 h-32 pointer-events-none" style="background: radial-gradient(circle at top right, rgba(192,192,192,0.08), transparent 70%);"></div>
-                    <div class="px-6 py-6 text-center border-b border-[#C0C0C0]/10 relative">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#C0C0C0]/10 border-2 border-[#C0C0C0]/40 text-[#C0C0C0] mb-3"
-                             style="box-shadow: 0 0 30px rgba(192,192,192,0.15);">
-                            @svg('hugeicons-medal-second-place', 'size-8')
-                        </div>
-                        <div class="font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.25em] mb-1">Silver Jackpot</div>
-                        <h3 class="font-cinzel font-black text-xl text-[#C0C0C0]">Silver JP</h3>
-                        <div class="mt-2 flex items-center justify-center gap-3">
-                            <span class="inline-flex items-center rounded-full bg-[#C0C0C0]/10 border border-[#C0C0C0]/30 px-3 py-1 text-xs font-cinzel font-bold text-[#C0C0C0]">KSh 20</span>
-                            <span class="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-[#6b6b6b]">13 Games</span>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-[#C0C0C0]/10">
-                                    <th class="px-5 py-3 text-left font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Category</th>
-                                    <th class="px-5 py-3 text-right font-cinzel text-[10px] text-[#C0C0C0]/60 uppercase tracking-[0.2em]">Total Prize</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $silverJp = [
-                                        ['icon' => 'medal-first-place', 'label' => '1st Place',    'prize' => '86,291'],
-                                        ['icon' => 'medal-second-place', 'label' => 'Runner-Up',    'prize' => '19,544'],
-                                        ['icon' => 'medal-third-place', 'label' => 'Semis (2)',    'prize' => '7,795'],
-                                        ['icon' => 'target-02', 'label' => 'Quarters (4)', 'prize' => '2,441'],
-                                    ];
-                                @endphp
-                                @foreach($silverJp as $row)
-                                    <tr class="border-b border-white/5 hover:bg-[#C0C0C0]/5 transition-colors {{ $loop->last ? 'border-b-0' : '' }}">
-                                        <td class="px-5 py-3">
-                                            <span class="mr-2 inline-flex align-middle text-[#C0C0C0]">@svg('hugeicons-'.$row['icon'], 'size-4')</span>
-                                            <span class="text-[#f5f5f0]/80">{{ $row['label'] }}</span>
-                                        </td>
-                                        <td class="px-5 py-3 text-right font-cinzel font-bold text-[#C0C0C0]">KSh {{ $row['prize'] }}</td>
-                                    </tr>
-                                @endforeach
-                                <tr class="bg-[#C0C0C0]/5">
-                                    <td class="px-5 py-3 font-cinzel font-bold text-[#C0C0C0]">TOTAL</td>
-                                    <td class="px-5 py-3 text-right font-cinzel font-black text-[#C0C0C0] text-base">KSh 131,189</td>
                                 </tr>
                             </tbody>
                         </table>
