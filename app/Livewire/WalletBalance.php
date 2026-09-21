@@ -14,6 +14,13 @@ use Livewire\Component;
 
 class WalletBalance extends Component
 {
+    /**
+     * How long a fetched balance is trusted. Kept below the 30s poll
+     * interval so every poll tick sees a cold cache and refetches; other
+     * services can change the wallet through KadiApi at any time.
+     */
+    public const BALANCE_TTL_SECONDS = 25;
+
     public ?float $balance = null;
 
     public bool $hasError = false;
@@ -41,7 +48,7 @@ class WalletBalance extends Component
         $profile = Cache::get("kadi.customer.{$user->id}");
         if ($profile && array_key_exists('balance', $profile)) {
             $this->balance = (float) $profile['balance'];
-            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addMinutes(5));
+            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addSeconds(self::BALANCE_TTL_SECONDS));
 
             return;
         }
@@ -71,7 +78,7 @@ class WalletBalance extends Component
         $profile = Cache::get("kadi.customer.{$user->id}");
         if ($profile && array_key_exists('balance', $profile)) {
             $this->balance = (float) $profile['balance'];
-            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addMinutes(5));
+            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addSeconds(self::BALANCE_TTL_SECONDS));
             $this->needsLoad = false;
 
             return;
@@ -101,6 +108,40 @@ class WalletBalance extends Component
         Cache::forget("kadi.customer.{$user->id}");
 
         $this->doFetch($user);
+    }
+
+    /**
+     * Background poll: serve the balance cache while it is warm, refetch
+     * from KadiApi once it has expired. A failed poll keeps the last known
+     * balance on screen instead of flipping the pill to "unavailable".
+     */
+    public function pollBalance(): void
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user || ! $user->linked_id) {
+            return;
+        }
+
+        $cached = Cache::get("wallet_balance_{$user->id}");
+
+        if ($cached !== null) {
+            $this->balance = (float) $cached;
+            $this->hasError = false;
+            $this->needsLoad = false;
+
+            return;
+        }
+
+        $previous = $this->balance;
+
+        $this->doFetch($user);
+
+        if ($this->hasError && $previous !== null) {
+            $this->balance = $previous;
+            $this->hasError = false;
+        }
     }
 
     private function doFetch(User $user): void
@@ -152,8 +193,8 @@ class WalletBalance extends Component
             Cache::put("kadi.customer.{$user->id}", $profile, now()->addHour());
 
             // Balance-specific caches
-            Cache::put("wallet_balance_{$user->id}", $balance, now()->addMinutes(5));
-            Cache::put("wallet_last_checked_{$user->id}", now()->toISOString(), now()->addMinutes(5));
+            Cache::put("wallet_balance_{$user->id}", $balance, now()->addSeconds(self::BALANCE_TTL_SECONDS));
+            Cache::put("wallet_last_checked_{$user->id}", now()->toISOString(), now()->addSeconds(self::BALANCE_TTL_SECONDS));
 
             $this->balance = $balance;
             $this->dispatch('wallet-refreshed');

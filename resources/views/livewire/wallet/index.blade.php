@@ -1,4 +1,4 @@
-<div class="space-y-6" @if ($needsLoad) wire:init="refreshCustomer" @endif>
+<div class="space-y-6" wire:poll.30s.visible="pollBalance" @if ($needsLoad) wire:init="refreshCustomer" @endif>
 
     {{-- Flash messages --}}
     @if (session('wallet_success'))

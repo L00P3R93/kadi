@@ -1,7 +1,9 @@
 @auth
     <div
         @if($needsLoad) wire:init="loadBalance" @endif
+        wire:poll.30s.visible="pollBalance"
         x-data="{ cooldown: false }"
+        x-on:visibilitychange.window="if (! document.hidden) $wire.pollBalance()"
         class="flex items-center gap-2"
     >
         {{-- Balance pill — links to wallet page --}}

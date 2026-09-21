@@ -3,6 +3,7 @@
 namespace App\Livewire\Wallet;
 
 use App\Facades\KadiApi;
+use App\Livewire\WalletBalance;
 use App\Models\User;
 use App\Services\WithdrawResult;
 use Illuminate\Contracts\View\Factory;
@@ -137,6 +138,40 @@ class Index extends Component
             $this->kadiCustomer = $profile;
             $this->balance = (float) $profile['balance'] ?? 0;
         }
+    }
+
+    /**
+     * 30s background poll for balances changed by other services through
+     * KadiApi. Skipped while a deposit/withdraw/purchase is in flight (the
+     * deposit flow has its own 5s poll and baseline). Serves the balance
+     * cache while warm; refetches when it has expired, behind the same lock
+     * the nav widget uses so open tabs share one upstream call.
+     */
+    public function pollBalance(): void
+    {
+        if ($this->awaitingDeposit || $this->processingDeposit || $this->processingWithdraw || $this->processingPurchase) {
+            return;
+        }
+
+        $user = auth()->user();
+
+        if (! $user || ! $user->linked_id) {
+            return;
+        }
+
+        if (Cache::get('wallet_balance_'.$user->id) === null) {
+            $lock = Cache::lock("wallet_fetch_{$user->id}", 10);
+
+            if ($lock->get()) {
+                try {
+                    $this->reloadCustomerProfile($user);
+                } finally {
+                    $lock->release();
+                }
+            }
+        }
+
+        $this->syncCustomer();
     }
 
     public function loadTransactions(): void
@@ -282,8 +317,8 @@ class Index extends Component
             Cache::put('kadi.customer.'.$user->id, $profile, now()->addHour());
             // The top-nav WalletBalance widget reads this key first, so it
             // must be overwritten too or it keeps showing the stale balance.
-            Cache::put('wallet_balance_'.$user->id, $balance, now()->addMinutes(5));
-            Cache::put('wallet_last_checked_'.$user->id, now()->toISOString(), now()->addMinutes(5));
+            Cache::put('wallet_balance_'.$user->id, $balance, now()->addSeconds(WalletBalance::BALANCE_TTL_SECONDS));
+            Cache::put('wallet_last_checked_'.$user->id, now()->toISOString(), now()->addSeconds(WalletBalance::BALANCE_TTL_SECONDS));
 
             $this->kadiCustomer = $profile;
             $this->balance = $balance;
