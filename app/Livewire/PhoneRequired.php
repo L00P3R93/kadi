@@ -16,6 +16,9 @@ class PhoneRequired extends Component
 {
     public bool $show = false;
 
+    /** What the phone is needed for: 'coins' (default) or 'deposit'. Drives the copy. */
+    public string $purpose = 'coins';
+
     #[Validate('required|string|min:9|max:20')]
     public string $phone = '';
 
@@ -33,11 +36,12 @@ class PhoneRequired extends Component
      * (currently: Buy Coins purchase tiles).
      */
     #[On('open-phone-required')]
-    public function open(): void
+    public function open(string $purpose = 'coins'): void
     {
         $user = auth()->user();
 
         if (empty($user->phone)) {
+            $this->purpose = $purpose;
             $this->show = true;
         }
     }
@@ -73,6 +77,7 @@ class PhoneRequired extends Component
         }
 
         $this->show = false;
+        $this->dispatch('phone-saved');
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View

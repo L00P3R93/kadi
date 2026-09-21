@@ -98,6 +98,15 @@ class Index extends Component
     /** Idempotency key for the withdrawal currently being confirmed. */
     public ?string $withdrawKey = null;
 
+    public bool $awaitingDeposit = false;
+
+    public float $depositBaseline = 0;
+
+    public int $depositPolls = 0;
+
+    /** Poll every 5s, so this gives up after ~2 minutes. */
+    public const MAX_DEPOSIT_POLLS = 24;
+
     public const MIN_DEPOSIT = 10;
 
     public const MIN_WITHDRAWAL = 50;
@@ -268,9 +277,16 @@ class Index extends Component
         try {
             $response = KadiApi::getCustomer($user->linked_id);
             $profile = $response['data'] ?? $response;
+            $balance = (float) ($profile['balance'] ?? 0);
+
             Cache::put('kadi.customer.'.$user->id, $profile, now()->addHour());
+            // The top-nav WalletBalance widget reads this key first, so it
+            // must be overwritten too or it keeps showing the stale balance.
+            Cache::put('wallet_balance_'.$user->id, $balance, now()->addMinutes(5));
+            Cache::put('wallet_last_checked_'.$user->id, now()->toISOString(), now()->addMinutes(5));
+
             $this->kadiCustomer = $profile;
-            $this->balance = (float) ($profile['balance'] ?? 0);
+            $this->balance = $balance;
         } catch (\Throwable $e) {
             Log::error("Error fetching customer {$user->id} profile after transaction");
         }
@@ -311,6 +327,10 @@ class Index extends Component
             return;
         }
 
+        if ($this->promptForPhoneIfMissing()) {
+            return;
+        }
+
         if ((float) $this->depositAmount < self::MIN_DEPOSIT) {
             $this->depositError = 'Minimum deposit amount is KES '.self::MIN_DEPOSIT.'.';
 
@@ -318,6 +338,34 @@ class Index extends Component
         }
 
         $this->confirmingDeposit = true;
+    }
+
+    /**
+     * An STK push needs a phone number. When it is missing, close the
+     * deposit modal and open the phone-number modal instead.
+     */
+    protected function promptForPhoneIfMissing(): bool
+    {
+        if (! empty(auth()->user()?->phone)) {
+            return false;
+        }
+
+        $this->showDepositModal = false;
+        $this->confirmingDeposit = false;
+        $this->dispatch('open-phone-required', purpose: 'deposit');
+
+        return true;
+    }
+
+    /**
+     * Once the phone is saved, put the user back in the deposit flow.
+     */
+    #[On('phone-saved')]
+    public function resumeDeposit(): void
+    {
+        if ($this->depositAmount !== '') {
+            $this->openDeposit();
+        }
     }
 
     public function cancelDeposit(): void
@@ -339,6 +387,10 @@ class Index extends Component
             return;
         }
 
+        if ($this->promptForPhoneIfMissing()) {
+            return;
+        }
+
         $this->processingDeposit = true;
         $success = KadiApi::stkDeposit($user, (int) round((float) $this->depositAmount));
         $this->processingDeposit = false;
@@ -354,6 +406,45 @@ class Index extends Component
         $this->confirmingDeposit = false;
         $this->depositAmount = '';
         $this->successMessage = 'Deposit request sent. Confirm the M-Pesa prompt on your phone.';
+
+        // The balance only changes once the user pays on their phone, so
+        // poll the API (bypassing the caches) until it moves.
+        $this->depositBaseline = (float) $this->balance;
+        $this->depositPolls = 0;
+        $this->awaitingDeposit = true;
+    }
+
+    /**
+     * Polled (wire:poll) while a deposit is pending. Each tick is a hard
+     * refresh: it re-fetches the profile from the API and overwrites every
+     * balance cache, then tells the page and the top-nav widget to resync.
+     */
+    public function checkDepositStatus(): void
+    {
+        if (! $this->awaitingDeposit) {
+            return;
+        }
+
+        $user = auth()->user();
+        $this->depositPolls++;
+
+        $this->reloadCustomerProfile($user);
+
+        if ((float) $this->balance > $this->depositBaseline) {
+            $this->awaitingDeposit = false;
+            $this->loadTransactions();
+            $this->dispatch('wallet-refreshed');
+            $this->successMessage = 'Deposit received. Your vault balance has been updated.';
+
+            return;
+        }
+
+        if ($this->depositPolls >= self::MAX_DEPOSIT_POLLS) {
+            $this->awaitingDeposit = false;
+            $this->loadTransactions();
+            $this->dispatch('wallet-refreshed');
+            $this->successMessage = 'We have not received your deposit yet. Your balance will update once M-Pesa confirms the payment.';
+        }
     }
 
     /**

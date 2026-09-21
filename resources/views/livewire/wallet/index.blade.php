@@ -444,6 +444,9 @@
         </div>
     </flux:modal>
 
-    <livewire:phone-required />
+    {{-- Pending deposit: hard-refresh the balance until M-Pesa confirms it. --}}
+    @if ($awaitingDeposit)
+        <div wire:poll.5s="checkDepositStatus" class="hidden" aria-hidden="true"></div>
+    @endif
 
 </div>

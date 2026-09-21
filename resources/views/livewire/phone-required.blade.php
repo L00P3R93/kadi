@@ -38,7 +38,11 @@
                 </h2>
                 <p class="text-sm text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">
                     Hey <span class="font-semibold text-[#f5c542]">{{ auth()->user()->name }}</span>,
-                    add your phone number to buy coins.
+                    @if ($purpose === 'deposit')
+                        add your M-Pesa phone number to deposit funds.
+                    @else
+                        add your phone number to buy coins.
+                    @endif
                 </p>
             </div>
 
@@ -49,7 +53,8 @@
                         <span class="text-[#f5c542]">✦</span> Required to play games &amp; tournaments
                     </li>
                     <li class="flex items-center gap-2">
-                        <span class="text-[#f5c542]">✦</span> Used to buy coins
+                        <span class="text-[#f5c542]">✦</span>
+                        {{ $purpose === 'deposit' ? 'We send the M-Pesa payment prompt to this number' : 'Used to buy coins' }}
                     </li>
                     <li class="flex items-center gap-2">
                         <span class="text-[#f5c542]">✦</span> Keeps your account secure
@@ -97,7 +102,7 @@
                 class="btn-casino-primary w-full rounded-xl py-3.5 text-sm font-bold tracking-wider transition disabled:cursor-not-allowed disabled:opacity-50"
                 style="font-family: 'Cinzel', serif;"
             >
-                <span wire:loading.remove wire:target="save">Unlock & Buy Now</span>
+                <span wire:loading.remove wire:target="save">{{ $purpose === 'deposit' ? 'Save & Continue' : 'Unlock & Buy Now' }}</span>
                 <span wire:loading wire:target="save" class="inline-flex items-center gap-2">
                     <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
