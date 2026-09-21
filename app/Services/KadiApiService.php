@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Support\PhoneNumber;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -113,11 +114,31 @@ class KadiApiService
         // (so KadiApi returns the original result instead of 409), while
         // different customers always get distinct keys.
         $key = 'customer-create-'.($data['account_no'] ?? $data['google_id'] ?? Str::uuid()->toString());
+        $data = $this->withNormalizedPhone($data);
 
         return $this->withIdempotencyKey($key)
             ->post('customers', $data)
             ->throw()
             ->json() ?? [];
+    }
+
+    /**
+     * KadiApi must only ever receive 254XXXXXXXXX (no `+`). A blank phone_no is dropped rather than
+     * sent, so it can never overwrite a stored number.
+     */
+    private function withNormalizedPhone(array $data): array
+    {
+        if (array_key_exists('phone_no', $data)) {
+            $phone = PhoneNumber::normalize($data['phone_no'] === null ? null : (string) $data['phone_no']);
+
+            if ($phone === null) {
+                unset($data['phone_no']);
+            } else {
+                $data['phone_no'] = $phone;
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -140,6 +161,8 @@ class KadiApiService
      */
     public function updateCustomer(int $customerId, array $data, ?string $idempotencyKey = null): array
     {
+        $data = $this->withNormalizedPhone($data);
+
         return $this->withIdempotencyKey($idempotencyKey)
             ->put('customers/'.encryptOpenSSL($customerId), $data)
             ->throw()

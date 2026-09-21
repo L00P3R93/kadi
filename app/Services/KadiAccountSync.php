@@ -60,4 +60,43 @@ class KadiAccountSync
             return false;
         }
     }
+
+    /**
+     * Copy the player's phone (already 254XXXXXXXXX) to their `kadi.accounts` row. Never throws.
+     *
+     * `accounts.phone` has no unique index we control, so uniqueness is enforced here: if another
+     * account already holds the number, the write is skipped and logged.
+     */
+    public function syncPhone(User $user): bool
+    {
+        if (! $user->phone) {
+            return false;
+        }
+
+        try {
+            $accounts = DB::connection('kadi')->table('accounts');
+
+            $takenElsewhere = (clone $accounts)
+                ->where('phone', $user->phone)
+                ->where('email', '!=', $user->email)
+                ->when($user->linked_id, fn ($q) => $q->where('id', '!=', $user->linked_id))
+                ->exists();
+
+            if ($takenElsewhere) {
+                Log::warning('Kadi DB phone sync skipped for user '.$user->id.': number already on another account');
+
+                return false;
+            }
+
+            if ($user->linked_id && (clone $accounts)->where('id', $user->linked_id)->update(['phone' => $user->phone]) > 0) {
+                return true;
+            }
+
+            return (clone $accounts)->where('email', $user->email)->update(['phone' => $user->phone]) > 0;
+        } catch (\Throwable $e) {
+            Log::error('Kadi DB phone sync failed for user '.$user->id.': '.$e->getMessage());
+
+            return false;
+        }
+    }
 }

@@ -4,8 +4,10 @@ namespace App\Concerns;
 
 use App\Models\User;
 use App\Rules\AllowedName;
+use App\Rules\KenyanPhone;
 use App\Rules\NameChangeCooldown;
 use App\Rules\PlayerNameFormat;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
 trait ProfileValidationRules
@@ -33,6 +35,17 @@ trait ProfileValidationRules
         // AllowedName is the editable blocklist (php artisan blocked-names:add). Google sign-ups never
         // reach these rules: Google has already verified that name.
         return ['bail', 'required', 'string', new PlayerNameFormat, new NameChangeCooldown, new AllowedName];
+    }
+
+    /**
+     * Get the validation rules for a phone number: a valid, unused Kenyan mobile number. Use it
+     * everywhere a phone is set, then store it through User (its mutator normalises to 254XXXXXXXXX).
+     *
+     * @return array<int, ValidationRule|string>
+     */
+    protected function phoneRules(?int $userId = null): array
+    {
+        return ['bail', 'required', 'string', new KenyanPhone($userId)];
     }
 
     /**

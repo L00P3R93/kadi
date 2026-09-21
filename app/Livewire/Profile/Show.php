@@ -10,7 +10,6 @@ use App\Services\KadiAccountSync;
 use App\Support\PlayerName;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
@@ -66,20 +65,24 @@ class Show extends Component
 
     public function updateProfile(): void
     {
+        $user = auth()->user();
+
+        // A phone is set once (it is the M-Pesa payout number); after that the field is ignored.
+        $settingPhone = empty($user->phone) && $this->phoneNo !== '';
+
         $this->validate([
             'name' => $this->nameRules(),
             'email' => ['required', 'email', 'unique:users,email,'.auth()->id()],
             'idNo' => ['nullable', 'string'],
-            'phoneNo' => ['nullable', 'string'],
+            'phoneNo' => $settingPhone ? $this->phoneRules($user->id) : ['nullable', 'string'],
         ]);
 
-        $user = auth()->user();
         $nameChanged = $user->name !== $this->name;
         $previousEmail = $user->email;
 
         $userUpdate = ['name' => $this->name, 'email' => $this->email];
         // Only allow setting phone when it isn't already on record
-        if (empty($user->phone) && $this->phoneNo !== '') {
+        if ($settingPhone) {
             $userUpdate['phone'] = $this->phoneNo;
         }
         $user->fill($userUpdate);
@@ -96,11 +99,12 @@ class Show extends Component
 
         if ($customerId) {
             try {
-                $response = KadiApi::updateCustomer($customerId, [
+                $response = KadiApi::updateCustomer($customerId, array_filter([
                     'name' => $this->name,
                     'id_no' => $this->idNo,
-                    'phone_no' => $this->phoneNo,
-                ]);
+                    // Only when it was just set, and as stored (254XXXXXXXXX, no `+`).
+                    'phone_no' => $settingPhone ? $user->phone : null,
+                ], fn ($v) => $v !== null));
 
                 if (isset($response['data'])) {
                     Cache::put('kadi.customer.'.auth()->id(), $response['data'], now()->addHour());
@@ -112,15 +116,9 @@ class Show extends Component
         }
 
         // Sync phone to kadi database when setting it for the first time
-        if (isset($userUpdate['phone'])) {
-            try {
-                DB::connection('kadi')
-                    ->table('accounts')
-                    ->where('email', $user->email)
-                    ->update(['phone' => $this->phoneNo]);
-            } catch (\Throwable $e) {
-                Log::error('Kadi DB phone sync failed: '.$e->getMessage());
-            }
+        if ($settingPhone) {
+            $this->phoneNo = (string) $user->phone;
+            app(KadiAccountSync::class)->syncPhone($user);
         }
 
         session()->flash('profile_success', 'Profile updated successfully.');

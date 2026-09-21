@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PhoneNumber;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -78,20 +79,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
-     * Set the phone attribute - convert 0|+254 prefix to 254 for storage
+     * Store the phone as 254XXXXXXXXX (no +, spaces or leading 0); blank becomes null.
      */
     public function setPhoneAttribute($value): void
     {
-        $phone = trim($value);
-        // If phone starts with +254, replace with 254
-        if (str_starts_with($phone, '+254')) {
-            $phone = '254'.substr($phone, 4);
-        }
-        // If phone starts with 0, replace with 254
-        elseif (str_starts_with($phone, '0')) {
-            $phone = '254'.substr($phone, 1);
-        }
-        $this->attributes['phone'] = $phone;
+        $this->attributes['phone'] = PhoneNumber::normalize($value === null ? null : (string) $value);
     }
 
     public function getFormattedBalanceAttribute(): string
