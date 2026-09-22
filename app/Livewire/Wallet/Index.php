@@ -110,6 +110,9 @@ class Index extends Component
 
     public const MIN_DEPOSIT = 10;
 
+    /** Excise duty withheld from every deposit; the rest is loaded into the wallet. */
+    public const EXCISE_DUTY_RATE = 0.05;
+
     public const MIN_WITHDRAWAL = 50;
 
     public ?string $successMessage = null;
@@ -411,6 +414,24 @@ class Index extends Component
         if ($this->depositAmount !== '') {
             $this->openDeposit();
         }
+    }
+
+    /**
+     * Split a deposit into the excise duty withheld and the amount that
+     * reaches the wallet. Uses the same rounding as the STK push amount.
+     *
+     * @return array{amount: int, excise: float, credited: float}
+     */
+    public static function depositBreakdown(string|int|float $amount): array
+    {
+        $amount = max(0, (int) round((float) $amount));
+        $excise = round($amount * self::EXCISE_DUTY_RATE, 2);
+
+        return [
+            'amount' => $amount,
+            'excise' => $excise,
+            'credited' => round($amount - $excise, 2),
+        ];
     }
 
     public function cancelDeposit(): void

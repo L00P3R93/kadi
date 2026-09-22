@@ -303,6 +303,44 @@
                     </div>
                 </div>
 
+                {{-- Excise duty notice: recalculated client-side on every keystroke. --}}
+                <div
+                    x-data="{
+                        rate: {{ \App\Livewire\Wallet\Index::EXCISE_DUTY_RATE }},
+                        get amount() {
+                            const n = Math.round(parseFloat($wire.depositAmount));
+                            return Number.isFinite(n) && n > 0 ? n : 0;
+                        },
+                        get excise() { return Math.round(this.amount * this.rate * 100) / 100; },
+                        get credited() { return Math.round((this.amount - this.excise) * 100) / 100; },
+                        kes(v) { return 'KES ' + v.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); },
+                    }"
+                    class="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm"
+                    role="status"
+                    aria-live="polite"
+                    data-test="deposit-excise-notice"
+                >
+                    <p class="flex items-start gap-2 font-medium text-amber-300">
+                        <flux:icon.information-circle variant="mini" class="mt-0.5 shrink-0" />
+                        <span>A {{ \App\Livewire\Wallet\Index::EXCISE_DUTY_RATE * 100 }}% excise duty is deducted from every deposit. {{ (1 - \App\Livewire\Wallet\Index::EXCISE_DUTY_RATE) * 100 }}% is loaded into your wallet.</span>
+                    </p>
+
+                    <dl x-show="amount > 0" x-cloak class="mt-3 space-y-1 border-t border-amber-500/20 pt-3">
+                        <div class="flex justify-between text-[#f5f5f0]/80">
+                            <dt>You pay</dt>
+                            <dd class="font-semibold" x-text="kes(amount)"></dd>
+                        </div>
+                        <div class="flex justify-between text-red-300">
+                            <dt>Excise duty ({{ \App\Livewire\Wallet\Index::EXCISE_DUTY_RATE * 100 }}%)</dt>
+                            <dd class="font-semibold" x-text="'− ' + kes(excise)"></dd>
+                        </div>
+                        <div class="flex justify-between text-green-400">
+                            <dt>Loaded into wallet</dt>
+                            <dd class="font-bold" x-text="kes(credited)"></dd>
+                        </div>
+                    </dl>
+                </div>
+
                 @if ($depositError)
                     <p class="text-sm font-medium text-red-400" role="alert">{{ $depositError }}</p>
                 @endif
@@ -333,6 +371,18 @@
                         via M-Pesa to <span class="font-semibold text-[#f5f5f0]/80">{{ $this->mpesaPhone ?? 'your registered number' }}</span>
                     </p>
                 </div>
+
+                @php($breakdown = \App\Livewire\Wallet\Index::depositBreakdown($depositAmount))
+                <dl class="space-y-1 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm" data-test="deposit-excise-breakdown">
+                    <div class="flex justify-between text-red-300">
+                        <dt>Excise duty ({{ \App\Livewire\Wallet\Index::EXCISE_DUTY_RATE * 100 }}%)</dt>
+                        <dd class="font-semibold">− KES {{ number_format($breakdown['excise'], 2) }}</dd>
+                    </div>
+                    <div class="flex justify-between text-green-400">
+                        <dt>Loaded into wallet</dt>
+                        <dd class="font-bold">KES {{ number_format($breakdown['credited'], 2) }}</dd>
+                    </div>
+                </dl>
 
                 <div class="flex gap-2">
                     <flux:button

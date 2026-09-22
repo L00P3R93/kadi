@@ -95,3 +95,29 @@ test('failed deposit returns to the amount step with an inline error', function 
         ->assertSet('showDepositModal', true)
         ->assertSet('depositError', 'Deposit could not be initiated right now. Please try again shortly.');
 });
+
+test('deposit breakdown withholds 5% excise duty and credits the rest', function (string $input, int $amount, float $excise, float $credited) {
+    expect(Index::depositBreakdown($input))->toBe([
+        'amount' => $amount,
+        'excise' => $excise,
+        'credited' => $credited,
+    ]);
+})->with([
+    'minimum' => ['10', 10, 0.5, 9.5],
+    'round amount' => ['1000', 1000, 50.0, 950.0],
+    'odd amount' => ['333', 333, 16.65, 316.35],
+    'fractional input is rounded like the stk push' => ['99.6', 100, 5.0, 95.0],
+    'blank' => ['', 0, 0.0, 0.0],
+]);
+
+test('deposit modal shows the excise duty notice and the breakdown on confirmation', function () {
+    fakeDepositApi();
+    $user = depositFlowUser();
+
+    Livewire::actingAs($user)->test(Index::class)
+        ->call('openDeposit')
+        ->assertSee('5% excise duty is deducted from every deposit')
+        ->set('depositAmount', '500')
+        ->call('requestDeposit')
+        ->assertSeeInOrder(['Excise duty (5%)', 'KES 25.00', 'Loaded into wallet', 'KES 475.00']);
+});
