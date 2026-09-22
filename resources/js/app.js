@@ -1,3 +1,4 @@
+import './echo.js';
 import './alpine/bottom-nav.js';
 import { initInstall } from './pwa/install.js';
 import { initPush } from './pwa/push.js';

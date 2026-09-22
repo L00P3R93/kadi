@@ -27,6 +27,13 @@ class WalletBalance extends Component
 
     public bool $needsLoad = false;
 
+    /**
+     * Drives the echo-private:user.{userId} listener on resync() below. Defaults to 0 (never a
+     * real user id) rather than null, so a guest render of this component (layouts/guest.blade.php)
+     * still produces a valid, harmless channel name instead of a malformed placeholder.
+     */
+    public int $userId = 0;
+
     public function mount(): void
     {
         /** @var User|null $user */
@@ -35,6 +42,8 @@ class WalletBalance extends Component
         if (! $user) {
             return;
         }
+
+        $this->userId = $user->id;
 
         // Try dedicated balance cache first
         $cached = Cache::get("wallet_balance_{$user->id}");
@@ -239,8 +248,13 @@ class WalletBalance extends Component
      *
      * Fixes: guest-layout dual-instance staleness (desktop vs. mobile
      * widget showing different balances after only one is refreshed).
+     *
+     * Also the real-time path: the wallet webhook broadcasts on this user's private channel the
+     * instant it applies a new balance (already written to the same cache keys by then), so this
+     * fires within the same request cycle instead of waiting for the next wire:poll tick.
      */
     #[On('wallet-refreshed')]
+    #[On('echo-private:user.{userId},.wallet.updated')]
     public function resync(): void
     {
         /** @var User|null $user */

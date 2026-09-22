@@ -86,6 +86,22 @@ return [
         'broadcast_queue' => preg_match('/^[A-Za-z0-9_\-]{1,64}$/', (string) env('PUSH_API_BROADCAST_QUEUE')) === 1 ? (string) env('PUSH_API_BROADCAST_QUEUE') : null,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Wallet webhook (KadiApi -> this site)
+    |--------------------------------------------------------------------------
+    |
+    | KadiApi signs every wallet-balance-changed webhook with one active secret.
+    | This side accepts a LIST so both an old and a new secret work during a
+    | rotation window. Raw secrets, not hashes: HMAC verification needs the
+    | actual shared value, unlike the push API's bearer keys.
+    |
+    */
+
+    'wallet_webhook' => [
+        'secrets' => array_values(array_filter(array_map('trim', explode(',', (string) env('KADI_WALLET_WEBHOOK_SECRETS', ''))))),
+    ],
+
     'push' => [
         // Environments where any signed-in user may use the "Send test notification" button
         // (admins may use it everywhere). See App\Services\PushTestSender.

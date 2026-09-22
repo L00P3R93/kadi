@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\PushApiController;
 use App\Http\Controllers\Api\PushBroadcastController;
+use App\Http\Controllers\Api\WalletWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +18,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->middleware(['push.api', 'throttle:push-api'])->group(function () {
     Route::post('push-notifications', PushApiController::class)->name('api.v1.push-notifications.store');
+});
+
+// KadiApi -> this site: wallet balance changes, signature-verified. See docs/wallet-webhook.md.
+Route::prefix('v1')->middleware(['kadi.webhook', 'throttle:60,1'])->group(function () {
+    Route::post('wallet-webhooks', WalletWebhookController::class)->name('api.v1.wallet-webhooks.store');
 });
 
 // System-wide announcements to every registered device. A separate key list (`push.api:broadcast`),

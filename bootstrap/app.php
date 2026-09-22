@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsureNameIsValid;
 use App\Http\Middleware\LogoutInactiveUsers;
 use App\Http\Middleware\RedirectLegacyDomain;
 use App\Http\Middleware\SetCacheHeaders;
+use App\Http\Middleware\VerifyKadiWebhookSignature;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -41,6 +43,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'push.api' => AuthenticatePushApiKey::class,
+            'kadi.webhook' => VerifyKadiWebhookSignature::class,
         ]);
 
         // Laravel sorts route middleware by a priority list, and ThrottleRequests is on it, so an

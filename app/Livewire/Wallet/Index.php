@@ -116,8 +116,12 @@ class Index extends Component
 
     public ?float $balance = null;
 
+    /** Drives the echo-private:user.{userId} listener on syncCustomer() below. */
+    public int $userId = 0;
+
     public function mount(): void
     {
+        $this->userId = (int) auth()->id();
         $this->kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
         $this->balance = (float) ($this->kadiCustomer['balance'] ?? 0);
 
@@ -130,7 +134,13 @@ class Index extends Component
         $this->loadTransactions();
     }
 
+    /**
+     * Real-time path: the wallet webhook broadcasts on this user's private channel the instant it
+     * applies a new balance (already written to the kadi.customer cache by then), so this fires
+     * within the same request cycle instead of waiting for the next wire:poll tick.
+     */
     #[On('wallet-refreshed')]
+    #[On('echo-private:user.{userId},.wallet.updated')]
     public function syncCustomer(): void
     {
         $profile = Cache::get('kadi.customer.'.auth()->id());
