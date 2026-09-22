@@ -427,7 +427,7 @@
                         🎁 WELCOME OFFER
                     </div>
                     <h2 class="mb-2 text-3xl font-bold text-[#f5c542] md:text-4xl" style="font-family: 'Cinzel', serif;">
-                        Get 250 Free Coins Instantly
+                        Earn Bonus Coins As You Play
                     </h2>
                     <p class="text-[#f5f5f0]/60" style="font-family: 'Outfit', sans-serif;">Earn bonus coins by watching ads and playing mini-games. T&Cs apply.</p>
                 </div>
@@ -462,7 +462,7 @@
                     $stats = [
                         ['value' => (string) (6000 + $users), 'label' => 'Community Members'],
                         ['value' => '10',    'label' => 'Game Modes'],
-                        ['value' => '250',    'label' => 'Free Coins on Signup'],
+                        ['value' => 'Instant', 'label' => 'M-Pesa Payouts'],
                         ['value' => '24/7',   'label' => 'Support'],
                     ];
                 @endphp

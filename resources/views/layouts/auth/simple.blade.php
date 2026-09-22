@@ -3,7 +3,7 @@
     <head>
         @php
             $noindex     = true;
-            $description = 'Sign in or create your Kadi account to play and claim your welcome bonus.';
+            $description = 'Sign in or create your Kadi account to play.';
             $page        = 'auth';
         @endphp
         @include('partials.head')

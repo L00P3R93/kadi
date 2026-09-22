@@ -74,10 +74,7 @@
 
                 <div class="relative z-10 max-w-2xl">
                     <h2 class="font-black text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-4" style="font-family: 'Cinzel', serif;">
-                        100% Welcome Bonus
-                        <span class="block mt-1 shimmer-text">
-                            Up To {{ session('currency.code', 'KES') }} {{ number_format(250) }}
-                        </span>
+                        Deposit Bonus Coins
                     </h2>
                     <p class="text-gray-400 text-base md:text-lg leading-relaxed mb-8 max-w-xl" style="font-family: 'Outfit', sans-serif;">
                         Deposit today and get bonus coins to use at the Kadi tables. Whether you're playing singles or entering tournaments, your welcome bonus gives you a head start.

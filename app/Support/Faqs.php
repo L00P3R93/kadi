@@ -28,7 +28,7 @@ class Faqs
             ],
             [
                 'q' => 'Is Kadi free to join?',
-                'a' => 'Yes. Signing up is free and new players get 250 free coins. You can deposit with M-Pesa when you want to enter stake games, tournaments and jackpots.',
+                'a' => 'Yes. Signing up is free. You can deposit with M-Pesa when you want to enter stake games, tournaments and jackpots.',
             ],
             [
                 'q' => 'What game modes can I play?',
