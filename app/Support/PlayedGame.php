@@ -13,7 +13,9 @@ use Illuminate\Support\Carbon;
  *   opponent; the complaint names the OPPONENT's `competition_wallet_id` (never the player's own) and,
  *   while that wallet is open, the opponent's winning transaction of that round.
  *
- * Every reportable item has a `report_key` (game:{game_wallet_id} or {kind}-round:{own transaction_id}).
+ * Every reportable item has a `report_key` (game:{game_wallet_id} or {kind}-round:{own transaction_id})
+ * and a `report_expires_at`: players may report only within `kadi.game_disputes.report_window_hours`
+ * (72) of playing. An item without a known play time can never be reported.
  */
 final class PlayedGame
 {
@@ -65,7 +67,10 @@ final class PlayedGame
     /**
      * Every reportable item in the lists, keyed by report key, with what a complaint needs.
      *
-     * @return array<string, array{key: string, kind: string, title: string, amount: float, played_at: ?string, game_wallet_id: ?int, competition_wallet_id: ?int, transaction_ids: list<int>, game_id: ?string, competition_id: ?string, transaction_id: ?int, opponent_transaction_id: ?int}>
+     * Includes items whose report window has closed (so their report state still shows); check
+     * reportWindowOpen() before filing.
+     *
+     * @return array<string, array{key: string, kind: string, title: string, amount: float, played_at: ?string, report_expires_at: ?string, game_wallet_id: ?int, competition_wallet_id: ?int, transaction_ids: list<int>, game_id: ?string, competition_id: ?string, transaction_id: ?int, opponent_transaction_id: ?int}>
      */
     public static function reportables(array $lists): array
     {
@@ -79,6 +84,7 @@ final class PlayedGame
                     'title' => $game['title'],
                     'amount' => $game['amount'],
                     'played_at' => $game['played_at'],
+                    'report_expires_at' => $game['report_expires_at'],
                     'game_wallet_id' => $game['game_wallet_id'],
                     'competition_wallet_id' => null,
                     'transaction_ids' => [],
@@ -105,6 +111,7 @@ final class PlayedGame
                         'title' => $competition['title'].' round'.($round['level'] !== null ? ' (level '.$round['level'].')' : ''),
                         'amount' => $round['amount'],
                         'played_at' => $round['played_at'],
+                        'report_expires_at' => $round['report_expires_at'],
                         'game_wallet_id' => null,
                         'competition_wallet_id' => $opponent['competition_wallet_id'],
                         // Open wallet: name the round's winning transaction. Closed: KadiApi disputes its payout.
@@ -121,22 +128,41 @@ final class PlayedGame
         return $items;
     }
 
+    public static function reportWindowHours(): int
+    {
+        return max(1, (int) config('kadi.game_disputes.report_window_hours', 72));
+    }
+
+    /** Whether an item with this `report_expires_at` may still be reported. */
+    public static function reportWindowOpen(?string $expiresAt): bool
+    {
+        return $expiresAt !== null && Carbon::parse($expiresAt)->isFuture();
+    }
+
+    private static function reportExpiresAt(?string $playedAt): ?string
+    {
+        return $playedAt ? Carbon::parse($playedAt)->addHours(self::reportWindowHours())->toDateTimeString() : null;
+    }
+
     private static function game(array $row): array
     {
         $gameWalletId = self::positiveInt($row['game_wallet_id'] ?? null);
         $result = self::result($row['state'] ?? null);
+        $playedAt = self::timestamp($row['created_at'] ?? null);
+        // Only a lost game has a winner payout to dispute.
+        $reportKey = $gameWalletId && $result === 'loss' ? self::GAME.':'.$gameWalletId : null;
 
         return [
             'kind' => self::GAME,
-            // Only a lost game has a winner payout to dispute.
-            'report_key' => $gameWalletId && $result === 'loss' ? self::GAME.':'.$gameWalletId : null,
+            'report_key' => $reportKey,
+            'report_expires_at' => $reportKey ? self::reportExpiresAt($playedAt) : null,
             'game_wallet_id' => $gameWalletId,
             'game_id' => self::stringOrNull($row['game_id'] ?? null),
             'title' => self::stringOrNull($row['game_type'] ?? null) ?? 'Game',
             'players' => self::positiveInt($row['players'] ?? null),
             'amount' => self::money($row['amount'] ?? null),
             'result' => $result,
-            'played_at' => self::timestamp($row['created_at'] ?? null),
+            'played_at' => $playedAt,
         ];
     }
 
@@ -178,14 +204,18 @@ final class PlayedGame
             'transaction_id' => self::positiveInt($opponent['transaction_id'] ?? null),
         ] : null;
 
+        $playedAt = self::timestamp($round['created_at'] ?? null);
+        // Only a lost round against a known opponent can be reported.
+        $reportKey = $transactionId && $result === 'loss' && $opponent ? $kind.'-round:'.$transactionId : null;
+
         return [
-            // Only a lost round against a known opponent can be reported.
-            'report_key' => $transactionId && $result === 'loss' && $opponent ? $kind.'-round:'.$transactionId : null,
+            'report_key' => $reportKey,
+            'report_expires_at' => $reportKey ? self::reportExpiresAt($playedAt) : null,
             'transaction_id' => $transactionId,
             'result' => $result,
             'amount' => self::money($round['amount'] ?? null),
             'level' => self::intOrNull($round['level'] ?? null),
-            'played_at' => self::timestamp($round['created_at'] ?? null),
+            'played_at' => $playedAt,
             'opponent' => $opponent,
         ];
     }

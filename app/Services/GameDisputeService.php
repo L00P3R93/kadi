@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\RateLimiter;
  *
  * Reporting:
  *   1. the item must be reportable in the player's OWN recent games, read server-side (a lost single
- *      game, or a lost tournament/jackpot round with a known opponent). Ids from the browser are never
- *      sent to KadiApi as-is;
+ *      game, or a lost tournament/jackpot round with a known opponent), played within the last 72 hours
+ *      (`kadi.game_disputes.report_window_hours`). Ids from the browser are never sent to KadiApi as-is;
  *   2. POST complaints to KadiApi (holds the disputed winnings in escrow). A round names the opponent's
  *      competition wallet, plus the opponent's winning transaction while that wallet is open;
  *   3. only once KadiApi accepted it: record it locally and set the player's pending
@@ -124,6 +124,10 @@ class GameDisputeService
             return ComplaintResult::alreadyReported();
         }
 
+        if (! PlayedGame::reportWindowOpen($item['report_expires_at'])) {
+            return ComplaintResult::rejected(self::windowClosedMessage());
+        }
+
         $limiterKey = 'game-dispute:'.$user->id;
 
         if (RateLimiter::tooManyAttempts($limiterKey, (int) config('kadi.game_disputes.max_attempts', 3))) {
@@ -178,6 +182,11 @@ class GameDisputeService
 
             return 0;
         }
+    }
+
+    public static function windowClosedMessage(): string
+    {
+        return 'Games can only be reported within '.PlayedGame::reportWindowHours().' hours of playing. This one can no longer be reported.';
     }
 
     public static function cacheKey(User $user): string

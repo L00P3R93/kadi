@@ -120,6 +120,9 @@ return [
         'games_per_list' => 10,
         'cache_seconds' => 60,
 
+        // Players may report a game or round only this many hours after it was played.
+        'report_window_hours' => 72,
+
         // Reports one player may send to KadiApi (accepted or not) per window.
         'max_attempts' => 3,
         'decay_minutes' => 10,

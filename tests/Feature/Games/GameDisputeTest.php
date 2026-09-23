@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\GameDisputeService;
 use App\Support\PlayedGame;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
@@ -114,6 +115,8 @@ function submitGameReport($component, string $key, string $reason = 'The game fr
 }
 
 beforeEach(function () {
+    // The fixtures were played on 21-22 Sep; keep them inside the 72-hour report window.
+    $this->travelTo(Carbon::parse('2026-09-23 12:00:00'));
     fakeGameLevelPending();
 });
 
@@ -388,6 +391,71 @@ test('an item can be reported only once', function () {
         ->and($disputes->file($user, 'game:812', 'The wrong result was recorded')->isAlreadyReported())->toBeTrue();
 
     expect(collect(Http::recorded())->filter(fn ($pair) => complaintPosted()($pair[0])))->toHaveCount(1);
+});
+
+// --- The 72-hour report window ---------------------------------------------
+
+test('each reportable item can be reported until 72 hours after it was played', function () {
+    $items = PlayedGame::reportables(PlayedGame::listsFromApi(recentGamesBody(), 10));
+
+    expect($items['game:812']['report_expires_at'])->toBe('2026-09-25 18:04:11')
+        ->and($items['tournament-round:9042']['report_expires_at'])->toBe('2026-09-24 20:31:47');
+});
+
+test('the page tells players about the 72-hour window and shows how long is left', function () {
+    fakeKadi();
+
+    historyFor(reporter())
+        ->assertSee('72 hours')
+        ->assertSee('2 days left')
+        ->assertSeeHtml("openReport('game:812')");
+});
+
+test('past 72 hours the Report button disappears and filing is refused without calling KadiApi', function () {
+    fakeKadi();
+    $this->travelTo(Carbon::parse('2026-09-25 18:04:12')); // one second after game:812's window closed
+    $user = reporter();
+
+    historyFor($user)
+        ->assertDontSeeHtml("openReport('game:812')")
+        ->assertSee('Reporting closed')
+        ->call('openReport', 'game:812')
+        ->assertSet('showReportModal', false)
+        ->assertSee('within 72 hours of playing');
+
+    $result = app(GameDisputeService::class)->file($user, 'game:812', 'The game froze or crashed');
+
+    expect($result->succeeded())->toBeFalse()
+        ->and($result->message)->toContain('within 72 hours')
+        ->and(GameDispute::count())->toBe(0);
+    Http::assertNotSent(complaintPosted());
+});
+
+test('a game can still be reported in the last second of its 72 hours', function () {
+    fakeKadi();
+    $this->travelTo(Carbon::parse('2026-09-25 18:04:10'));
+
+    expect(app(GameDisputeService::class)->file(reporter(), 'game:812', 'The game froze or crashed')->succeeded())->toBeTrue();
+});
+
+test('a game without a play time cannot be reported', function () {
+    $body = recentGamesBody();
+    unset($body['single_games'][0]['created_at']);
+    fakeKadi(recent: $body);
+
+    $result = app(GameDisputeService::class)->file(reporter(), 'game:812', 'The game froze or crashed');
+
+    expect($result->succeeded())->toBeFalse();
+    Http::assertNotSent(complaintPosted());
+});
+
+test('an item reported earlier keeps its report state after the window closes', function () {
+    fakeKadi(open: [['id' => 1, 'game_wallet_id' => 812, 'competition_wallet_id' => null, 'disputed_transactions' => []]]);
+    $this->travelTo(Carbon::parse('2026-09-30 12:00:00'));
+
+    historyFor(reporter())
+        ->assertSet('reportStates.game:812', 'under_review')
+        ->assertSee('Under review');
 });
 
 test('a player can send only a few reports in a short time', function () {

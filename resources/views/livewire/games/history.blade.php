@@ -27,7 +27,7 @@
                 <flux:icon.clock variant="outline" class="size-7 shrink-0 text-[#f5c542]" aria-hidden="true" />
                 Game History
             </h1>
-            <p class="mt-1 text-sm text-[#6b6b6b]">Your latest games. Lost one unfairly? Report it and our team will review it.</p>
+            <p class="mt-1 text-sm text-[#6b6b6b]">Your latest games. Lost one unfairly? Report it within {{ $reportWindowHours }} hours of playing and our team will review it.</p>
         </div>
 
         <button
@@ -43,6 +43,11 @@
     </div>
 
     <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6">
+
+        <p class="mb-4 flex items-start gap-2 rounded-lg border border-yellow-800/20 bg-[#111]/40 p-3 text-xs text-[#6b6b6b]">
+            <flux:icon.information-circle variant="outline" class="size-4 shrink-0 text-[#f5c542]" aria-hidden="true" />
+            <span>You have <strong class="text-[#f5f5f0]/80">{{ $reportWindowHours }} hours</strong> from the time you played to report a lost game or round. After that, the Report button disappears.</span>
+        </p>
 
         {{-- Tabs --}}
         <div class="mb-6 flex flex-wrap gap-2" role="tablist">
@@ -104,7 +109,7 @@
 
                         <div class="flex items-center gap-3">
                             <span class="text-sm font-semibold text-[#f5f5f0]/80" title="Your stake">KES {{ number_format($game['amount'], 2) }}</span>
-                            <x-games.report-action :report-key="$game['report_key']" :state="$game['report_key'] ? ($reportStates[$game['report_key']] ?? null) : null" :labels="$stateLabels" />
+                            <x-games.report-action :report-key="$game['report_key']" :state="$game['report_key'] ? ($reportStates[$game['report_key']] ?? null) : null" :expires-at="$game['report_expires_at']" :labels="$stateLabels" />
                         </div>
                     </li>
                 @endforeach
@@ -164,7 +169,7 @@
                                         </div>
                                         <div class="flex items-center gap-3">
                                             <span class="text-sm font-semibold text-[#f5f5f0]/80">KES {{ number_format($round['amount'], 2) }}</span>
-                                            <x-games.report-action :report-key="$round['report_key']" :state="$round['report_key'] ? ($reportStates[$round['report_key']] ?? null) : null" :labels="$stateLabels" />
+                                            <x-games.report-action :report-key="$round['report_key']" :state="$round['report_key'] ? ($reportStates[$round['report_key']] ?? null) : null" :expires-at="$round['report_expires_at']" :labels="$stateLabels" />
                                         </div>
                                     </li>
                                 @endforeach
@@ -193,7 +198,7 @@
                         @endif
                     </p>
                 @endif
-                <p class="mt-2 text-xs text-[#6b6b6b]">The winnings in question are held until our team has reviewed your report. You can report each game or round once.</p>
+                <p class="mt-2 text-xs text-[#6b6b6b]">The winnings in question are held until our team has reviewed your report. You can report each game or round once, within {{ $reportWindowHours }} hours of playing.</p>
             </div>
 
             <flux:field>
