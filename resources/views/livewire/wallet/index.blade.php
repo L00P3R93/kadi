@@ -28,7 +28,10 @@
     {{-- Title row. The install pill shares this row so it adds no height and stays clear of the money controls. --}}
     <div class="flex items-center justify-between gap-3">
         <h1 class="text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Vault</h1>
-        <x-pwa.install-button variant="chip" />
+        <div class="flex items-center gap-2">
+            <x-pwa.install-button variant="chip" />
+            <a href="{{ route('games.history') }}" wire:navigate class="order-first rounded-full border border-yellow-800/40 px-3 py-1 text-xs font-semibold text-[#f5f5f0]/80 transition hover:border-[#f5c542]/60 hover:text-[#f5c542]">Game history</a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">

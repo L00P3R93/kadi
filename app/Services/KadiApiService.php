@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Support\PhoneNumber;
+use App\Support\PlayedGame;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -248,6 +249,119 @@ class KadiApiService
 
             return false;
         }
+    }
+
+    /**
+     * A player's latest single games, tournaments and jackpots, newest first, normalised by
+     * App\Support\PlayedGame and keyed game | tournament | jackpot.
+     *
+     * Endpoint : GET {kadi.game_disputes.played_endpoint}/{encrypted_customer_id}
+     *
+     * @return array<string, list<array<string, mixed>>>
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getPlayedGames(int $customerId): array
+    {
+        $body = $this->http->get(config('kadi.game_disputes.played_endpoint').'/'.encryptOpenSSL($customerId))
+            ->throw()
+            ->json() ?? [];
+
+        return PlayedGame::listsFromApi(is_array($body) ? $body : [], (int) config('kadi.game_disputes.games_per_list', 10));
+    }
+
+    /**
+     * File a complaint about a played game or round, which puts the disputed winnings in escrow.
+     *
+     * Endpoint : POST complaints   (30/min for the whole API key, idempotent)
+     * Payload  : customer_id (plain id), exactly one of game_wallet_id | competition_wallet_id,
+     *            transaction_ids? (open opponent wallet only), reason (3-255), description? (<=2000)
+     * Success  : 201 {success: true, data: {...complaint}}
+     * Errors   : 409 already under an open complaint (or Idempotency-Key reused with another body),
+     *            422 {errors} validation or {success: false, message} cannot be filed, 429 rate limit.
+     *
+     * Pass the same $idempotencyKey when retrying the same complaint, so a retry after a timeout
+     * returns the original complaint instead of filing a second one.
+     */
+    public function fileComplaint(array $payload, string $idempotencyKey): ComplaintResult
+    {
+        try {
+            $response = $this->withIdempotencyKey($idempotencyKey)->post('complaints', $payload);
+        } catch (ConnectionException $e) {
+            Log::warning('Complaint connection error for customer '.($payload['customer_id'] ?? '?').': '.$e->getMessage());
+
+            return ComplaintResult::unknown();
+        } catch (\Throwable $e) {
+            Log::error('Complaint error for customer '.($payload['customer_id'] ?? '?').': '.$e->getMessage());
+
+            return ComplaintResult::unknown();
+        }
+
+        $status = $response->status();
+        $body = $response->json() ?? [];
+        $body = is_array($body) ? $body : [];
+
+        Log::info('Complaint response for customer '.($payload['customer_id'] ?? '?').": HTTP {$status}");
+
+        if ($response->successful() && ($body['success'] ?? false) === true && is_array($body['data'] ?? null)) {
+            return ComplaintResult::filed($body['data']);
+        }
+
+        $apiMessage = is_string($body['message'] ?? null) ? trim(strip_tags($body['message'])) : '';
+        $apiMessage = mb_strlen($apiMessage) <= 255 ? $apiMessage : '';
+
+        return match (true) {
+            // Our keys hash the whole body, so a reused key with another body means a bug: never show it as "reported".
+            $status === 409 && str_contains($apiMessage, 'Idempotency-Key') => ComplaintResult::rejected('Something changed while sending. Please submit your report again.'),
+            $status === 409 => ComplaintResult::alreadyReported(),
+            $status === 422 && is_array($body['errors'] ?? null) => ComplaintResult::rejected('Please check the highlighted fields.', self::firstErrors($body['errors'])),
+            $status === 422 => ComplaintResult::rejected($apiMessage !== '' ? $apiMessage : 'This cannot be reported.'),
+            $status === 404 => ComplaintResult::rejected('We could not find your game account. Please contact support.'),
+            $status === 429 => ComplaintResult::rejected('Too many reports are being sent right now. Please try again shortly.'),
+            // A 2xx we cannot read, or a gateway error: the complaint may exist.
+            $response->successful(), $status >= 500 => ComplaintResult::unknown(),
+            default => ComplaintResult::rejected('Your report could not be sent right now. Please try again shortly.'),
+        };
+    }
+
+    /**
+     * The customer's complaints that are still open (`pending_dispute`), newest first.
+     *
+     * Endpoint : GET complaints?customer_id=&status=pending_dispute   (20/min, shared with stats)
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getOpenComplaints(int $customerId): array
+    {
+        $data = $this->http->get('complaints', [
+            'customer_id' => $customerId,
+            'status' => 'pending_dispute',
+            'per_page' => 200,
+        ])->throw()->json('data');
+
+        return is_array($data) ? array_values(array_filter($data, 'is_array')) : [];
+    }
+
+    /**
+     * Laravel-style `errors` ({field: [messages]}) to field => first message.
+     *
+     * @return array<string, string>
+     */
+    private static function firstErrors(array $errors): array
+    {
+        $first = [];
+
+        foreach ($errors as $field => $messages) {
+            $message = is_array($messages) ? ($messages[0] ?? null) : $messages;
+
+            if (is_string($field) && is_string($message)) {
+                $first[$field] = trim(strip_tags($message));
+            }
+        }
+
+        return $first;
     }
 
     /**

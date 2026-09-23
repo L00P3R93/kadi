@@ -1,0 +1,245 @@
+@php
+    $stateLabels = [
+        \App\Services\GameDisputeService::UNDER_REVIEW => 'Under review',
+        \App\Services\GameDisputeService::REPORTED => 'Reported',
+        \App\Livewire\Games\History::ALREADY_REPORTED => 'Already reported',
+    ];
+    $when = fn (?string $at) => $at ? \Illuminate\Support\Carbon::parse($at) : null;
+@endphp
+
+<div class="space-y-6" wire:init="load">
+
+    @if ($successMessage)
+        <div class="rounded-lg border border-green-700 bg-green-900/30 p-4 text-sm text-green-400" role="status">
+            {{ $successMessage }}
+        </div>
+    @endif
+
+    @if ($noticeMessage)
+        <div class="rounded-lg border border-amber-600/60 bg-amber-900/30 p-4 text-sm text-amber-400" role="status">
+            {{ $noticeMessage }}
+        </div>
+    @endif
+
+    <div class="flex items-center justify-between gap-3">
+        <div>
+            <h1 class="flex items-center gap-2 text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">
+                <flux:icon.clock variant="outline" class="size-7 shrink-0 text-[#f5c542]" aria-hidden="true" />
+                Game History
+            </h1>
+            <p class="mt-1 text-sm text-[#6b6b6b]">Your latest games. Lost one unfairly? Report it and our team will review it.</p>
+        </div>
+
+        <button
+            type="button"
+            wire:click="refresh"
+            wire:loading.attr="disabled"
+            wire:target="refresh, load"
+            class="btn-casino-ghost shrink-0 rounded-full px-4 py-1.5 text-sm"
+        >
+            <span wire:loading.remove wire:target="refresh">Refresh</span>
+            <span wire:loading wire:target="refresh">Refreshing…</span>
+        </button>
+    </div>
+
+    <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6">
+
+        {{-- Tabs --}}
+        <div class="mb-6 flex flex-wrap gap-2" role="tablist">
+            @foreach ($tabs as $key => $label)
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected="{{ $tab === $key ? 'true' : 'false' }}"
+                    wire:click="setTab('{{ $key }}')"
+                    wire:key="tab-{{ $key }}"
+                    @class([
+                        'rounded-full px-4 py-1.5 text-sm font-semibold transition',
+                        'btn-casino-primary' => $tab === $key,
+                        'border border-yellow-800/40 text-[#6b6b6b] hover:text-[#f5f5f0]' => $tab !== $key,
+                    ])
+                >
+                    {{ $label }}
+                </button>
+            @endforeach
+        </div>
+
+        @if (! $loaded)
+            <div class="flex items-center justify-center gap-2 py-12 text-sm text-[#6b6b6b]">
+                <flux:icon.loading class="size-4" aria-hidden="true" /> Loading your games...
+            </div>
+        @elseif ($loadFailed)
+            <div class="py-12 text-center">
+                <p class="text-sm text-red-400">We could not load your games right now.</p>
+                <button type="button" wire:click="refresh" class="mt-3 text-sm font-semibold text-[#f5c542] hover:underline">Try again</button>
+            </div>
+        @elseif (empty($games[$tab]))
+            <div class="py-16 text-center">
+                <flux:icon.rectangle-stack variant="outline" class="mx-auto mb-3 size-10 text-[#6b6b6b]" aria-hidden="true" />
+                <p class="text-[#6b6b6b]">No {{ strtolower($tabs[$tab]) }} played yet.</p>
+            </div>
+        @elseif ($tab === \App\Support\PlayedGame::GAME)
+
+            {{-- Single games --}}
+            <ul class="divide-y divide-yellow-800/10" wire:loading.class="opacity-60" wire:target="refresh">
+                @foreach ($games[$tab] as $index => $game)
+                    <li class="flex flex-wrap items-center justify-between gap-3 py-3" wire:key="game-{{ $index }}-{{ $game['game_wallet_id'] ?? 'row' }}">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-[#f5f5f0]">{{ $game['title'] }}</span>
+                                <x-games.result-badge :result="$game['result']" />
+                            </div>
+                            <div class="mt-0.5 truncate text-xs text-[#6b6b6b]">
+                                @if ($at = $when($game['played_at']))
+                                    <time datetime="{{ $at->toIso8601String() }}" title="{{ $at->format('j M Y, H:i') }}">{{ $at->diffForHumans() }}</time>
+                                @endif
+                                @if ($game['players'])
+                                    · {{ $game['players'] }} players
+                                @endif
+                                @if ($game['game_id'])
+                                    · <span class="font-mono">{{ $game['game_id'] }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-semibold text-[#f5f5f0]/80" title="Your stake">KES {{ number_format($game['amount'], 2) }}</span>
+                            <x-games.report-action :report-key="$game['report_key']" :state="$game['report_key'] ? ($reportStates[$game['report_key']] ?? null) : null" :labels="$stateLabels" />
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+        @else
+
+            {{-- Tournaments / jackpots, each with its rounds --}}
+            <div class="space-y-4" wire:loading.class="opacity-60" wire:target="refresh">
+                @foreach ($games[$tab] as $index => $competition)
+                    <section class="rounded-lg border border-yellow-800/20 p-4" wire:key="{{ $tab }}-{{ $index }}-{{ $competition['competition_wallet_id'] ?? 'row' }}">
+                        <div class="flex flex-wrap items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="font-semibold text-[#f5f5f0]">{{ $competition['title'] }}</span>
+                                    @if ($competition['open'])
+                                        <span class="rounded-full border border-sky-700 bg-sky-900/40 px-2 py-0.5 text-xs text-sky-300">Open</span>
+                                    @else
+                                        <span class="rounded-full border border-yellow-800/40 px-2 py-0.5 text-xs text-[#6b6b6b]">Closed</span>
+                                    @endif
+                                </div>
+                                <div class="mt-0.5 truncate text-xs text-[#6b6b6b]">
+                                    @if ($at = $when($competition['played_at']))
+                                        <time datetime="{{ $at->toIso8601String() }}" title="{{ $at->format('j M Y, H:i') }}">Joined {{ $at->diffForHumans() }}</time>
+                                    @endif
+                                    @if ($competition['level'] !== null)
+                                        · Level {{ $competition['level'] }}
+                                    @endif
+                                    @if ($competition['competition_id'])
+                                        · <span class="font-mono">{{ $competition['competition_id'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="text-right text-xs">
+                                <div>
+                                    <span class="font-semibold text-green-400">{{ $competition['wins'] }} W</span>
+                                    <span class="text-[#6b6b6b]">·</span>
+                                    <span class="font-semibold text-red-400">{{ $competition['losses'] }} L</span>
+                                </div>
+                                <div class="mt-0.5 text-[#6b6b6b]">Balance KES {{ number_format($competition['balance'], 2) }}</div>
+                            </div>
+                        </div>
+
+                        @if (empty($competition['rounds']))
+                            <p class="mt-3 text-xs text-[#6b6b6b]">No rounds played yet.</p>
+                        @else
+                            <ul class="mt-3 divide-y divide-yellow-800/10 border-t border-yellow-800/10">
+                                @foreach ($competition['rounds'] as $roundIndex => $round)
+                                    <li class="flex flex-wrap items-center justify-between gap-3 py-2.5" wire:key="round-{{ $tab }}-{{ $index }}-{{ $roundIndex }}-{{ $round['transaction_id'] ?? 'row' }}">
+                                        <div class="flex min-w-0 items-center gap-2 text-sm">
+                                            <x-games.result-badge :result="$round['result']" />
+                                            @if ($round['level'] !== null)
+                                                <span class="text-[#f5f5f0]/80">Level {{ $round['level'] }}</span>
+                                            @endif
+                                            @if ($at = $when($round['played_at']))
+                                                <time class="text-xs text-[#6b6b6b]" datetime="{{ $at->toIso8601String() }}" title="{{ $at->format('j M Y, H:i') }}">{{ $at->diffForHumans() }}</time>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-sm font-semibold text-[#f5f5f0]/80">KES {{ number_format($round['amount'], 2) }}</span>
+                                            <x-games.report-action :report-key="$round['report_key']" :state="$round['report_key'] ? ($reportStates[$round['report_key']] ?? null) : null" :labels="$stateLabels" />
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </section>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    {{-- Report modal --}}
+    <flux:modal wire:model.self="showReportModal" class="kadi-bottom-sheet sm:max-w-md">
+        <div class="space-y-5 p-6">
+            <div>
+                <h3 class="flex items-center gap-2 text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">
+                    <flux:icon.flag variant="outline" class="size-5 shrink-0 text-[#f5c542]" aria-hidden="true" />
+                    Report a problem
+                </h3>
+                @if ($this->reporting)
+                    <p class="mt-1 text-sm text-[#6b6b6b]">
+                        {{ $this->reporting['title'] }}
+                        · KES {{ number_format($this->reporting['amount'], 2) }}
+                        @if ($at = $when($this->reporting['played_at']))
+                            · {{ $at->format('j M Y, H:i') }}
+                        @endif
+                    </p>
+                @endif
+                <p class="mt-2 text-xs text-[#6b6b6b]">The winnings in question are held until our team has reviewed your report. You can report each game or round once.</p>
+            </div>
+
+            <flux:field>
+                <flux:label>Reason</flux:label>
+                <flux:select wire:model.live="reason" placeholder="Choose a reason">
+                    @foreach ($this->reasons as $option)
+                        <flux:select.option value="{{ $option }}">{{ $option }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+                <flux:error name="reason" />
+            </flux:field>
+
+            @if ($reason === \App\Services\GameDisputeService::OTHER_REASON)
+                <flux:field>
+                    <flux:label>Your reason</flux:label>
+                    <flux:input wire:model="otherReason" maxlength="255" placeholder="In a few words, what went wrong?" />
+                    <flux:error name="otherReason" />
+                </flux:field>
+            @endif
+
+            <flux:field>
+                <flux:label>Details <span class="font-normal text-[#6b6b6b]">(optional)</span></flux:label>
+                <flux:textarea wire:model="description" rows="4" maxlength="2000" placeholder="Anything that helps our team, e.g. when it happened." />
+                <flux:error name="description" />
+            </flux:field>
+
+            @if ($reportError)
+                <p class="text-sm font-medium text-red-400" role="alert">{{ $reportError }}</p>
+            @endif
+
+            <div class="flex gap-2">
+                <flux:modal.close>
+                    <flux:button variant="ghost" class="w-full">Cancel</flux:button>
+                </flux:modal.close>
+
+                <flux:button
+                    variant="primary"
+                    class="w-full"
+                    wire:click="submitReport"
+                    wire:loading.attr="disabled"
+                    wire:target="submitReport"
+                >
+                    <span wire:loading.remove wire:target="submitReport">Send report</span>
+                    <span wire:loading wire:target="submitReport">Sending…</span>
+                </flux:button>
+            </div>
+        </div>
+    </flux:modal>
+</div>

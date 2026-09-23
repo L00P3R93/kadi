@@ -102,6 +102,29 @@ return [
         'secrets' => array_values(array_filter(array_map('trim', explode(',', (string) env('KADI_WALLET_WEBHOOK_SECRETS', ''))))),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Game history and disputes
+    |--------------------------------------------------------------------------
+    |
+    | Players see their latest games, tournaments and jackpots (read from KadiApi) and may dispute
+    | one. See docs/game-disputes.md. KadiApi's complaints endpoint allows only 30 calls a minute
+    | for the WHOLE site, so each player is capped here well below that.
+    |
+    */
+
+    'game_disputes' => [
+        // KadiApi path (under API_URL) for a player's latest 10 of each kind; the encrypted customer id is appended.
+        'played_endpoint' => trim((string) env('KADI_PLAYED_GAMES_ENDPOINT', 'customers/played/recent'), '/'),
+
+        'games_per_list' => 10,
+        'cache_seconds' => 60,
+
+        // Reports one player may send to KadiApi (accepted or not) per window.
+        'max_attempts' => 3,
+        'decay_minutes' => 10,
+    ],
+
     'push' => [
         // Environments where any signed-in user may use the "Send test notification" button
         // (admins may use it everywhere). See App\Services\PushTestSender.

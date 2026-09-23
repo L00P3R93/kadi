@@ -107,4 +107,9 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function gameDisputes(): HasMany
+    {
+        return $this->hasMany(GameDispute::class);
+    }
 }
