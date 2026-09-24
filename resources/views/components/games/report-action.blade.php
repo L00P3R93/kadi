@@ -4,6 +4,8 @@
 @php
     $windowOpen = $reportKey && \App\Support\PlayedGame::reportWindowOpen($expiresAt);
     $deadline = $expiresAt ? \Illuminate\Support\Carbon::parse($expiresAt) : null;
+    // Counted from the server's clock, so a wrong phone clock cannot open or close the window early.
+    $secondsLeft = $windowOpen ? max(0, (int) now()->diffInSeconds($deadline, false)) : 0;
 @endphp
 
 @if ($state)
@@ -11,17 +13,34 @@
         {{ $labels[$state] ?? 'Reported' }}
     </span>
 @elseif ($windowOpen)
-    <span class="flex items-center gap-2">
-        <span class="text-xs text-[#6b6b6b]" title="You can report until {{ $deadline->format('j M Y, H:i') }}">
-            {{ $deadline->diffForHumans(['syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE, 'parts' => 1]) }} left
+    {{-- The window is short, so the time left counts down live; the server checks again on open and on filing. --}}
+    <span
+        x-data="{
+            left: {{ $secondsLeft }},
+            timer: null,
+            get label() {
+                if (this.left >= 3600) return @js($deadline->diffForHumans(['syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE, 'parts' => 1]).' left');
+                return Math.floor(this.left / 60) + ':' + String(this.left % 60).padStart(2, '0') + ' left';
+            },
+        }"
+        x-init="timer = setInterval(() => { left > 0 ? left-- : clearInterval(timer) }, 1000)"
+        x-on:remove="clearInterval(timer)"
+        class="flex items-center gap-2"
+        data-seconds-left="{{ $secondsLeft }}"
+    >
+        <span x-show="left > 0" class="flex items-center gap-2">
+            <span class="text-xs tabular-nums text-[#6b6b6b]" title="You can report until {{ $deadline->format('j M Y, H:i:s') }}" x-text="label">
+                {{ $deadline->diffForHumans(['syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE, 'parts' => 1]) }} left
+            </span>
+            <button
+                type="button"
+                wire:click="openReport('{{ $reportKey }}')"
+                class="rounded-full border border-yellow-800/40 px-3 py-1 text-xs font-semibold text-[#f5f5f0]/80 transition hover:border-[#f5c542]/60 hover:text-[#f5c542]"
+            >
+                Report
+            </button>
         </span>
-        <button
-            type="button"
-            wire:click="openReport('{{ $reportKey }}')"
-            class="rounded-full border border-yellow-800/40 px-3 py-1 text-xs font-semibold text-[#f5f5f0]/80 transition hover:border-[#f5c542]/60 hover:text-[#f5c542]"
-        >
-            Report
-        </button>
+        <span x-show="left <= 0" x-cloak class="text-xs text-[#6b6b6b]">Reporting closed</span>
     </span>
 @elseif ($reportKey)
     <span class="text-xs text-[#6b6b6b]" @if ($deadline) title="Reporting closed {{ $deadline->format('j M Y, H:i') }}" @endif>

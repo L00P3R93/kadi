@@ -21,22 +21,22 @@ function recentGamesBody(array $overrides = []): array
     return array_merge([
         'single_games' => [
             ['game_wallet_id' => 812, 'game_id' => 'GAME-5521', 'game_type' => 'Single Game', 'players' => 2, 'amount' => 100.0, 'state' => 'loss', 'created_at' => '2026-09-22 18:04:11'],
-            ['game_wallet_id' => 813, 'game_id' => 'GAME-5522', 'game_type' => 'Single Game', 'players' => 2, 'amount' => 50.0, 'state' => 'win', 'created_at' => '2026-09-22 17:00:00'],
+            ['game_wallet_id' => 813, 'game_id' => 'GAME-5522', 'game_type' => 'Single Game', 'players' => 2, 'amount' => 50.0, 'state' => 'win', 'created_at' => '2026-09-22 18:01:00'],
         ],
         'tournament_games' => [[
             'competition_wallet_id' => 301, 'competition_id' => 'TOURN-88', 'cmp_uid' => '74120', 'game_type' => 1,
-            'level' => 2, 'balance' => 0.0, 'status' => 0, 'created_at' => '2026-09-21 20:15:02', 'wins' => 1, 'losses' => 2,
+            'level' => 2, 'balance' => 0.0, 'status' => 0, 'created_at' => '2026-09-22 18:00:02', 'wins' => 1, 'losses' => 2,
             'games' => [
                 // Lost to an OPEN opponent wallet: name the opponent's winning transaction.
-                ['transaction_id' => 9042, 'payment_type' => 'loss', 'amount' => 100.0, 'level' => 2, 'created_at' => '2026-09-21 20:31:47',
+                ['transaction_id' => 9042, 'payment_type' => 'loss', 'amount' => 100.0, 'level' => 2, 'created_at' => '2026-09-22 18:03:47',
                     'opponent' => ['competition_wallet_id' => 302, 'customer_id' => 45, 'wallet_status' => 1, 'transaction_id' => 9043]],
                 // Lost to a CLOSED opponent wallet: KadiApi disputes its payout, no transaction_ids.
-                ['transaction_id' => 9030, 'payment_type' => 'loss', 'amount' => 80.0, 'level' => 1, 'created_at' => '2026-09-21 20:25:00',
+                ['transaction_id' => 9030, 'payment_type' => 'loss', 'amount' => 80.0, 'level' => 1, 'created_at' => '2026-09-22 18:03:00',
                     'opponent' => ['competition_wallet_id' => 320, 'customer_id' => 70, 'wallet_status' => 0, 'transaction_id' => 9031]],
-                ['transaction_id' => 9017, 'payment_type' => 'win', 'amount' => 50.0, 'level' => 1, 'created_at' => '2026-09-21 20:22:10',
+                ['transaction_id' => 9017, 'payment_type' => 'win', 'amount' => 50.0, 'level' => 1, 'created_at' => '2026-09-22 18:02:10',
                     'opponent' => ['competition_wallet_id' => 318, 'customer_id' => 61, 'wallet_status' => 0, 'transaction_id' => 9016]],
                 // Opponent unknown: cannot be reported.
-                ['transaction_id' => 9001, 'payment_type' => 'loss', 'amount' => 20.0, 'level' => 1, 'created_at' => '2026-09-21 20:16:00', 'opponent' => null],
+                ['transaction_id' => 9001, 'payment_type' => 'loss', 'amount' => 20.0, 'level' => 1, 'created_at' => '2026-09-22 18:01:00', 'opponent' => null],
             ],
         ]],
         'jackpot_games' => [],
@@ -65,8 +65,26 @@ function fakeKadi(?array $complaint = null, int $status = 201, array $open = [],
     });
 }
 
-/** A throwaway stand-in for the game database's game_level_pending table. */
-function fakeGameLevelPending(array $rows = []): void
+/**
+ * The deadline the game server would give each fixture (created_at + 3 minutes), Nairobi time.
+ * game:812 → GAME-5521; the tournament's rounds → TOURN-88 (level 2 = round 9042, level 1 = round 9030).
+ */
+const FIXTURE_DEADLINES = [
+    'GAME-5521' => [null => '2026-09-22 18:07:11'],
+    'TOURN-88' => [2 => '2026-09-22 18:06:47', 1 => '2026-09-22 18:06:00'],
+];
+
+/** Stored like MySQL stores a timestamp: in UTC. */
+function kadiTimestamp(string $nairobi): string
+{
+    return Carbon::parse($nairobi, 'Africa/Nairobi')->utc()->toDateTimeString();
+}
+
+/**
+ * A throwaway stand-in for the game database's game_level_pending table. With no rows, the player's
+ * (account 42) pending rows for the fixtures are seeded; rows without expires_at get their fixture's.
+ */
+function fakeGameLevelPending(?array $rows = null): void
 {
     config(['database.connections.kadi' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]);
     DB::purge('kadi');
@@ -78,10 +96,23 @@ function fakeGameLevelPending(array $rows = []): void
         $t->integer('price')->default(20);
         $t->integer('level')->default(1);
         $t->string('game_id', 100)->nullable();
+        $t->timestamp('created_at')->nullable();
+        $t->timestamp('expires_at')->nullable();
         $t->string('status')->default('pending');
     });
 
+    $rows ??= [
+        ['id' => 101, 'account_id' => 42, 'game_id' => 'GAME-5521'],
+        ['id' => 102, 'account_id' => 42, 'game_id' => 'TOURN-88', 'level' => 2],
+        ['id' => 103, 'account_id' => 42, 'game_id' => 'TOURN-88', 'level' => 1],
+    ];
+
     foreach ($rows as $row) {
+        $deadlines = FIXTURE_DEADLINES[$row['game_id'] ?? ''] ?? [];
+        $row['expires_at'] = isset($row['expires_at'])
+            ? kadiTimestamp($row['expires_at'])
+            : (isset($deadlines[$row['level'] ?? null]) || $deadlines !== [] ? kadiTimestamp($deadlines[$row['level'] ?? null] ?? max($deadlines)) : null);
+
         DB::connection('kadi')->table('game_level_pending')->insert($row);
     }
 }
@@ -115,8 +146,8 @@ function submitGameReport($component, string $key, string $reason = 'The game fr
 }
 
 beforeEach(function () {
-    // The fixtures were played on 21-22 Sep; keep them inside the 72-hour report window.
-    $this->travelTo(Carbon::parse('2026-09-23 12:00:00'));
+    // The fixtures were played between 18:00 and 18:04:11 on 22 Sep; keep them inside the 3-minute report window.
+    $this->travelTo(Carbon::parse('2026-09-22 18:05:00'));
     fakeGameLevelPending();
 });
 
@@ -393,27 +424,28 @@ test('an item can be reported only once', function () {
     expect(collect(Http::recorded())->filter(fn ($pair) => complaintPosted()($pair[0])))->toHaveCount(1);
 });
 
-// --- The 72-hour report window ---------------------------------------------
+// --- The 3-minute report window ---------------------------------------------
 
-test('each reportable item can be reported until 72 hours after it was played', function () {
+test('each reportable item can be reported until 3 minutes after it was played', function () {
     $items = PlayedGame::reportables(PlayedGame::listsFromApi(recentGamesBody(), 10));
 
-    expect($items['game:812']['report_expires_at'])->toBe('2026-09-25 18:04:11')
-        ->and($items['tournament-round:9042']['report_expires_at'])->toBe('2026-09-24 20:31:47');
+    expect($items['game:812']['report_expires_at'])->toBe('2026-09-22 18:07:11')
+        ->and($items['tournament-round:9042']['report_expires_at'])->toBe('2026-09-22 18:06:47');
 });
 
-test('the page tells players about the 72-hour window and shows how long is left', function () {
+test('the page tells players about the 3-minute window and counts down the time left', function () {
     fakeKadi();
 
     historyFor(reporter())
-        ->assertSee('72 hours')
-        ->assertSee('2 days left')
+        ->assertSee('within 3 minutes of playing')
+        ->assertSee('2 minutes left')
+        ->assertSeeHtml('data-seconds-left="131"')
         ->assertSeeHtml("openReport('game:812')");
 });
 
-test('past 72 hours the Report button disappears and filing is refused without calling KadiApi', function () {
+test('past 3 minutes the Report button disappears and filing is refused without calling KadiApi', function () {
     fakeKadi();
-    $this->travelTo(Carbon::parse('2026-09-25 18:04:12')); // one second after game:812's window closed
+    $this->travelTo(Carbon::parse('2026-09-22 18:07:12')); // one second after game:812's window closed
     $user = reporter();
 
     historyFor($user)
@@ -421,32 +453,41 @@ test('past 72 hours the Report button disappears and filing is refused without c
         ->assertSee('Reporting closed')
         ->call('openReport', 'game:812')
         ->assertSet('showReportModal', false)
-        ->assertSee('within 72 hours of playing');
+        ->assertSee('within 3 minutes of playing');
 
     $result = app(GameDisputeService::class)->file($user, 'game:812', 'The game froze or crashed');
 
     expect($result->succeeded())->toBeFalse()
-        ->and($result->message)->toContain('within 72 hours')
+        ->and($result->message)->toContain('within 3 minutes')
         ->and(GameDispute::count())->toBe(0);
     Http::assertNotSent(complaintPosted());
 });
 
-test('a game can still be reported in the last second of its 72 hours', function () {
+test('a game can still be reported in the last second of its 3 minutes', function () {
     fakeKadi();
-    $this->travelTo(Carbon::parse('2026-09-25 18:04:10'));
+    $this->travelTo(Carbon::parse('2026-09-22 18:07:10'));
 
     expect(app(GameDisputeService::class)->file(reporter(), 'game:812', 'The game froze or crashed')->succeeded())->toBeTrue();
 });
 
-test('a game without a play time cannot be reported', function () {
+test('a game without a play time cannot be reported when the game database is down', function () {
     $body = recentGamesBody();
     unset($body['single_games'][0]['created_at']);
     fakeKadi(recent: $body);
+    Schema::connection('kadi')->drop('game_level_pending'); // no deadline from the game server either
 
     $result = app(GameDisputeService::class)->file(reporter(), 'game:812', 'The game froze or crashed');
 
     expect($result->succeeded())->toBeFalse();
     Http::assertNotSent(complaintPosted());
+});
+
+test('a game without a play time follows the game server\'s deadline', function () {
+    $body = recentGamesBody();
+    unset($body['single_games'][0]['created_at']);
+    fakeKadi(recent: $body);
+
+    expect(app(GameDisputeService::class)->file(reporter(), 'game:812', 'The game froze or crashed')->succeeded())->toBeTrue();
 });
 
 test('an item reported earlier keeps its report state after the window closes', function () {
@@ -470,4 +511,77 @@ test('a player can send only a few reports in a short time', function () {
 
     expect($third->message)->toContain('sent several reports recently');
     expect(collect(Http::recorded())->filter(fn ($pair) => complaintPosted()($pair[0])))->toHaveCount(2);
+});
+
+test('the window follows the config and is described in words', function (int $minutes, string $label, string $expires) {
+    config(['kadi.game_disputes.report_window_minutes' => $minutes]);
+
+    $items = PlayedGame::reportables(PlayedGame::listsFromApi(recentGamesBody(), 10));
+
+    expect(PlayedGame::reportWindowLabel())->toBe($label)
+        ->and($items['game:812']['report_expires_at'])->toBe($expires);
+})->with([
+    'default' => [3, '3 minutes', '2026-09-22 18:07:11'],
+    'one minute' => [1, '1 minute', '2026-09-22 18:05:11'],
+    'an hour' => [60, '1 hour', '2026-09-22 19:04:11'],
+]);
+
+// --- The game server's deadline (kadi.game_level_pending.expires_at) ------------------
+
+test('the deadline is the pending row\'s expires_at, not KadiApi\'s created_at', function () {
+    fakeKadi();
+    // The game server gave this game longer than created_at + 3 minutes.
+    fakeGameLevelPending([['id' => 1, 'account_id' => 42, 'game_id' => 'GAME-5521', 'expires_at' => '2026-09-22 18:10:00']]);
+    $this->travelTo(Carbon::parse('2026-09-22 18:08:00')); // past created_at + 3 minutes
+
+    historyFor(reporter())
+        ->assertSeeHtml("openReport('game:812')")
+        ->assertSeeHtml('data-seconds-left="120"');
+
+    expect(app(GameDisputeService::class)->file(reporter(), 'game:812', 'The game froze or crashed')->succeeded())->toBeTrue();
+});
+
+test('an earlier expires_at closes reporting early', function () {
+    fakeKadi();
+    fakeGameLevelPending([['id' => 1, 'account_id' => 42, 'game_id' => 'GAME-5521', 'expires_at' => '2026-09-22 18:04:59']]);
+
+    historyFor(reporter())->assertDontSeeHtml("openReport('game:812')")->assertSee('Reporting closed');
+});
+
+test('without a pending row the game cannot be reported, even inside 3 minutes', function (array $row) {
+    fakeKadi();
+    fakeGameLevelPending([$row]);
+    $user = reporter();
+
+    historyFor($user)->assertDontSeeHtml("openReport('game:812')");
+
+    expect(app(GameDisputeService::class)->file($user, 'game:812', 'The game froze or crashed')->succeeded())->toBeFalse();
+    Http::assertNotSent(complaintPosted());
+})->with([
+    'already paid out' => [['id' => 1, 'account_id' => 42, 'game_id' => 'GAME-5521', 'status' => 'approved']],
+    'cancelled' => [['id' => 1, 'account_id' => 42, 'game_id' => 'GAME-5521', 'status' => 'cancelled']],
+    'only the opponent has a row' => [['id' => 1, 'account_id' => 45, 'game_id' => 'GAME-5521']],
+    'another game' => [['id' => 1, 'account_id' => 42, 'game_id' => 'OTHER']],
+]);
+
+test('a round uses the pending row of its own level', function () {
+    fakeKadi();
+    fakeGameLevelPending([
+        ['id' => 1, 'account_id' => 42, 'game_id' => 'TOURN-88', 'level' => 2, 'expires_at' => '2026-09-22 18:09:00'],
+        ['id' => 2, 'account_id' => 42, 'game_id' => 'TOURN-88', 'level' => 1, 'expires_at' => '2026-09-22 18:05:30'],
+    ]);
+
+    $items = PlayedGame::reportables(app(GameDisputeService::class)->recentGames(reporter()));
+
+    expect($items['tournament-round:9042']['report_expires_at'])->toBe('2026-09-22 18:09:00')
+        ->and($items['tournament-round:9030']['report_expires_at'])->toBe('2026-09-22 18:05:30');
+});
+
+test('if the game database cannot be read, KadiApi\'s created_at + 3 minutes is used', function () {
+    fakeKadi();
+    Schema::connection('kadi')->drop('game_level_pending');
+
+    $items = PlayedGame::reportables(app(GameDisputeService::class)->recentGames(reporter()));
+
+    expect($items['game:812']['report_expires_at'])->toBe('2026-09-22 18:07:11');
 });

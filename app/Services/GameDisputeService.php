@@ -6,6 +6,7 @@ use App\Facades\KadiApi;
 use App\Models\GameDispute;
 use App\Models\User;
 use App\Support\PlayedGame;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,8 +17,9 @@ use Illuminate\Support\Facades\RateLimiter;
  *
  * Reporting:
  *   1. the item must be reportable in the player's OWN recent games, read server-side (a lost single
- *      game, or a lost tournament/jackpot round with a known opponent), played within the last 72 hours
- *      (`kadi.game_disputes.report_window_hours`). Ids from the browser are never sent to KadiApi as-is;
+ *      game, or a lost tournament/jackpot round with a known opponent) whose `kadi.game_level_pending`
+ *      row is still pending and before its `expires_at` (see withGameDeadlines()). Ids from the browser
+ *      are never sent to KadiApi as-is;
  *   2. POST complaints to KadiApi (holds the disputed winnings in escrow). A round names the opponent's
  *      competition wallet, plus the opponent's winning transaction while that wallet is open;
  *   3. only once KadiApi accepted it: record it locally and set the player's pending
@@ -65,11 +67,96 @@ class GameDisputeService
             Cache::forget($cacheKey);
         }
 
-        return Cache::remember(
+        $lists = Cache::remember(
             $cacheKey,
-            now()->addSeconds((int) config('kadi.game_disputes.cache_seconds', 60)),
+            now()->addSeconds((int) config('kadi.game_disputes.cache_seconds', 15)),
             fn () => KadiApi::getPlayedGames((int) $user->linked_id),
         );
+
+        // Not cached: a row that stops being pending (paid out, cancelled) must close reporting at once.
+        return $this->withGameDeadlines($user, $lists);
+    }
+
+    /**
+     * The game server decides how long a game can be disputed: while the player's
+     * `kadi.game_level_pending` row for it is `pending`, until its `expires_at` (created_at + 3 minutes
+     * today). Rows match on game_id: a single game's game_id, a round's competition_id (preferring
+     * rows of the round's level). No pending row means the window is closed.
+     *
+     * If the game database cannot be read, the lists keep PlayedGame's fallback (KadiApi's created_at
+     * + `report_window_minutes`), so an outage there does not block every report.
+     *
+     * @param  array<string, list<array<string, mixed>>>  $lists
+     * @return array<string, list<array<string, mixed>>>
+     */
+    private function withGameDeadlines(User $user, array $lists): array
+    {
+        $gameIds = [];
+
+        foreach ($lists[PlayedGame::GAME] ?? [] as $game) {
+            if ($game['report_key'] && $game['game_id']) {
+                $gameIds[] = $game['game_id'];
+            }
+        }
+
+        foreach ([PlayedGame::TOURNAMENT, PlayedGame::JACKPOT] as $kind) {
+            foreach ($lists[$kind] ?? [] as $competition) {
+                if ($competition['competition_id'] && collect($competition['rounds'])->contains(fn ($round) => $round['report_key'])) {
+                    $gameIds[] = $competition['competition_id'];
+                }
+            }
+        }
+
+        if ($gameIds === []) {
+            return $lists;
+        }
+
+        try {
+            $db = DB::connection('kadi');
+            // Read as epoch seconds: correct whatever time zone the game database's session uses.
+            $epoch = $db->getDriverName() === 'sqlite' ? "CAST(strftime('%s', expires_at) AS INTEGER)" : 'UNIX_TIMESTAMP(expires_at)';
+
+            $rows = $db->table('game_level_pending')
+                ->where('account_id', $user->linked_id)
+                ->where('status', 'pending')
+                ->whereIn('game_id', array_values(array_unique($gameIds)))
+                ->selectRaw("game_id, level, {$epoch} as expires_ts")
+                ->get();
+        } catch (\Throwable $e) {
+            Log::warning("Game dispute: could not read game_level_pending deadlines for user {$user->id}: ".class_basename($e));
+
+            return $lists;
+        }
+
+        $deadline = function (?string $gameId, ?int $level) use ($rows): ?string {
+            $matches = $rows->where('game_id', $gameId);
+
+            if ($level !== null && $matches->contains(fn ($row) => (int) $row->level === $level)) {
+                $matches = $matches->filter(fn ($row) => (int) $row->level === $level);
+            }
+
+            $latest = $matches->max(fn ($row) => (int) $row->expires_ts);
+
+            return $latest ? Carbon::createFromTimestamp($latest, config('app.timezone'))->toDateTimeString() : null;
+        };
+
+        foreach ($lists[PlayedGame::GAME] ?? [] as $i => $game) {
+            if ($game['report_key']) {
+                $lists[PlayedGame::GAME][$i]['report_expires_at'] = $deadline($game['game_id'], null);
+            }
+        }
+
+        foreach ([PlayedGame::TOURNAMENT, PlayedGame::JACKPOT] as $kind) {
+            foreach ($lists[$kind] ?? [] as $c => $competition) {
+                foreach ($competition['rounds'] as $r => $round) {
+                    if ($round['report_key']) {
+                        $lists[$kind][$c]['rounds'][$r]['report_expires_at'] = $deadline($competition['competition_id'], $round['level']);
+                    }
+                }
+            }
+        }
+
+        return $lists;
     }
 
     /**
@@ -186,7 +273,7 @@ class GameDisputeService
 
     public static function windowClosedMessage(): string
     {
-        return 'Games can only be reported within '.PlayedGame::reportWindowHours().' hours of playing. This one can no longer be reported.';
+        return 'Games can only be reported within '.PlayedGame::reportWindowLabel().' of playing. This one can no longer be reported.';
     }
 
     public static function cacheKey(User $user): string

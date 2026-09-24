@@ -118,10 +118,12 @@ return [
         'played_endpoint' => trim((string) env('KADI_PLAYED_GAMES_ENDPOINT', 'customers/played/recent'), '/'),
 
         'games_per_list' => 10,
-        'cache_seconds' => 60,
+        // Short, because the report window is only minutes long: a new game must show up quickly.
+        'cache_seconds' => 15,
 
-        // Players may report a game or round only this many hours after it was played.
-        'report_window_hours' => 72,
+        // The game server's kadi.game_level_pending.expires_at is the real deadline. This is the window
+        // shown in the page text, and the fallback (from KadiApi's created_at) if the game DB is down.
+        'report_window_minutes' => (int) env('KADI_DISPUTE_WINDOW_MINUTES', 3),
 
         // Reports one player may send to KadiApi (accepted or not) per window.
         'max_attempts' => 3,

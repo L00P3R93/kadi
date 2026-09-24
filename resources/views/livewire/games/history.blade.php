@@ -27,7 +27,7 @@
                 <flux:icon.clock variant="outline" class="size-7 shrink-0 text-[#f5c542]" aria-hidden="true" />
                 Game History
             </h1>
-            <p class="mt-1 text-sm text-[#6b6b6b]">Your latest games. Lost one unfairly? Report it within {{ $reportWindowHours }} hours of playing and our team will review it.</p>
+            <p class="mt-1 text-sm text-[#6b6b6b]">Your latest games. Lost one unfairly? Report it within {{ $reportWindow }} of playing and our team will review it.</p>
         </div>
 
         <button
@@ -46,7 +46,7 @@
 
         <p class="mb-4 flex items-start gap-2 rounded-lg border border-yellow-800/20 bg-[#111]/40 p-3 text-xs text-[#6b6b6b]">
             <flux:icon.information-circle variant="outline" class="size-4 shrink-0 text-[#f5c542]" aria-hidden="true" />
-            <span>You have <strong class="text-[#f5f5f0]/80">{{ $reportWindowHours }} hours</strong> from the time you played to report a lost game or round. After that, the Report button disappears.</span>
+            <span>You have <strong class="text-[#f5f5f0]/80">{{ $reportWindow }}</strong> from the time you played to report a lost game or round. After that, the Report button disappears.</span>
         </p>
 
         {{-- Tabs --}}
@@ -198,7 +198,7 @@
                         @endif
                     </p>
                 @endif
-                <p class="mt-2 text-xs text-[#6b6b6b]">The winnings in question are held until our team has reviewed your report. You can report each game or round once, within {{ $reportWindowHours }} hours of playing.</p>
+                <p class="mt-2 text-xs text-[#6b6b6b]">The winnings in question are held until our team has reviewed your report. You can report each game or round once, within {{ $reportWindow }} of playing.</p>
             </div>
 
             <flux:field>

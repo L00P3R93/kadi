@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Carbon\CarbonInterval;
 use Illuminate\Support\Carbon;
 
 /**
@@ -14,8 +15,9 @@ use Illuminate\Support\Carbon;
  *   while that wallet is open, the opponent's winning transaction of that round.
  *
  * Every reportable item has a `report_key` (game:{game_wallet_id} or {kind}-round:{own transaction_id})
- * and a `report_expires_at`: players may report only within `kadi.game_disputes.report_window_hours`
- * (72) of playing. An item without a known play time can never be reported.
+ * and a `report_expires_at`. GameDisputeService replaces it with the game server's deadline
+ * (`kadi.game_level_pending.expires_at`); the value set here, created_at + `report_window_minutes` (3),
+ * is only the fallback for when the game database cannot be read.
  */
 final class PlayedGame
 {
@@ -128,9 +130,15 @@ final class PlayedGame
         return $items;
     }
 
-    public static function reportWindowHours(): int
+    public static function reportWindowMinutes(): int
     {
-        return max(1, (int) config('kadi.game_disputes.report_window_hours', 72));
+        return max(1, (int) config('kadi.game_disputes.report_window_minutes', 3));
+    }
+
+    /** The window in words for players: "3 minutes", "1 hour", "3 days". */
+    public static function reportWindowLabel(): string
+    {
+        return CarbonInterval::minutes(self::reportWindowMinutes())->cascade()->forHumans();
     }
 
     /** Whether an item with this `report_expires_at` may still be reported. */
@@ -141,7 +149,7 @@ final class PlayedGame
 
     private static function reportExpiresAt(?string $playedAt): ?string
     {
-        return $playedAt ? Carbon::parse($playedAt)->addHours(self::reportWindowHours())->toDateTimeString() : null;
+        return $playedAt ? Carbon::parse($playedAt)->addMinutes(self::reportWindowMinutes())->toDateTimeString() : null;
     }
 
     private static function game(array $row): array

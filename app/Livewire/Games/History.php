@@ -16,7 +16,7 @@ use Livewire\Component;
 
 /**
  * The player's latest games, tournaments and jackpots. A lost game, or a lost tournament/jackpot round
- * against a known opponent, can be reported once, within 72 hours of playing. Games load after the first paint (wire:init) so a
+ * against a known opponent, can be reported once, within 3 minutes of playing (kadi.game_disputes.report_window_minutes). Games load after the first paint (wire:init) so a
  * slow KadiApi never blocks the page.
  */
 #[Title('Game History | Kadi')]
@@ -214,7 +214,7 @@ class History extends Component
     {
         return view('livewire.games.history', [
             'tabs' => PlayedGame::LABELS,
-            'reportWindowHours' => PlayedGame::reportWindowHours(),
+            'reportWindow' => PlayedGame::reportWindowLabel(),
         ])->layout('layouts.app');
     }
 }
