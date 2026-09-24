@@ -111,15 +111,18 @@
                     x-effect="left = $wire.resendIn"
                     x-on:remove="clearInterval(timer)"
                 >
+                    @php $hasCode = app(\App\Support\PhoneOtp::class)->hasPendingCode(auth()->user()); @endphp
                     <p class="mb-4 text-center text-sm text-[#8a8a8a]" style="font-family: 'Outfit', sans-serif;">
                         @if ($notice)
                             {{ $notice }}
+                        @elseif ($hasCode)
+                            {{ __('Enter the code we sent to :phone.', ['phone' => \App\Services\TextSmsService::mask(auth()->user()->phone)]) }}
                         @else
                             {{ __('We will text a code to :phone.', ['phone' => \App\Services\TextSmsService::mask(auth()->user()->phone)]) }}
                         @endif
                     </p>
 
-                    @if (app(\App\Support\PhoneOtp::class)->hasPendingCode(auth()->user()))
+                    @if ($hasCode)
                         <div class="mb-5">
                             <label for="phone-required-code" class="mb-2 block text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]"
                                    style="font-family: 'Outfit', sans-serif;">
@@ -157,16 +160,33 @@
                         @error('code')
                             <p class="mb-4 text-center text-xs text-red-400" style="font-family: 'Outfit', sans-serif;">{{ $message }}</p>
                         @enderror
+
+                        <button
+                            type="button"
+                            wire:click="sendCode"
+                            wire:loading.attr="disabled"
+                            x-bind:disabled="left > 0"
+                            class="btn-casino-primary w-full rounded-xl py-3.5 text-sm font-bold tracking-wider transition disabled:cursor-not-allowed disabled:opacity-50"
+                            style="font-family: 'Cinzel', serif;"
+                            data-test="otp-send"
+                        >
+                            <span wire:loading.remove wire:target="sendCode">{{ __('Send me a code') }}</span>
+                            <span wire:loading wire:target="sendCode">{{ __('Sending…') }}</span>
+                        </button>
                     @endif
 
                     <div class="mt-4 flex items-center justify-between text-xs" style="font-family: 'Outfit', sans-serif;">
                         <button type="button" wire:click="changeNumber" class="text-[#6b6b6b] hover:text-white">{{ __('Wrong number?') }}</button>
 
-                        <button type="button" wire:click="sendCode" wire:loading.attr="disabled" x-bind:disabled="left > 0"
-                                class="font-semibold text-[#f5c542] hover:underline disabled:cursor-not-allowed disabled:text-[#6b6b6b] disabled:no-underline">
-                            <span x-show="left > 0">{{ __('Resend in') }} <span x-text="left"></span>s</span>
-                            <span x-show="left <= 0">{{ app(\App\Support\PhoneOtp::class)->hasPendingCode(auth()->user()) ? __('Resend code') : __('Send code') }}</span>
-                        </button>
+                        @if ($hasCode)
+                            <button type="button" wire:click="sendCode" wire:loading.attr="disabled" x-bind:disabled="left > 0"
+                                    class="font-semibold text-[#f5c542] hover:underline disabled:cursor-not-allowed disabled:text-[#6b6b6b] disabled:no-underline">
+                                <span x-show="left > 0">{{ __('Resend in') }} <span x-text="left"></span>s</span>
+                                <span x-show="left <= 0">{{ __('Resend code') }}</span>
+                            </button>
+                        @else
+                            <span x-show="left > 0" class="text-[#6b6b6b]">{{ __('New code in') }} <span x-text="left"></span>s</span>
+                        @endif
                     </div>
                 </div>
             @endif

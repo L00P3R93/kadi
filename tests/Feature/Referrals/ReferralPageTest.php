@@ -5,6 +5,7 @@ use App\Models\User;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 
 const REF_PAGE_API = 'https://api.kadi-kings.co.ke/api/v1/';
 
@@ -245,3 +246,14 @@ test('the balance and history are re-read after a withdrawal', function () {
     // Once on load, once after the payout (the 60s cache is cleared).
     expect(Http::recorded(fn (Request $request) => str_contains($request->url(), '/referral-wallet?')))->toHaveCount(2);
 });
+
+test('the browser cannot rewrite the wallet, list or idempotency key', function (string $property, mixed $value) {
+    fakeReferralPageApi();
+
+    expect(fn () => Livewire::actingAs(referrer())->test(Index::class)->call('load')->set($property, $value))
+        ->toThrow(CannotUpdateLockedPropertyException::class);
+})->with([
+    'wallet' => ['wallet', ['balance' => 999999, 'withdrawable' => true, 'minimum_withdrawal' => 1]],
+    'referrals' => ['referrals', []],
+    'pending key' => ['pendingKey', 'attacker-chosen'],
+]);

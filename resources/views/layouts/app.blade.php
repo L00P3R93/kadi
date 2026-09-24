@@ -279,7 +279,7 @@
             <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
 
                 {{-- Top bar --}}
-                <header class="flex h-16 flex-shrink-0 items-center justify-between border-b border-yellow-800/20 bg-[#111111] px-6">
+                <header class="flex h-16 flex-shrink-0 items-center justify-between border-b border-yellow-800/20 bg-[#111111] px-4 sm:px-6">
                     {{-- Hamburger — mobile: toggles overlay, desktop: toggles expand/collapse --}}
                     <button @click="window.innerWidth >= 1024 ? toggle() : (sidebarOpen = !sidebarOpen)" class="text-[#f5f5f0]/60 hover:text-[#f5c542] transition">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -292,7 +292,7 @@
                         <span class='text-[#f5f5f0]'>{{ strtok(auth()->user()->name, ' ') }}</span>
                     </div>
 
-                    <div class="flex items-center gap-4">
+                    <div class="flex min-w-0 items-center gap-2 sm:gap-4">
                         {{-- Balance widget --}}
                         <livewire:wallet-balance />
                         {{-- Notifications bell --}}
@@ -300,8 +300,10 @@
                         {{-- Logout --}}
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="btn-casino-primary inline-block rounded-full px-5 py-2 text-sm no-underline">
-                                <span>Logout</span>
+                            {{-- Icon only on the narrowest phones, so the header fits at 320px --}}
+                            <button type="submit" aria-label="Logout" class="btn-casino-primary inline-flex items-center rounded-full px-3 py-2 text-sm min-[400px]:px-4 sm:px-5 no-underline">
+                                <flux:icon.arrow-right-start-on-rectangle variant="mini" class="min-[400px]:hidden" aria-hidden="true" />
+                                <span class="hidden min-[400px]:inline">Logout</span>
                             </button>
                         </form>
                     </div>

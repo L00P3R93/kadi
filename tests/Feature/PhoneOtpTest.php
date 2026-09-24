@@ -228,3 +228,25 @@ test('the dashboard asks unverified players to confirm their number', function (
     $this->actingAs(unverifiedPlayer())->get(route('dashboard'))->assertSee('data-test="verify-phone-banner"', false);
     $this->actingAs(User::factory()->create(['phone' => '254799000111']))->get(route('dashboard'))->assertDontSee('data-test="verify-phone-banner"', false);
 });
+
+test('before a code is sent the modal offers a clear send button', function () {
+    fakeSms();
+
+    Livewire::actingAs(unverifiedPlayer())->test(PhoneRequired::class)
+        ->call('open', 'deposit')
+        ->assertSee('data-test="otp-send"', false)
+        ->assertSee('We will text a code to 2547****5678.')
+        ->assertDontSee('data-test="otp-input"', false);
+});
+
+test('after a code is sent the modal asks for it', function () {
+    fakeSms();
+    $user = unverifiedPlayer();
+
+    Livewire::actingAs($user)->test(PhoneRequired::class)
+        ->call('open', 'deposit')
+        ->call('sendCode')
+        ->assertSee('data-test="otp-input"', false)
+        ->assertDontSee('data-test="otp-send"', false)
+        ->assertSee('We sent a code to 2547****5678.');
+});

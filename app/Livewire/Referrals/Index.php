@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -25,6 +26,9 @@ use Livewire\Component;
 #[Title('Invite & Earn | Kadi')]
 class Index extends Component
 {
+    // State loaded from KadiApi and the withdraw flow is #[Locked]: a player must not be able to
+    // rewrite their balance, minimum or idempotency key from the browser.
+
     public const STATUSES = [
         'pending_verification' => 'Pending verification',
         'verified' => 'Verified',
@@ -38,47 +42,65 @@ class Index extends Component
         'failed' => 'Failed',
     ];
 
+    #[Locked]
     public bool $loaded = false;
 
     /** @var array{code: string, link: string, qr_code: string}|null */
+    #[Locked]
     public ?array $share = null;
 
+    #[Locked]
     public ?array $stats = null;
 
+    #[Locked]
     public bool $statsFailed = false;
 
     /** @var list<array<string, mixed>> */
+    #[Locked]
     public array $referrals = [];
 
+    #[Locked]
     public array $referralsMeta = [];
 
+    #[Locked]
     public bool $referralsFailed = false;
 
+    #[Locked]
     public string $status = '';
 
+    #[Locked]
     public int $page = 1;
 
+    #[Locked]
     public ?array $wallet = null;
 
+    #[Locked]
     public bool $walletFailed = false;
 
     /** @var list<array<string, mixed>> */
+    #[Locked]
     public array $withdrawals = [];
 
+    #[Locked]
     public bool $withdrawalsFailed = false;
 
     public string $withdrawAmount = '';
 
+    #[Locked]
     public bool $confirmingWithdraw = false;
 
+    #[Locked]
     public bool $processingWithdraw = false;
 
     /** One Idempotency-Key per attempt. */
+    #[Locked]
     public ?string $withdrawKey = null;
 
     /** Key and amount of an attempt whose outcome is unknown: retrying the same amount replays it. */
+    #[Locked]
     public ?string $pendingKey = null;
 
+    #[Locked]
     public ?int $pendingAmount = null;
 
     public ?string $withdrawError = null;

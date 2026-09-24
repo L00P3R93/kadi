@@ -29,9 +29,9 @@
         </div>
     @endif
 
-    <div class="flex items-center justify-between gap-3">
-        <div>
-            <h1 class="flex items-center gap-2 text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+            <h1 class="flex items-center gap-2 text-2xl sm:text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">
                 <flux:icon.user-plus variant="outline" class="size-7 shrink-0 text-[#f5c542]" aria-hidden="true" />
                 Invite &amp; Earn
             </h1>
@@ -42,7 +42,7 @@
         </div>
 
         <button type="button" wire:click="refresh" wire:loading.attr="disabled" wire:target="refresh, load"
-                class="btn-casino-ghost shrink-0 rounded-full px-4 py-1.5 text-sm">
+                class="btn-casino-ghost shrink-0 self-start rounded-full px-4 py-1.5 text-sm sm:self-auto">
             <span wire:loading.remove wire:target="refresh">Refresh</span>
             <span wire:loading wire:target="refresh">Refreshing…</span>
         </button>
@@ -57,10 +57,10 @@
             Your account is still being set up. Please check back in a few minutes.
         </div>
     @else
-        <div class="grid gap-6 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
             {{-- ═══ Code, link, share, QR ═══ --}}
-            <section class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6 lg:col-span-2" aria-labelledby="referral-share-title">
+            <section class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6 lg:col-span-2" aria-labelledby="referral-share-title">
                 <h2 id="referral-share-title" class="mb-4 text-lg font-semibold text-[#f5f5f0]">Your invite</h2>
 
                 @if ($share)
@@ -97,8 +97,8 @@
                         <div class="flex-1 space-y-4">
                             <div>
                                 <p class="text-xs uppercase tracking-widest text-[#6b6b6b]">Code</p>
-                                <div class="mt-1 flex items-center gap-3">
-                                    <span class="font-mono text-2xl font-bold tracking-widest text-[#f5c542]" data-test="referral-code">{{ $share['code'] }}</span>
+                                <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span class="break-all font-mono text-xl font-bold tracking-widest text-[#f5c542] sm:text-2xl" data-test="referral-code">{{ $share['code'] }}</span>
                                     <button type="button" x-on:click="copy(@js($share['code']), 'code')" class="text-xs font-semibold text-[#6b6b6b] hover:text-[#f5f5f0]">
                                         <span x-show="copied !== 'code'">Copy</span><span x-show="copied === 'code'" x-cloak>Copied</span>
                                     </button>
@@ -107,7 +107,7 @@
 
                             <div>
                                 <label for="referral-link" class="text-xs uppercase tracking-widest text-[#6b6b6b]">Link</label>
-                                <div class="mt-1 flex gap-2">
+                                <div class="mt-1 flex flex-col gap-2 min-[380px]:flex-row">
                                     <input id="referral-link" type="text" readonly value="{{ $share['link'] }}" x-on:focus="$el.select()"
                                            class="min-w-0 flex-1 rounded-lg border border-[#2a2a2a] bg-[#111] px-3 py-2 text-sm text-[#f5f5f0]/80 focus:outline-none" />
                                     <button type="button" x-on:click="copy(@js($share['link']), 'link')" class="btn-casino-primary shrink-0 rounded-lg px-4 py-2 text-sm font-semibold">
@@ -146,7 +146,7 @@
             </section>
 
             {{-- ═══ Referral wallet + withdraw ═══ --}}
-            <section class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-wallet-title">
+            <section class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-wallet-title">
                 <h2 id="referral-wallet-title" class="mb-4 text-lg font-semibold text-[#f5f5f0]">Referral wallet</h2>
 
                 @if ($wallet)
@@ -196,7 +196,7 @@
         </div>
 
         {{-- ═══ Stats ═══ --}}
-        <section class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-stats-title">
+        <section class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-stats-title">
             <h2 id="referral-stats-title" class="mb-4 text-lg font-semibold text-[#f5f5f0]">Your referrals</h2>
 
             @if ($stats)
@@ -248,23 +248,23 @@
             @else
                 <ul class="divide-y divide-yellow-800/20" data-test="referral-list">
                     @foreach ($referrals as $referral)
-                        <li class="flex items-center justify-between gap-3 py-3" wire:key="referral-{{ $referral['id'] ?? $loop->index }}">
-                            <div class="min-w-0">
-                                <p class="truncate text-sm font-semibold text-[#f5f5f0]">{{ $referral['referred_name'] ?? 'Player' }}</p>
-                                <p class="text-xs text-[#6b6b6b]">{{ $referral['referred_phone'] ?? '' }} · joined {{ $when($referral['created_at'] ?? null) }}</p>
-                            </div>
-                            <div class="flex shrink-0 items-center gap-3">
-                                <span class="rounded-full border px-2 py-0.5 text-xs {{ $badge[$referral['status'] ?? ''] ?? 'border-zinc-700 text-zinc-400' }}">
+                        <li class="flex items-start justify-between gap-3 py-3 sm:items-center" wire:key="referral-{{ $referral['id'] ?? $loop->index }}">
+                            <div class="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                                <div class="min-w-0">
+                                    <p class="truncate text-sm font-semibold text-[#f5f5f0]">{{ $referral['referred_name'] ?? 'Player' }}</p>
+                                    <p class="text-xs text-[#6b6b6b]">{{ $referral['referred_phone'] ?? '' }} · joined {{ $when($referral['created_at'] ?? null) }}</p>
+                                </div>
+                                <span class="w-fit shrink-0 rounded-full border px-2 py-0.5 text-xs {{ $badge[$referral['status'] ?? ''] ?? 'border-zinc-700 text-zinc-400' }}">
                                     {{ $statuses[$referral['status'] ?? ''] ?? ucfirst((string) ($referral['status'] ?? '')) }}
                                 </span>
-                                <span class="w-24 text-right text-sm font-semibold text-[#f5c542]">{{ $kes($referral['earned'] ?? 0) }}</span>
                             </div>
+                            <span class="shrink-0 text-right text-sm font-semibold text-[#f5c542]">{{ $kes($referral['earned'] ?? 0) }}</span>
                         </li>
                     @endforeach
                 </ul>
 
                 @if (($referralsMeta['last_page'] ?? 1) > 1)
-                    <div class="mt-4 flex items-center justify-between text-sm text-[#6b6b6b]">
+                    <div class="mt-4 flex items-center justify-between gap-2 text-sm text-[#6b6b6b]">
                         <button type="button" wire:click="goToPage({{ $page - 1 }})" @disabled($page <= 1) class="hover:text-[#f5f5f0] disabled:opacity-40">Previous</button>
                         <span>Page {{ $page }} of {{ $referralsMeta['last_page'] }}</span>
                         <button type="button" wire:click="goToPage({{ $page + 1 }})" @disabled($page >= ($referralsMeta['last_page'] ?? 1)) class="hover:text-[#f5f5f0] disabled:opacity-40">Next</button>
@@ -273,9 +273,9 @@
             @endif
         </section>
 
-        <div class="grid gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {{-- ═══ Bonus history ═══ --}}
-            <section class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-bonuses-title">
+            <section class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-bonuses-title">
                 <h2 id="referral-bonuses-title" class="mb-4 text-lg font-semibold text-[#f5f5f0]">Bonuses</h2>
                 @php $bonuses = array_values(array_filter((array) ($wallet['bonuses'] ?? []), 'is_array')); @endphp
                 @if ($bonuses === [])
@@ -283,12 +283,12 @@
                 @else
                     <ul class="divide-y divide-yellow-800/20">
                         @foreach ($bonuses as $bonus)
-                            <li class="flex items-center justify-between py-2 text-sm" wire:key="bonus-{{ $bonus['id'] ?? $loop->index }}">
-                                <span class="text-[#f5f5f0]/80">
+                            <li class="flex items-start justify-between gap-3 py-2 text-sm" wire:key="bonus-{{ $bonus['id'] ?? $loop->index }}">
+                                <span class="min-w-0 break-words text-[#f5f5f0]/80">
                                     {{ ($bonus['milestone'] ?? '') === 'first_deposit' ? 'First deposit' : 'Sign-up' }} · {{ $bonus['referred_name'] ?? 'Player' }}
                                     <span class="text-xs text-[#6b6b6b]">{{ $when($bonus['created_at'] ?? null) }}</span>
                                 </span>
-                                <span class="font-semibold text-green-400">+{{ $kes($bonus['amount'] ?? 0) }}</span>
+                                <span class="shrink-0 font-semibold text-green-400">+{{ $kes($bonus['amount'] ?? 0) }}</span>
                             </li>
                         @endforeach
                     </ul>
@@ -296,7 +296,7 @@
             </section>
 
             {{-- ═══ Withdrawals ═══ --}}
-            <section class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-withdrawals-title">
+            <section class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6" aria-labelledby="referral-withdrawals-title">
                 <h2 id="referral-withdrawals-title" class="mb-4 text-lg font-semibold text-[#f5f5f0]">Withdrawals</h2>
                 @if ($withdrawalsFailed)
                     <p class="text-sm text-red-400">We could not load your withdrawals right now.</p>
@@ -305,12 +305,12 @@
                 @else
                     <ul class="divide-y divide-yellow-800/20" data-test="referral-withdrawals">
                         @foreach ($withdrawals as $withdrawal)
-                            <li class="flex items-center justify-between gap-3 py-2 text-sm" wire:key="withdrawal-{{ $withdrawal['id'] ?? $loop->index }}">
-                                <span class="text-[#f5f5f0]/80">
+                            <li class="flex items-start justify-between gap-3 py-2 text-sm" wire:key="withdrawal-{{ $withdrawal['id'] ?? $loop->index }}">
+                                <span class="min-w-0 break-words text-[#f5f5f0]/80">
                                     {{ $kes($withdrawal['amount'] ?? 0) }}
                                     <span class="text-xs text-[#6b6b6b]">{{ $when($withdrawal['created_at'] ?? null) }}@if (! empty($withdrawal['mpesa_receipt'])) · {{ $withdrawal['mpesa_receipt'] }}@endif</span>
                                 </span>
-                                <span class="rounded-full border px-2 py-0.5 text-xs {{ $badge[$withdrawal['status'] ?? ''] ?? 'border-zinc-700 text-zinc-400' }}">
+                                <span class="shrink-0 rounded-full border px-2 py-0.5 text-xs {{ $badge[$withdrawal['status'] ?? ''] ?? 'border-zinc-700 text-zinc-400' }}">
                                     {{ $withdrawalStatuses[$withdrawal['status'] ?? ''] ?? ucfirst((string) ($withdrawal['status'] ?? '')) }}
                                 </span>
                             </li>
