@@ -418,4 +418,219 @@ class KadiApiService
             default => WithdrawResult::rejected('Withdrawal could not be processed right now. Please try again shortly.'),
         };
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Referrals (see docs/referrals.md)
+    |--------------------------------------------------------------------------
+    | KadiApi owns the referral ledger, bonuses and payouts. Never log codes typed by players,
+    | referred players' names or phone numbers.
+    */
+
+    /**
+     * The player's referral code, link and QR code, or null when they have none yet (404).
+     *
+     * Endpoint : GET customers/{enc}/referral-code
+     *
+     * @return array<string, mixed>|null
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getReferralCode(int $customerId): ?array
+    {
+        $response = $this->http->get('customers/'.encryptOpenSSL((string) $customerId).'/referral-code');
+
+        if ($response->status() === 404) {
+            return null;
+        }
+
+        $data = $response->throw()->json('data');
+
+        return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Set or change the player's code. The old code stops matching new sign-ups; earlier referrals stay.
+     *
+     * Endpoint : PUT customers/{enc}/referral-code   (30/min)
+     * Payload  : code (4-20 letters/digits), link? (URL <= 2048), qr_code? (image URL or data URI <= 500,000)
+     * Errors   : 409 code taken, 422 {errors}
+     */
+    public function putReferralCode(int $customerId, string $code, ?string $link = null, ?string $qrCode = null): ReferralCodeResult
+    {
+        try {
+            $response = $this->http->put('customers/'.encryptOpenSSL((string) $customerId).'/referral-code', array_filter([
+                'code' => $code,
+                'link' => $link,
+                'qr_code' => $qrCode,
+            ], fn ($value) => $value !== null));
+        } catch (\Throwable $e) {
+            Log::warning("Referral code save for customer {$customerId}: ".class_basename($e));
+
+            return ReferralCodeResult::error();
+        }
+
+        $status = $response->status();
+        $data = $response->json('data');
+
+        if ($response->successful() && is_array($data)) {
+            return ReferralCodeResult::saved($data);
+        }
+
+        if ($status === 409) {
+            return ReferralCodeResult::taken();
+        }
+
+        if ($status === 422) {
+            $fields = is_array($response->json('errors')) ? implode(',', array_keys($response->json('errors'))) : '';
+            Log::error("Referral code refused for customer {$customerId}: HTTP 422 {$fields}");
+
+            return ReferralCodeResult::invalid();
+        }
+
+        Log::warning("Referral code save for customer {$customerId}: HTTP {$status}");
+
+        return ReferralCodeResult::error();
+    }
+
+    /**
+     * Who owns a referral code, for "Invited by ..." on sign-up. Null for an unknown code (404, which
+     * includes agent codes) and on any error: this must never block sign-up.
+     *
+     * Endpoint : GET referrals/lookup?code=
+     *
+     * @return array<string, mixed>|null
+     */
+    public function lookupReferralCode(string $code): ?array
+    {
+        try {
+            $response = (clone $this->http)->timeout(5)->get('referrals/lookup', ['code' => $code]);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $data = $response->successful() ? $response->json('data') : null;
+
+        return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Report that a (possibly referred) player verified their e-mail and phone. Pays the referrer;
+     * safe to repeat; `referred: false` for players who were not referred.
+     *
+     * Endpoint : POST customers/{enc}/referral/verified   (30/min for the whole site)
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function reportReferralVerified(int $customerId): array
+    {
+        return $this->http->post('customers/'.encryptOpenSSL((string) $customerId).'/referral/verified')
+            ->throw()
+            ->json() ?? [];
+    }
+
+    /**
+     * Endpoint : GET customers/{enc}/referrals/stats
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getReferralStats(int $customerId): array
+    {
+        return $this->http->get('customers/'.encryptOpenSSL((string) $customerId).'/referrals/stats')
+            ->throw()
+            ->json('data') ?? [];
+    }
+
+    /**
+     * The players this player referred, newest first (Laravel paginated: data, links, meta).
+     * Phone numbers arrive masked.
+     *
+     * Endpoint : GET customers/{enc}/referrals?page=&per_page=&status=
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getReferrals(int $customerId, int $page = 1, ?string $status = null, int $perPage = 20): array
+    {
+        return $this->http->get('customers/'.encryptOpenSSL((string) $customerId).'/referrals', array_filter([
+            'page' => $page,
+            'per_page' => $perPage,
+            'status' => $status,
+        ]))->throw()->json() ?? [];
+    }
+
+    /**
+     * Referral wallet: data.{balance, total_earned, withdrawable, minimum_withdrawal, bonuses[]} and
+     * the bonuses' pagination.
+     *
+     * Endpoint : GET customers/{enc}/referral-wallet?page=&per_page=
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getReferralWallet(int $customerId, int $page = 1, int $perPage = 10): array
+    {
+        return $this->http->get('customers/'.encryptOpenSSL((string) $customerId).'/referral-wallet', [
+            'page' => $page,
+            'per_page' => $perPage,
+        ])->throw()->json() ?? [];
+    }
+
+    /**
+     * Endpoint : GET customers/{enc}/referral-wallet/withdrawals?page=&per_page=
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getReferralWithdrawals(int $customerId, int $page = 1, int $perPage = 10): array
+    {
+        return $this->http->get('customers/'.encryptOpenSSL((string) $customerId).'/referral-wallet/withdrawals', [
+            'page' => $page,
+            'per_page' => $perPage,
+        ])->throw()->json() ?? [];
+    }
+
+    /**
+     * Withdraw referral earnings to the player's M-Pesa number (stored in KadiApi). KadiApi pays it
+     * from the referral shortcode; this site never sends an M-Pesa request for it.
+     *
+     * Endpoint : POST customers/{enc}/referral-wallet/withdraw   (5/min, idempotent)
+     * Payload  : amount (whole shillings, >= minimum_withdrawal, <= balance)
+     * Success  : 201 data.status "processing"; 202 data.status "pending" (outcome unknown)
+     * Errors   : 400 balance/phone, 403 switched off, 422 below minimum, 502 rejected and restored,
+     *            503 not configured.
+     *
+     * Use one $idempotencyKey per attempt, and the same one when retrying an attempt whose outcome
+     * is unknown, so a retry replays instead of paying twice.
+     */
+    public function withdrawReferral(User $user, int $amount, string $idempotencyKey): ReferralWithdrawResult
+    {
+        try {
+            $response = $this->withIdempotencyKey($idempotencyKey)
+                ->post('customers/'.encryptOpenSSL((string) $user->linked_id).'/referral-wallet/withdraw', [
+                    'amount' => $amount,
+                ]);
+        } catch (\Throwable $e) {
+            Log::warning("Referral withdrawal for user {$user->id}: ".class_basename($e));
+
+            return ReferralWithdrawResult::pending();
+        }
+
+        $status = $response->status();
+        $message = is_string($response->json('message')) ? strtolower($response->json('message')) : '';
+
+        Log::info("Referral withdrawal response for user {$user->id}: HTTP {$status}");
+
+        return match (true) {
+            $status === 201 => ReferralWithdrawResult::processing(),
+            $status === 202 => ReferralWithdrawResult::pending(),
+            $status === 502 => ReferralWithdrawResult::restored(),
+            $status === 400 && str_contains($message, 'phone') => ReferralWithdrawResult::rejected('We could not find a valid M-Pesa number on your account. Please contact support.'),
+            $status === 400 => ReferralWithdrawResult::rejected('Insufficient referral balance for this withdrawal.'),
+            $status === 403 => ReferralWithdrawResult::rejected('Referral withdrawals are paused right now. Please try again later.'),
+            $status === 422 => ReferralWithdrawResult::rejected('The minimum referral withdrawal is KES '.config('kadi.referrals.minimum_withdrawal').'.'),
+            $status === 429 => ReferralWithdrawResult::rejected('Too many attempts. Please wait a minute and try again.'),
+            $status === 503 => ReferralWithdrawResult::rejected('Referral withdrawals are temporarily unavailable. Please try again later.'),
+            // Any other 2xx or 5xx: we cannot tell whether money moved.
+            $response->successful(), $status >= 500 => ReferralWithdrawResult::pending(),
+            default => ReferralWithdrawResult::rejected('Your withdrawal could not be processed right now. Please try again shortly.'),
+        };
+    }
 }

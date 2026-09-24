@@ -58,11 +58,12 @@
                 <h2 class="text-3xl md:text-4xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">Information We Collect</h2>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 @foreach ([
-                    ['icon' => '👤', 'title' => 'Account Info', 'desc' => 'Name, email address, and phone number when you create an account. We do not collect your date of birth — we only record that you confirmed you are 18 or older, and which version of our Terms you accepted.'],
-                    ['icon' => '💳', 'title' => 'Payment Data', 'desc' => 'M-Pesa transaction references for purchases. We never store your M-Pesa PIN or full phone number.'],
+                    ['icon' => '👤', 'title' => 'Account Info', 'desc' => 'Name, email address, and phone number when you create an account, and when you confirmed your phone number with an SMS code. We do not collect your date of birth — we only record that you confirmed you are 18 or older, and which version of our Terms you accepted.'],
+                    ['icon' => '💳', 'title' => 'Payment Data', 'desc' => 'M-Pesa transaction references for deposits, purchases and withdrawals. We never store your M-Pesa PIN.'],
                     ['icon' => '📊', 'title' => 'Game Activity', 'desc' => 'Game history, match results, win/loss records, and gameplay statistics to power leaderboards and features.'],
+                    ['icon' => '🤝', 'title' => 'Referrals', 'desc' => 'The referral or agent code you signed up with, your own referral code, and the players who joined with it. If you join through someone\'s link, they see your name, a masked phone number (e.g. 2547****5678), whether you have verified and deposited, and the bonus they earned. They never see your balance or your games.'],
                 ] as $item)
                     <div class="glass-card glass-card-hover p-6 relative isolate overflow-hidden">
                         <div class="relative z-10">
@@ -90,6 +91,8 @@
                     ['title' => 'To Improve Your Experience', 'desc' => 'Personalizing game recommendations, tracking leaderboards, and developing new features based on usage patterns.'],
                     ['title' => 'To Communicate With You', 'desc' => 'Sending account notifications, game updates, promotional offers (with your consent), and responding to support requests.'],
                     ['title' => 'To Ensure Security &amp; Fair Play', 'desc' => 'Detecting fraud, preventing cheating, enforcing our Terms &amp; Conditions, and protecting the integrity of the Platform.'],
+                    ['title' => 'To Verify Your Phone Number', 'desc' => 'We send a one-time code by SMS to confirm the M-Pesa number that deposits are charged to and withdrawals are paid to. The code is used only for this and is never sent for marketing.'],
+                    ['title' => 'To Run the Referral Programme', 'desc' => 'Crediting the player who invited you when you verify your email and phone and when you make your first deposit, and paying out referral earnings to the inviter\'s verified M-Pesa number.'],
                 ] as $item)
                     <div class="glass-card p-6 flex items-start gap-4">
                         <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-b from-[#1a1200] to-[#0a0a0a] border border-[#f5c542]/30 text-[#f5c542] font-cinzel text-xs font-bold">→</div>
@@ -123,6 +126,10 @@
                         <li class="flex items-start gap-2">
                             <span class="text-[#f5c542] mt-0.5">♠</span>
                             <span><strong class="text-[#f5f5f0]">Google</strong> — for OAuth login (only with your explicit consent)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-[#f5c542] mt-0.5">♠</span>
+                            <span><strong class="text-[#f5f5f0]">TextSMS</strong> — our SMS provider, which receives your phone number and the verification message to deliver it</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-[#f5c542] mt-0.5">♠</span>
@@ -209,6 +216,7 @@
                     ['title' => 'Essential Cookies', 'desc' => 'Required for the platform to function — session management, authentication, and security. These cannot be disabled.'],
                     ['title' => 'Analytics Cookies', 'desc' => 'Help us understand how players use Kadi` so we can improve the experience. All data is anonymized.'],
                     ['title' => 'Preference Cookies', 'desc' => 'Remember your settings like theme preferences and language. You can clear these at any time from your browser.'],
+                    ['title' => 'Referral Cookie', 'desc' => 'If you open a referral link before signing up, we keep the code in an encrypted cookie for up to 30 days so the right player is credited. It is deleted when you create your account, and is never set for signed-in players.'],
                 ] as $item)
                     <div class="glass-card p-6 flex items-start gap-4 border-l-4 !border-l-[#f5c542]">
                         <div>
@@ -271,7 +279,9 @@
                     @foreach ([
                         ['item' => 'Account data', 'duration' => 'Retained while your account is active, deleted within 30 days of account closure.'],
                         ['item' => 'Game history', 'duration' => 'Kept for 12 months to maintain leaderboards and statistics.'],
-                        ['item' => 'Payment records', 'duration' => 'Retained for 7 years as required by Kenyan tax and financial regulations.'],
+                        ['item' => 'Payment records', 'duration' => 'Retained for 7 years as required by Kenyan tax and financial regulations. This includes referral bonuses and referral payouts.'],
+                        ['item' => 'SMS codes', 'duration' => 'Stored only in scrambled form and deleted once used, or after 10 minutes.'],
+                        ['item' => 'Referral cookie', 'duration' => 'Up to 30 days, or until you sign up.'],
                         ['item' => 'Support tickets', 'duration' => 'Kept for 24 months after resolution for quality assurance.'],
                         ['item' => 'Analytics data', 'duration' => 'Anonymized and retained indefinitely for platform improvement.'],
                     ] as $row)

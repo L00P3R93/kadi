@@ -37,6 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'age_confirmed_at' => 'datetime',
             'terms_accepted_at' => 'datetime',
             'name_changed_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
+            'referral_verified_reported_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -83,7 +85,23 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      */
     public function setPhoneAttribute($value): void
     {
-        $this->attributes['phone'] = PhoneNumber::normalize($value === null ? null : (string) $value);
+        $phone = PhoneNumber::normalize($value === null ? null : (string) $value);
+
+        // A changed number has not been proven yet. (Only allowed while unverified: see PhoneRequired.)
+        if (array_key_exists('phone', $this->attributes) && $this->attributes['phone'] !== $phone) {
+            $this->attributes['phone_verified_at'] = null;
+        }
+
+        $this->attributes['phone'] = $phone;
+    }
+
+    /**
+     * The phone was confirmed with an SMS code. Required before deposits, withdrawals and referral
+     * payouts (the money goes to this number).
+     */
+    public function hasVerifiedPhone(): bool
+    {
+        return $this->phone !== null && $this->phone_verified_at !== null;
     }
 
     public function getFormattedBalanceAttribute(): string

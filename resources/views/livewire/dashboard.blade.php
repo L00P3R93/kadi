@@ -7,6 +7,23 @@
         </div>
     @endif
 
+    {{-- Phone not confirmed yet: needed before deposits, withdrawals and referral payouts --}}
+    @unless (auth()->user()->hasVerifiedPhone())
+        <div class="flex flex-col gap-3 rounded-lg border border-amber-600/50 bg-amber-900/20 p-4 text-sm text-amber-300 sm:flex-row sm:items-center sm:justify-between"
+             x-data="{ done: false }" x-show="! done" x-on:phone-verified.window="done = true" data-test="verify-phone-banner">
+            <span class="flex items-center gap-2">
+                <flux:icon.device-phone-mobile variant="mini" class="shrink-0" aria-hidden="true" />
+                {{ empty(auth()->user()->phone)
+                    ? __('Add and confirm your M-Pesa number to deposit and withdraw.')
+                    : __('Confirm your M-Pesa number with a quick SMS code to deposit and withdraw.') }}
+            </span>
+            <button type="button" x-on:click="$dispatch('open-phone-required', { purpose: 'verify' })"
+                    class="btn-casino-primary shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold">
+                {{ __('Confirm number') }}
+            </button>
+        </div>
+    @endunless
+
     {{-- Install suggestion (hidden unless installable, or after being dismissed) --}}
     <x-pwa.install-button variant="banner" />
 

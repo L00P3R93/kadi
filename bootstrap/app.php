@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AuthenticatePushApiKey;
+use App\Http\Middleware\CaptureReferralCode;
 use App\Http\Middleware\DetectCurrency;
 use App\Http\Middleware\EnsureConsentGiven;
 use App\Http\Middleware\EnsureNameIsValid;
@@ -36,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
             LogoutInactiveUsers::class,
             EnsureConsentGiven::class,
             EnsureNameIsValid::class,
+            CaptureReferralCode::class,
         ]);
 
         $middleware->alias([

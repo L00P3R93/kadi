@@ -49,16 +49,23 @@ it('validates format and uniqueness across notations, ignoring the owner', funct
 });
 
 it('saves a valid phone from the modal and sends KadiApi a number without +', function () {
-    Http::fake([PHONE_API_BASE.'customers/*' => Http::response(['data' => []])]);
-    $user = User::factory()->create(['linked_id' => 77, 'phone' => null]);
+    config(['services.textsms.api_key' => 'test-key', 'services.textsms.partner_id' => '1']);
+    Http::fake([
+        PHONE_API_BASE.'customers/*' => Http::response(['data' => []]),
+        'sms.textsms.co.ke/*' => Http::response(['responses' => [['response-code' => 200]]]),
+    ]);
+    $user = User::factory()->phoneUnverified()->create(['linked_id' => 77, 'phone' => null]);
 
+    // Saving moves on to the SMS code; the deposit flow resumes only once the number is confirmed.
     Livewire::actingAs($user)->test(PhoneRequired::class)
         ->set('phone', '+254 712 345 678')
         ->call('save')
         ->assertHasNoErrors()
-        ->assertDispatched('phone-saved');
+        ->assertSet('step', 'code')
+        ->assertNotDispatched('phone-saved');
 
-    expect($user->fresh()->phone)->toBe('254712345678');
+    expect($user->fresh()->phone)->toBe('254712345678')
+        ->and($user->fresh()->phone_verified_at)->toBeNull();
 
     Http::assertSent(fn ($request) => $request->method() === 'PUT'
         && $request['phone_no'] === '254712345678');

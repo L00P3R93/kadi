@@ -24,7 +24,7 @@ return [
 
     'min_age' => 18,
 
-    'terms_version' => '2026-09-19',
+    'terms_version' => '2026-09-24',
 
     /*
     |--------------------------------------------------------------------------
@@ -126,6 +126,49 @@ return [
         // Reports one player may send to KadiApi (accepted or not) per window.
         'max_attempts' => 3,
         'decay_minutes' => 10,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Phone verification (SMS code)
+    |--------------------------------------------------------------------------
+    |
+    | Players confirm their phone with a 6-digit code sent through TextSMS before deposits,
+    | withdrawals and referral payouts. Every send costs money, so sends are capped per player,
+    | per number and per IP. See docs/phone-verification.md.
+    |
+    */
+
+    'phone_otp' => [
+        'length' => 6,
+        'ttl_minutes' => 10,
+        'max_attempts' => 5,          // wrong codes before the code is burned
+        'resend_seconds' => 60,
+        'sends_per_hour_user' => 5,
+        'sends_per_hour_phone' => 5,
+        'sends_per_hour_ip' => 20,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Referrals ("Invite & Earn")
+    |--------------------------------------------------------------------------
+    |
+    | KadiApi owns the referral ledger, bonuses and payouts; this site makes each player's code,
+    | link and QR code, carries ?ref= codes to POST customers and shows the referral page.
+    | See docs/referrals.md.
+    |
+    */
+
+    'referrals' => [
+        'enabled' => (bool) env('KADI_REFERRALS_ENABLED', true),
+        'cookie' => 'kadi_ref',
+        'cookie_days' => 30,
+        'code_length' => 8,
+        'code_attempts' => 5,          // 409 "taken" retries before giving up
+        'minimum_withdrawal' => 50,    // fallback when the wallet response has none
+        'lookup_cache_minutes' => 10,
+        'page_cache_seconds' => 60,
     ],
 
     'push' => [

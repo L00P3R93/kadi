@@ -70,10 +70,10 @@ class BuyCoins extends Component
             return;
         }
 
-        $phone = auth()->user()->phone ?? null;
-
-        if (! $phone) {
-            $this->purchaseError = 'Please add your phone number to complete this purchase';
+        // STK pushes are charged to this number, so it must be confirmed by SMS code first.
+        if (! auth()->user()->hasVerifiedPhone()) {
+            $this->purchaseError = 'Please confirm your phone number to complete this purchase';
+            $this->dispatch('open-phone-required', purpose: 'coins');
 
             return;
         }

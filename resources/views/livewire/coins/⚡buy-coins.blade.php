@@ -3,10 +3,10 @@
         tab: 'all',
         confirmOpen: false,
         selected: null,
-        hasPhone: @js((bool) (auth()->user()->phone ?? false)),
+        hasPhone: @js(auth()->user()->hasVerifiedPhone()),
         openOption(option) {
             if (! this.hasPhone) {
-                $wire.dispatch('open-phone-required');
+                $wire.dispatch('open-phone-required', { purpose: 'coins' });
                 return;
             }
             this.selected = option;
@@ -14,6 +14,7 @@
         }
     }"
     x-on:wallet-refreshed.window="confirmOpen = false"
+    x-on:phone-verified.window="hasPhone = true"
     class="min-h-screen bg-[#0a0a0a] pt-14 pb-20"
 >
     {{-- Ambient background glow --}}

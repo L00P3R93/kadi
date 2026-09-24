@@ -6,6 +6,7 @@ use App\Facades\BugsApi;
 use App\Facades\KadiApi;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
+use App\Referrals\ReferralVerification;
 use App\Services\KadiAccountSync;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -69,6 +70,9 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
         $this->fetchAndCacheCustomerProfile($customerId);
         $this->insertIntoKadiDatabase($kadiPasswordHash, $customerId);
         $this->sendWelcomeEmail();
+
+        // The phone may have been verified before the account was linked.
+        ReferralVerification::reportIfReady($this->user);
     }
 
     /**
@@ -106,6 +110,9 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
                 'email' => $this->user->email,
                 'id_no' => (string) $this->user->account_no,
                 'phone_no' => $this->user->phone ?: null,
+                // A player's referral code or an agent code, typed or linked at sign-up. KadiApi
+                // decides which; this is the only moment a referral can be attached.
+                'referral_code' => $this->user->signup_referral_code ?: null,
             ], fn ($v) => $v !== null);
             $response = KadiApi::createCustomer($userArr);
 

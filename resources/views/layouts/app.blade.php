@@ -185,6 +185,24 @@
                               x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                               class="text-sm font-medium whitespace-nowrap">Game History</span>
                     </a>
+                    @if (config('kadi.referrals.enabled'))
+                    {{-- Invite & Earn --}}
+                    <a href="{{ route('referrals') }}" wire:navigate
+                       :class="showLabels() ? 'justify-start' : 'justify-center px-0'"
+                       :title="!expanded ? 'Invite & Earn' : ''"
+                       @class([
+                           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all',
+                           'bg-[#f5c542]/10 text-[#f5c542] border-l-2 border-[#f5c542]'                             => request()->routeIs('referrals'),
+                           'text-gray-400 hover:text-white hover:bg-[#161616] border-l-2 border-transparent'        => !request()->routeIs('referrals'),
+                       ])>
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+                        </svg>
+                        <span x-show="showLabels()" x-transition:enter="transition-opacity duration-200"
+                              x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                              class="text-sm font-medium whitespace-nowrap">Invite &amp; Earn</span>
+                    </a>
+                    @endif
                     {{-- Buy Coins
                     <a href="{{ route('buy-coins') }}" wire:navigate
                        :class="showLabels() ? 'justify-start' : 'justify-center px-0'"

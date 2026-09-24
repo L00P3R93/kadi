@@ -7,6 +7,8 @@
         <form method="POST" action="{{ route('auth.google.complete.store') }}" class="flex flex-col gap-6">
             @csrf
 
+            <x-referral-code-field />
+
             <x-consent-fields />
 
             <flux:button type="submit" variant="primary" class="w-full" data-test="google-complete-button">

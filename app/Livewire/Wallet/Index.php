@@ -99,6 +99,9 @@ class Index extends Component
     /** Idempotency key for the withdrawal currently being confirmed. */
     public ?string $withdrawKey = null;
 
+    /** deposit | withdraw: the flow to reopen once the phone is confirmed. */
+    public ?string $resumeAfterPhone = null;
+
     public bool $awaitingDeposit = false;
 
     public float $depositBaseline = 0;
@@ -267,10 +270,9 @@ class Index extends Component
             return;
         }
 
-        $phone = auth()->user()->phone ?? null;
-
-        if (! $phone) {
-            $this->purchaseError = 'Please add your phone number to complete this purchase';
+        if (! auth()->user()->hasVerifiedPhone()) {
+            $this->purchaseError = 'Please confirm your phone number to complete this purchase';
+            $this->dispatch('open-phone-required', purpose: 'coins');
 
             return;
         }
@@ -389,28 +391,56 @@ class Index extends Component
     }
 
     /**
-     * An STK push needs a phone number. When it is missing, close the
-     * deposit modal and open the phone-number modal instead.
+     * An STK push is charged to the player's phone, so it needs a phone confirmed by SMS code. When
+     * it is missing or unconfirmed, close the deposit modal and open the phone modal instead.
      */
     protected function promptForPhoneIfMissing(): bool
     {
-        if (! empty(auth()->user()?->phone)) {
+        if (auth()->user()?->hasVerifiedPhone()) {
             return false;
         }
 
         $this->showDepositModal = false;
         $this->confirmingDeposit = false;
+        $this->resumeAfterPhone = 'deposit';
         $this->dispatch('open-phone-required', purpose: 'deposit');
 
         return true;
     }
 
     /**
-     * Once the phone is saved, put the user back in the deposit flow.
+     * Withdrawals are paid to the player's phone: same rule as deposits.
+     */
+    protected function promptForPhoneBeforeWithdraw(): bool
+    {
+        if (auth()->user()?->hasVerifiedPhone()) {
+            return false;
+        }
+
+        $this->showWithdrawModal = false;
+        $this->confirmingWithdraw = false;
+        $this->withdrawKey = null;
+        $this->resumeAfterPhone = 'withdraw';
+        $this->dispatch('open-phone-required', purpose: 'withdraw');
+
+        return true;
+    }
+
+    /**
+     * Once the phone is confirmed, put the user back in the flow they started.
      */
     #[On('phone-saved')]
     public function resumeDeposit(): void
     {
+        $resume = $this->resumeAfterPhone;
+        $this->resumeAfterPhone = null;
+
+        if ($resume === 'withdraw' && $this->withdrawAmount !== '') {
+            $this->openWithdraw();
+
+            return;
+        }
+
         if ($this->depositAmount !== '') {
             $this->openDeposit();
         }
@@ -530,6 +560,10 @@ class Index extends Component
             return;
         }
 
+        if ($this->promptForPhoneBeforeWithdraw()) {
+            return;
+        }
+
         if (($message = $this->validateWithdrawAmount()) !== null) {
             $this->withdrawError = $message;
 
@@ -564,6 +598,10 @@ class Index extends Component
         $user = auth()->user();
 
         if (! $user?->linked_id) {
+            return;
+        }
+
+        if ($this->promptForPhoneBeforeWithdraw()) {
             return;
         }
 

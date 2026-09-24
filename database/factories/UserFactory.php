@@ -46,6 +46,8 @@ class UserFactory extends Factory
             'name' => 'Player'.fake()->unique()->numerify('####'),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            // Only counts once a phone is set (User::hasVerifiedPhone()).
+            'phone_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
@@ -64,6 +66,16 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the user's phone number has not been confirmed with an SMS code.
+     */
+    public function phoneUnverified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'phone_verified_at' => null,
         ]);
     }
 

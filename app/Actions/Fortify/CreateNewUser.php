@@ -6,6 +6,7 @@ use App\Concerns\ConsentValidationRules;
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
 use App\Models\User;
+use App\Referrals\ReferralCode;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -22,12 +23,15 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        $input['referral_code'] = ReferralCode::normalize($input['referral_code'] ?? null);
+
         Validator::make($input, [
             ...$this->profileRules(),
             'phone' => $this->phoneRules(),
             'password' => $this->passwordRules(),
+            'referral_code' => ReferralCode::signupRules(),
             ...$this->consentRules(),
-        ], $this->consentMessages())->validate();
+        ], [...$this->consentMessages(), ...ReferralCode::signupMessages()])->validate();
 
         $accountNo = 'KK-'.strtoupper(uniqid());
 
@@ -38,7 +42,13 @@ class CreateNewUser implements CreatesNewUsers
             'account_no' => $accountNo,
             'password' => $input['password'],
         ]);
-        $user->forceFill(User::consentAttributes())->save();
+        $user->forceFill([
+            ...User::consentAttributes(),
+            // Sent as referral_code on POST customers by ProcessVerifiedUser, which runs later.
+            'signup_referral_code' => config('kadi.referrals.enabled') ? $input['referral_code'] : null,
+        ])->save();
+
+        ReferralCode::forget(request());
 
         // The linked kadi account needs a password that matches what the user
         // registered with, so the game site can verify logins via

@@ -85,6 +85,8 @@
                 viewable
             />
 
+            <x-referral-code-field />
+
             <x-consent-fields />
 
             <div class="flex items-center justify-end">

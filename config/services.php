@@ -47,6 +47,14 @@ return [
         'play_url' => env('KADI_PLAY_URL', 'https://kadi.online'),
     ],
 
+    // TextSMS (sms.textsms.co.ke): phone verification codes. The API key lives in .env only.
+    'textsms' => [
+        'url' => env('TEXTSMS_URL', 'https://sms.textsms.co.ke/api/services/sendsms/'),
+        'api_key' => env('TEXTSMS_API_KEY'),
+        'partner_id' => env('TEXTSMS_PARTNER_ID'),
+        'shortcode' => env('TEXTSMS_SHORTCODE', 'TextSMS'),
+    ],
+
     'bugs_api' => [
         'url' => env('BUGS_API_URL'),
         'key' => env('BUGS_API_KEY'),

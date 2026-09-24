@@ -14,6 +14,7 @@ use App\Livewire\Games\History as GameHistory;
 use App\Livewire\Legal\Privacy;
 use App\Livewire\Legal\Terms;
 use App\Livewire\Profile\Show;
+use App\Livewire\Referrals\Index as ReferralsIndex;
 use App\Livewire\Rules;
 use App\Livewire\Wallet\Index;
 use App\Livewire\Welcome;
@@ -46,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/picture', [ProfilePictureController::class, 'upload'])->name('profile.picture');
     Route::get('/wallet', Index::class)->name('wallet');
     Route::get('/games/history', GameHistory::class)->name('games.history');
+    Route::get('/referrals', ReferralsIndex::class)->name('referrals');
 
     // Web push device registration. Throttled per user; CSRF applies like any other web POST/DELETE.
     Route::middleware('throttle:push')->prefix('push/subscriptions')->name('push.subscriptions.')->group(function () {

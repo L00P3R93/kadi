@@ -6,6 +6,7 @@ use App\Concerns\ConsentValidationRules;
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessVerifiedUser;
 use App\Models\User;
+use App\Referrals\ReferralCode;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -100,7 +101,11 @@ class GoogleAuthController extends Controller
                 ->withErrors(['email' => 'Your sign-up session expired. Please try again.']);
         }
 
-        $request->validate($this->consentRules(), $this->consentMessages());
+        $request->merge(['referral_code' => ReferralCode::normalize($request->input('referral_code'))]);
+        $request->validate(
+            [...$this->consentRules(), 'referral_code' => ReferralCode::signupRules()],
+            [...$this->consentMessages(), ...ReferralCode::signupMessages()],
+        );
 
         // The account could have been created between the callback and now.
         if (User::where('email', $pending['email'])->orWhere('google_id', $pending['id'])->exists()) {
@@ -122,9 +127,12 @@ class GoogleAuthController extends Controller
         $user->forceFill([
             'email_verified_at' => now(),
             ...User::consentAttributes(),
+            // Sent as referral_code on POST customers by ProcessVerifiedUser.
+            'signup_referral_code' => config('kadi.referrals.enabled') ? $request->input('referral_code') : null,
         ])->save();
 
         $request->session()->forget('google.pending');
+        ReferralCode::forget($request);
 
         ProcessVerifiedUser::dispatch($user);
 
