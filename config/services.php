@@ -45,6 +45,8 @@ return [
         'key' => env('API_KEY'),
         'image_url' => env('KADI_IMAGE_URL', 'https://gameapi.kadi.online/kadi/images'),
         'play_url' => env('KADI_PLAY_URL', 'https://kadi.online'),
+        // Game server PHP scripts (e.g. mpesa_create_jp_wallet.php for the promo jackpot wallet).
+        'game_api_url' => env('KADI_GAME_API_URL', 'https://gameapi.kadi.online/kadi'),
     ],
 
     // TextSMS (sms.textsms.co.ke): phone verification codes. The API key lives in .env only.

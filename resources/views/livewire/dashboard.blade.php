@@ -13,9 +13,13 @@
              x-data="{ done: false }" x-show="! done" x-on:phone-verified.window="done = true" data-test="verify-phone-banner">
             <span class="flex items-center gap-2">
                 <flux:icon.device-phone-mobile variant="mini" class="shrink-0" aria-hidden="true" />
-                {{ empty(auth()->user()->phone)
-                    ? __('Add and confirm your M-Pesa number to deposit and withdraw.')
-                    : __('Confirm your M-Pesa number with a quick SMS code to deposit and withdraw.') }}
+                @if (auth()->user()->awaitsSignupBonus())
+                    {{ __('Confirm your M-Pesa number now to get your KES :amount signup bonus. Promo codes expire, so don\'t wait.', ['amount' => config('kadi.promotions.signup_bonus_amount')]) }}
+                @else
+                    {{ empty(auth()->user()->phone)
+                        ? __('Add and confirm your M-Pesa number to deposit and withdraw.')
+                        : __('Confirm your M-Pesa number with a quick SMS code to deposit and withdraw.') }}
+                @endif
             </span>
             <button type="button" x-on:click="$dispatch('open-phone-required', { purpose: 'verify' })"
                     class="btn-casino-primary shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold">

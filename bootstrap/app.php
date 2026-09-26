@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AuthenticatePushApiKey;
+use App\Http\Middleware\CapturePromoCode;
 use App\Http\Middleware\CaptureReferralCode;
 use App\Http\Middleware\DetectCurrency;
 use App\Http\Middleware\EnsureConsentGiven;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureConsentGiven::class,
             EnsureNameIsValid::class,
             CaptureReferralCode::class,
+            CapturePromoCode::class,
         ]);
 
         $middleware->alias([

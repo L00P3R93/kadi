@@ -40,6 +40,7 @@ beforeEach(function () {
 test('job inserts the bcrypt hash — never plaintext — into kadi accounts', function () {
     KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
     KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+    KadiApi::shouldReceive('reportVerified')->andReturn(['success' => true, 'data' => ['signup_bonus' => null]]);
 
     $user = User::factory()->create(['linked_id' => null, 'phone' => '254712345678']);
 
@@ -58,6 +59,7 @@ test('job inserts the bcrypt hash — never plaintext — into kadi accounts', f
 test('job clears the hash cache after a successful insert', function () {
     KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
     KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+    KadiApi::shouldReceive('reportVerified')->andReturn(['success' => true, 'data' => ['signup_bonus' => null]]);
 
     $user = User::factory()->create(['linked_id' => null, 'phone' => '254712345678']);
 
@@ -71,6 +73,7 @@ test('job clears the hash cache after a successful insert', function () {
 test('google-only users insert with a null password', function () {
     KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
     KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+    KadiApi::shouldReceive('reportVerified')->andReturn(['success' => true, 'data' => ['signup_bonus' => null]]);
 
     $user = User::factory()->create(['linked_id' => null, 'phone' => null]);
 
@@ -84,6 +87,7 @@ test('google-only users insert with a null password', function () {
 test('job is idempotent — running twice does not create duplicate accounts', function () {
     KadiApi::shouldReceive('createCustomer')->andReturn(['customer_id' => 4242]);
     KadiApi::shouldReceive('getCustomer')->andReturn(['data' => ['id' => 4242, 'balance' => 0]]);
+    KadiApi::shouldReceive('reportVerified')->andReturn(['success' => true, 'data' => ['signup_bonus' => null]]);
 
     $user = User::factory()->create(['linked_id' => null, 'phone' => '254712345678']);
 

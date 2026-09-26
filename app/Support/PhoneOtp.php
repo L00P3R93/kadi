@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use App\Models\User;
-use App\Referrals\ReferralVerification;
 use App\Services\TextSmsService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
@@ -124,7 +123,7 @@ class PhoneOtp
         Cache::forget($key);
         $user->forceFill(['phone_verified_at' => now()])->save();
 
-        ReferralVerification::reportIfReady($user);
+        CustomerVerification::reportIfReady($user);
 
         return self::VERIFIED;
     }

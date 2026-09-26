@@ -25,6 +25,18 @@
         </div>
     @endif
 
+    {{-- The promo code typed at sign-up was not applied by KadiApi (it can't be added later) --}}
+    @if ($this->showPromoNotice)
+        <div class="flex items-start justify-between gap-3 rounded-lg border border-amber-600/50 bg-amber-900/20 p-4 text-sm text-amber-300" role="status" data-test="promo-not-applied">
+            <span>
+                {{ __('Your promo code :code could not be applied when your account was created, so this account will not get the signup bonus.', ['code' => auth()->user()->signup_promo_code]) }}
+            </span>
+            <button type="button" wire:click="dismissPromoNotice" class="shrink-0 text-amber-300/70 hover:text-amber-200" aria-label="{{ __('Dismiss') }}">
+                <flux:icon.x-mark variant="mini" />
+            </button>
+        </div>
+    @endif
+
     {{-- Title row. The install pill shares this row so it adds no height and stays clear of the money controls. --}}
     <div class="flex items-center justify-between gap-3">
         <h1 class="text-3xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💰 Vault</h1>
@@ -45,6 +57,11 @@
                 <div class="mb-1 text-4xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
                     {{ $walletCurrencyLabel }} {{ number_format($balance) }}
                 </div>
+                @if ($lockedBonus > 0)
+                    <p class="mb-2 text-xs text-amber-300" data-test="locked-bonus-note">
+                        {{ __('Signup bonus: KES :amount left to play before you can withdraw it.', ['amount' => number_format($lockedBonus)]) }}
+                    </p>
+                @endif
                 <div class="mb-4 text-xs text-[#6b6b6b]">
                     Account No: <span class="text-[#f5f5f0]/60 font-mono">{{ $kadiCustomer['account_no'] ?? '—' }}</span>
                 </div>
@@ -419,8 +436,13 @@
             <div>
                 <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💸 Withdraw Funds</h3>
                 <p class="mt-1 text-sm text-[#6b6b6b]">
-                    Available: <span class="font-semibold text-[#f5c542]">{{ $walletCurrencyLabel }} {{ number_format($balance) }}</span>
+                    Available: <span class="font-semibold text-[#f5c542]" data-test="withdrawable">{{ $walletCurrencyLabel }} {{ number_format(floor($this->withdrawableBalance)) }}</span>
                 </p>
+                @if ($lockedBonus > 0)
+                    <p class="mt-1 text-xs text-amber-300">
+                        {{ __('KES :amount of signup bonus has to be played first.', ['amount' => number_format($lockedBonus)]) }}
+                    </p>
+                @endif
             </div>
 
             @if (! $confirmingWithdraw)
@@ -431,6 +453,7 @@
                         type="number"
                         wire:model="withdrawAmount"
                         min="50"
+                        max="{{ (int) floor($this->withdrawableBalance) }}"
                         step="1"
                         inputmode="numeric"
                         placeholder="Min KES 50"

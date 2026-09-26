@@ -114,7 +114,7 @@ test('POST customers carries the code as referral_code', function () {
         ->withArgs(fn (array $data) => ($data['referral_code'] ?? null) === 'KADI2026')
         ->andReturn(['customer_id' => 4242]);
     KadiApi::shouldReceive('getCustomer')->andReturn(['data' => []]);
-    KadiApi::shouldReceive('reportReferralVerified')->andReturn(['referred' => true]);
+    KadiApi::shouldReceive('reportVerified')->andReturn(['success' => true, 'data' => ['referred' => true, 'signup_bonus' => null]]);
 
     (new ProcessVerifiedUser($user))->handle();
 
@@ -130,6 +130,7 @@ test('POST customers has no referral_code for players who used none', function (
         ->withArgs(fn (array $data) => ! array_key_exists('referral_code', $data))
         ->andReturn(['customer_id' => 4243]);
     KadiApi::shouldReceive('getCustomer')->andReturn(['data' => []]);
+    KadiApi::shouldReceive('reportVerified')->andReturn(['success' => true, 'data' => ['referred' => false, 'signup_bonus' => null]]);
 
     (new ProcessVerifiedUser($user))->handle();
 });

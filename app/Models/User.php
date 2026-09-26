@@ -38,7 +38,10 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'terms_accepted_at' => 'datetime',
             'name_changed_at' => 'datetime',
             'phone_verified_at' => 'datetime',
-            'referral_verified_reported_at' => 'datetime',
+            'verified_reported_at' => 'datetime',
+            'promo_code_applied' => 'boolean',
+            'promo_notice_dismissed_at' => 'datetime',
+            'promo_jackpot_wallet_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -102,6 +105,18 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function hasVerifiedPhone(): bool
     {
         return $this->phone !== null && $this->phone_verified_at !== null;
+    }
+
+    /**
+     * Signed up with a promo code that may still earn the signup bonus: not refused at POST
+     * customers and verification not reported yet. Drives the "verify now" nudges; KadiApi decides.
+     */
+    public function awaitsSignupBonus(): bool
+    {
+        return config('kadi.promotions.enabled')
+            && $this->signup_promo_code !== null
+            && $this->promo_code_applied !== false
+            && $this->verified_reported_at === null;
     }
 
     public function getFormattedBalanceAttribute(): string

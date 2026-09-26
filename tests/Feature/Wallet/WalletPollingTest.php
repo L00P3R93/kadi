@@ -129,7 +129,7 @@ test('wallet page poll serves the warm cache without an api call', function () {
         ->call('pollBalance')
         ->assertSet('balance', 77.0);
 
-    Http::assertNotSent(fn ($request) => str_contains($request->url(), '/customers/') && ! str_contains($request->url(), 'transactions'));
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), '/customers/') && ! str_contains($request->url(), 'transactions') && ! str_ends_with($request->url(), '/promotions'));
 });
 
 test('wallet page poll is skipped while a deposit is awaiting confirmation', function () {
@@ -143,5 +143,5 @@ test('wallet page poll is skipped while a deposit is awaiting confirmation', fun
         ->call('pollBalance')
         ->assertSet('balance', 10.0);
 
-    Http::assertNotSent(fn ($request) => str_contains($request->url(), '/customers/') && ! str_contains($request->url(), 'transactions'));
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), '/customers/') && ! str_contains($request->url(), 'transactions') && ! str_ends_with($request->url(), '/promotions'));
 });

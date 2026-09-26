@@ -87,6 +87,10 @@
 
             <x-referral-code-field />
 
+            @if (config('kadi.promotions.enabled'))
+                <livewire:auth.promo-code-field :error="$errors->first('promo_code')" />
+            @endif
+
             <x-consent-fields />
 
             <div class="flex items-center justify-end">

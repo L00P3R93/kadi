@@ -173,6 +173,34 @@ return [
         'page_cache_seconds' => 60,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Promotions (signup bonus)
+    |--------------------------------------------------------------------------
+    |
+    | KadiApi decides who qualifies and pays the bonus; this site collects the promo code, reports
+    | verification and shows the bonus and what is still locked. `enabled` only hides the promo
+    | field, ?promo= links and the promo notices: the locked-bonus note and withdraw cap always
+    | follow KadiApi. See docs/promotions.md.
+    |
+    */
+
+    'promotions' => [
+        'enabled' => (bool) env('KADI_PROMOTIONS_ENABLED', true),
+        'cookie' => 'kadi_promo',
+        'cookie_days' => 30,
+        'signup_bonus_amount' => 20,       // copy only; KadiApi sets the real amount
+        'lookup_cache_seconds' => 60,      // a code can be used up, so keep this short
+        'lookups_per_minute' => 10,        // per IP, on the sign-up screen
+        'cache_seconds' => 60,             // GET customers/{id}/promotions on the wallet page
+        // Jackpot wallet the game server creates for a player whose promo code earned the bonus
+        // (mpesa_create_jp_wallet.php, after POST customers/{id}/verified). Sent once, never retried.
+        'jackpot_wallet' => [
+            'type' => env('KADI_PROMO_JACKPOT_TYPE', 'BRONZE'),
+            'amount' => (int) env('KADI_PROMO_JACKPOT_AMOUNT', 20),
+        ],
+    ],
+
     'push' => [
         // Environments where any signed-in user may use the "Send test notification" button
         // (admins may use it everywhere). See App\Services\PushTestSender.

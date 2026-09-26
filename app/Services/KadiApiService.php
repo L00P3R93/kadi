@@ -406,6 +406,10 @@ class KadiApiService
             return WithdrawResult::success($body['ledger_entry_id'] ?? null);
         }
 
+        if ($status === 400 && ($body['code'] ?? null) === 'signup_bonus_locked') {
+            return WithdrawResult::rejected(self::signupBonusLockedMessage($body, 'withdraw'));
+        }
+
         return match (true) {
             $status === 400 && str_contains($apiMessage, 'phone') => WithdrawResult::rejected('We could not find a phone number on your account. Please update it and try again.'),
             $status === 400 => WithdrawResult::rejected('Insufficient balance for this withdrawal.'),
@@ -417,6 +421,19 @@ class KadiApiService
             $status >= 500 => WithdrawResult::unknown(),
             default => WithdrawResult::rejected('Withdrawal could not be processed right now. Please try again shortly.'),
         };
+    }
+
+    /**
+     * The player-facing message for KadiApi's `signup_bonus_locked` refusal (withdraw, transfer, coin
+     * purchase): {"code": "signup_bonus_locked", "locked_amount": 20, "available": 5}. Check `code`,
+     * never the message text.
+     */
+    public static function signupBonusLockedMessage(array $body, string $verb = 'withdraw'): string
+    {
+        $locked = number_format(max(0, (float) ($body['locked_amount'] ?? 0)));
+        $available = number_format(max(0, floor((float) ($body['available'] ?? 0))));
+
+        return "KES {$locked} of your signup bonus has to be played first. You can {$verb} up to KES {$available}.";
     }
 
     /*
@@ -514,19 +531,82 @@ class KadiApiService
         return is_array($data) ? $data : null;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Verification and promotions (see docs/promotions.md)
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Report that a (possibly referred) player verified their e-mail and phone. Pays the referrer;
-     * safe to repeat; `referred: false` for players who were not referred.
+     * Report that a player verified their e-mail and phone, for every player. Records the
+     * verification, pays any referral bonus now due and grants the signup bonus when the player
+     * qualifies (`data.signup_bonus`, otherwise null). Safe to repeat: nothing is paid twice.
+     * Replaces POST customers/{enc}/referral/verified; never call both.
      *
-     * Endpoint : POST customers/{enc}/referral/verified   (30/min for the whole site)
+     * Endpoint : POST customers/{enc}/verified   (30/min for the whole site)
      *
      * @throws RequestException|ConnectionException
      */
-    public function reportReferralVerified(int $customerId): array
+    public function reportVerified(int $customerId): array
     {
-        return $this->http->post('customers/'.encryptOpenSSL((string) $customerId).'/referral/verified')
+        return $this->http->post('customers/'.encryptOpenSSL((string) $customerId).'/verified')
             ->throw()
             ->json() ?? [];
+    }
+
+    /**
+     * Whether a player could sign up with a promo code right now. ['valid' => false] on 404 (unknown,
+     * expired, deactivated, used up, or the promotion is off); null on any other error, because then
+     * we cannot tell. Never blocks sign-up.
+     *
+     * Endpoint : GET promo-codes/lookup?code=
+     *
+     * @return array{valid: bool, code?: string, expires_at?: ?string}|null
+     */
+    public function lookupPromoCode(string $code): ?array
+    {
+        try {
+            $response = (clone $this->http)->timeout(5)->get('promo-codes/lookup', ['code' => $code]);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if ($response->status() === 404) {
+            return ['valid' => false];
+        }
+
+        $data = $response->successful() ? $response->json('data') : null;
+
+        if (! is_array($data)) {
+            return null;
+        }
+
+        return [
+            'valid' => true,
+            'code' => (string) ($data['code'] ?? $code),
+            'expires_at' => is_string($data['expires_at'] ?? null) ? $data['expires_at'] : null,
+        ];
+    }
+
+    /**
+     * The player's bonuses and how much is still locked (cannot be withdrawn yet).
+     *
+     * Endpoint : GET customers/{enc}/promotions
+     *
+     * @return array{locked_amount: float, items: list<array<string, mixed>>}
+     *
+     * @throws RequestException|ConnectionException
+     */
+    public function getPromotions(int $customerId): array
+    {
+        $data = $this->http->get('customers/'.encryptOpenSSL((string) $customerId).'/promotions')
+            ->throw()
+            ->json('data') ?? [];
+
+        return [
+            'locked_amount' => max(0.0, (float) ($data['locked_amount'] ?? 0)),
+            'items' => array_values(array_filter((array) ($data['items'] ?? []), 'is_array')),
+        ];
     }
 
     /**

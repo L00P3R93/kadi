@@ -5,6 +5,7 @@ namespace App\Livewire\Wallet;
 use App\Facades\KadiApi;
 use App\Livewire\WalletBalance;
 use App\Models\User;
+use App\Services\KadiApiService;
 use App\Services\WithdrawResult;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
@@ -122,6 +123,9 @@ class Index extends Component
 
     public ?float $balance = null;
 
+    /** Signup bonus not yet played through: KadiApi refuses to withdraw it (GET customers/{id}/promotions). */
+    public float $lockedBonus = 0;
+
     /** Drives the echo-private:user.{userId} listener on syncCustomer() below. */
     public int $userId = 0;
 
@@ -138,6 +142,7 @@ class Index extends Component
         }
 
         $this->loadTransactions();
+        $this->loadPromotions();
     }
 
     /**
@@ -188,6 +193,59 @@ class Index extends Component
         }
 
         $this->syncCustomer();
+        $this->loadPromotions();
+    }
+
+    /**
+     * How much signup bonus is still locked. Cached briefly (it drops as the player stakes). On any
+     * error it shows nothing locked; KadiApi still refuses a withdrawal that would use it.
+     */
+    public function loadPromotions(): void
+    {
+        $user = auth()->user();
+
+        if (! $user?->linked_id) {
+            $this->lockedBonus = 0;
+
+            return;
+        }
+
+        try {
+            $promotions = Cache::remember(
+                "kadi.promotions.{$user->id}",
+                now()->addSeconds((int) config('kadi.promotions.cache_seconds', 60)),
+                fn () => KadiApi::getPromotions((int) $user->linked_id),
+            );
+            $this->lockedBonus = (float) ($promotions['locked_amount'] ?? 0);
+        } catch (\Throwable $e) {
+            Log::warning("Could not load promotions for user {$user->id}");
+            $this->lockedBonus = 0;
+        }
+    }
+
+    /** What the player can withdraw now: the balance minus locked bonus, never below 0. */
+    #[Computed]
+    public function withdrawableBalance(): float
+    {
+        return max(0.0, (float) $this->balance - $this->lockedBonus);
+    }
+
+    /** Signed up with a promo code that KadiApi did not apply; shown until dismissed. */
+    #[Computed]
+    public function showPromoNotice(): bool
+    {
+        $user = auth()->user();
+
+        return config('kadi.promotions.enabled')
+            && $user?->signup_promo_code !== null
+            && $user->promo_code_applied === false
+            && $user->promo_notice_dismissed_at === null;
+    }
+
+    public function dismissPromoNotice(): void
+    {
+        auth()->user()?->forceFill(['promo_notice_dismissed_at' => now()])->save();
+        unset($this->showPromoNotice);
     }
 
     public function loadTransactions(): void
@@ -340,6 +398,10 @@ class Index extends Component
         } catch (\Throwable $e) {
             Log::error("Error fetching customer {$user->id} profile after transaction");
         }
+
+        // A stake, withdrawal or refusal may have changed what is locked.
+        Cache::forget("kadi.promotions.{$user->id}");
+        $this->loadPromotions();
     }
 
     /**
@@ -668,19 +730,28 @@ class Index extends Component
     }
 
     /**
-     * Withdraw-specific amount rules: minimum KES 50 and at most the
-     * cached balance. Returns an error message or null when valid.
+     * Withdraw-specific amount rules: minimum KES 50, at most the cached
+     * balance, and not the locked signup bonus. Returns an error message or
+     * null when valid. KadiApi still decides (signup_bonus_locked).
      */
     protected function validateWithdrawAmount(): ?string
     {
         $amount = (float) $this->withdrawAmount;
+        $balance = (float) ($this->kadiCustomer['balance'] ?? 0);
 
         if ($amount < self::MIN_WITHDRAWAL) {
             return 'Minimum withdrawal amount is KES '.self::MIN_WITHDRAWAL.'.';
         }
 
-        if ($amount > (float) ($this->kadiCustomer['balance'] ?? 0)) {
+        if ($amount > $balance) {
             return 'Insufficient balance for this withdrawal.';
+        }
+
+        if ($this->lockedBonus > 0 && $amount > $balance - $this->lockedBonus) {
+            return KadiApiService::signupBonusLockedMessage([
+                'locked_amount' => $this->lockedBonus,
+                'available' => max(0, $balance - $this->lockedBonus),
+            ]);
         }
 
         return null;

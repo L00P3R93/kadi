@@ -16,6 +16,13 @@
             </p>
         </div>
 
+        {{-- Signed up with a promo code: the code has to still be valid when they verify --}}
+        @if (auth()->user()?->awaitsSignupBonus())
+            <div class="rounded-lg border border-[#f5c542]/30 bg-[#f5c542]/10 px-4 py-3 text-sm text-[#f5c542]" data-test="promo-verify-nudge" style="font-family: 'Outfit', sans-serif;">
+                {{ __('Verify your email and phone now to get your KES :amount signup bonus. Promo codes expire, so don\'t wait.', ['amount' => config('kadi.promotions.signup_bonus_amount')]) }}
+            </div>
+        @endif
+
         {{-- Success flash --}}
         @if (session('status') == 'verification-link-sent')
             <div class="rounded-lg border border-green-700/40 bg-green-900/20 px-4 py-3 text-sm text-green-400" style="font-family: 'Outfit', sans-serif;">

@@ -6,8 +6,8 @@ use App\Facades\BugsApi;
 use App\Facades\KadiApi;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
-use App\Referrals\ReferralVerification;
 use App\Services\KadiAccountSync;
+use App\Support\CustomerVerification;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -72,7 +72,7 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
         $this->sendWelcomeEmail();
 
         // The phone may have been verified before the account was linked.
-        ReferralVerification::reportIfReady($this->user);
+        CustomerVerification::reportIfReady($this->user);
     }
 
     /**
@@ -113,6 +113,8 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
                 // A player's referral code or an agent code, typed or linked at sign-up. KadiApi
                 // decides which; this is the only moment a referral can be attached.
                 'referral_code' => $this->user->signup_referral_code ?: null,
+                // Signup-bonus promo code, separate from referral_code. Also only attachable here.
+                'promo_code' => $this->user->signup_promo_code ?: null,
             ], fn ($v) => $v !== null);
             $response = KadiApi::createCustomer($userArr);
 
@@ -123,6 +125,8 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
                     return null;
                 }
 
+                $this->recordPromoCodeOutcome($response);
+
                 return $customerId;
             }
         } catch (RequestException|ConnectionException $e) {
@@ -130,6 +134,20 @@ class ProcessVerifiedUser implements ShouldBeUnique, ShouldQueue
         }
 
         return null;
+    }
+
+    /**
+     * KadiApi says whether the promo code was applied (false: unknown, expired, used up, or the
+     * promotion is off; sign-up still succeeded). The wallet page tells the player when it was not.
+     * Left null when no code was sent or KadiApi did not say.
+     */
+    private function recordPromoCodeOutcome(array $response): void
+    {
+        if ($this->user->signup_promo_code === null || ! array_key_exists('promo_code_applied', $response)) {
+            return;
+        }
+
+        $this->user->forceFill(['promo_code_applied' => (bool) $response['promo_code_applied']])->save();
     }
 
     /**
