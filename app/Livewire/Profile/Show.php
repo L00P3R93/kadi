@@ -7,6 +7,7 @@ use App\Concerns\ProfileValidationRules;
 use App\Events\PasswordChanged;
 use App\Facades\KadiApi;
 use App\Services\KadiAccountSync;
+use App\Services\WalletBalanceFetcher;
 use App\Support\PlayerName;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
@@ -50,21 +51,51 @@ class Show extends Component
 
     public string $resolvedAvatarUrl = '';
 
+    /** The KadiApi profile cache is cold: loadCustomer() fetches it after first paint. */
+    public bool $needsLoad = false;
+
     public function mount(): void
     {
         $user = auth()->user();
         $this->isGoogleUser = $user->google_id !== null;
-        $this->kadiCustomer = Cache::get("kadi.customer.{$user->id}", []);
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->idNo = $this->kadiCustomer['id_no'] ?? '';
-        $this->phoneNo = $this->kadiCustomer['phone_no'] ?? $user->phone ?? '';
+        $this->applyCustomer(Cache::get("kadi.customer.{$user->id}", []));
+        $this->needsLoad = $this->kadiCustomer === [] && $user->linked_id;
+    }
+
+    /**
+     * wire:init: fetch the KadiApi profile a cold cache could not show. Goes through the shared
+     * fetcher (same lock and cache keys as the header balance), so loading both costs one call.
+     */
+    public function loadCustomer(): void
+    {
+        $this->needsLoad = false;
+        $user = auth()->user();
+
+        if (app(WalletBalanceFetcher::class)->fetch($user)['fresh']) {
+            $this->dispatch('wallet-refreshed');
+        }
+
+        $this->applyCustomer(Cache::get("kadi.customer.{$user->id}", []));
+    }
+
+    private function applyCustomer(array $customer): void
+    {
+        $this->kadiCustomer = $customer;
+        $this->idNo = (string) ($customer['id_no'] ?? '');
+        $this->phoneNo = (string) ($customer['phone_no'] ?? auth()->user()->phone ?? '');
         $this->profilePicUrl = $this->buildProfilePicUrl();
         $this->resolvedAvatarUrl = $this->resolveAvatarUrl();
     }
 
     public function updateProfile(): void
     {
+        // Save is disabled until the profile has loaded; never save over fields that were not loaded.
+        if ($this->needsLoad) {
+            $this->loadCustomer();
+        }
+
         $user = auth()->user();
 
         // A phone is set once (it is the M-Pesa payout number); after that the field is ignored.
@@ -99,12 +130,14 @@ class Show extends Component
 
         if ($customerId) {
             try {
+                // Blanks are dropped as well as nulls: an empty id_no (profile not loaded, or never
+                // set) must not overwrite the one KadiApi holds.
                 $response = KadiApi::updateCustomer($customerId, array_filter([
                     'name' => $this->name,
                     'id_no' => $this->idNo,
                     // Only when it was just set, and as stored (254XXXXXXXXX, no `+`).
                     'phone_no' => $settingPhone ? $user->phone : null,
-                ], fn ($v) => $v !== null));
+                ], fn ($v) => $v !== null && $v !== ''));
 
                 if (isset($response['data'])) {
                     Cache::put('kadi.customer.'.auth()->id(), $response['data'], now()->addHour());

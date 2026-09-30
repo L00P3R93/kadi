@@ -34,9 +34,9 @@
                 if (textEl) textEl.textContent = messages[idx];
             }, 1400);
 
-            // Keep it on screen for at least this long so the deal animation
-            // always gets to finish, even on a fast/cached load.
-            var MIN_VISIBLE_MS = 1100;
+            // A short floor so it doesn't blink on a fast/cached load. Kept small:
+            // every extra millisecond is added to a first visit's wait.
+            var MIN_VISIBLE_MS = 350;
             var startedAt = Date.now();
 
             function finish() {
@@ -44,9 +44,10 @@
                 setTimeout(function () {
                     el.classList.add('is-hidden');
                     clearInterval(textTimer);
-                    // Session-length cookie: skips the preloader on subsequent
-                    // wire:navigate hops and reloads until the browser session ends.
-                    document.cookie = 'kadi_preloaded=1; path=/';
+                    // 30-day cookie: returning visitors skip the intro. Read on the server
+                    // (not encrypted, see bootstrap/app.php), so the markup isn't even sent.
+                    document.cookie = 'kadi_preloaded=1; path=/; max-age=2592000; SameSite=Lax'
+                        + (location.protocol === 'https:' ? '; Secure' : '');
                     setTimeout(function () { el.remove(); }, 600);
                 }, Math.max(remaining, 0));
             }

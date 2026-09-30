@@ -2,14 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Facades\KadiApi;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -32,47 +26,12 @@ class Rules extends Component
             return;
         }
 
-        $cacheKey = "kadi.customer.{$user->id}";
-        $profile = Cache::get($cacheKey);
-
-        if ($profile === null) {
-            $profile = $this->refreshProfile($user, $cacheKey);
-        }
-
-        $googleId = $profile['google_id'] ?? null;
+        // The app's own account_no is the player's game identity (kadi:sync-google-id copies it to
+        // kadi.accounts.google_id), as on the home page and dashboard.
+        // No KadiApi or game-database call before this page is sent.
+        $googleId = $user->account_no ?: null;
 
         $this->playKadiUrl = config('services.kadi_api.play_url').($googleId ? '?ggid='.$googleId : '');
-    }
-
-    private function refreshProfile(User $user, string $cacheKey): array
-    {
-        if (! $user->linked_id) {
-            return [];
-        }
-
-        try {
-            $response = KadiApi::getCustomer($user->linked_id);
-            $profile = $response['data'] ?? $response;
-
-            $googleId = DB::connection('kadi')
-                ->table('accounts')
-                ->where('email', $user->email)
-                ->value('google_id');
-
-            if ($googleId !== null) {
-                $profile['google_id'] = $googleId;
-            }
-
-            Cache::put($cacheKey, $profile, now()->addHour());
-
-            return $profile;
-        } catch (RequestException|ConnectionException $e) {
-            Log::error("Welcome: KadiApi fetch failed for user {$user->id}: ".$e->getMessage());
-        } catch (\Throwable $e) {
-            Log::error("Welcome: Failed to refresh profile for user {$user->id}: ".$e->getMessage());
-        }
-
-        return [];
     }
 
     public function render(): Factory|\Illuminate\Contracts\View\View|View
