@@ -33,7 +33,8 @@ test('cold caches defer loading via wire init', function () {
         ->assertSet('balance', null)
         ->assertSet('needsLoad', true)
         ->assertSeeHtml('wire:init="loadBalance"')
-        ->assertSee('—', false);
+        ->assertSeeHtml('data-test="balance-skeleton"')
+        ->assertDontSee('—', false);
 });
 
 test('loadBalance serves from the customer profile cache without hitting the api', function () {

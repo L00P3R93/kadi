@@ -107,13 +107,15 @@ test('unlinked account cannot open a withdraw request', function () {
     Http::assertNotSent(withdrawSent());
 });
 
-test('withdraw button is enabled in the wallet view', function () {
+test('withdraw button is disabled until the page has loaded, then enabled', function () {
     fakeWalletApi();
     $user = withdrawScenario();
 
     Livewire::actingAs($user)->test(Index::class)
-        ->assertSeeHtml('wire:click="openWithdraw"')
-        ->assertDontSeeHtml("wire:click=\"openWithdraw\"\n                            disabled");
+        ->assertSeeHtml('data-test="open-withdraw" disabled')
+        ->call('loadPage')
+        ->assertSeeHtml('data-test="open-withdraw"')
+        ->assertDontSeeHtml('data-test="open-withdraw" disabled');
 });
 
 test('confirmed withdrawal closes modal refreshes caches dispatches event and reloads transactions', function () {

@@ -49,9 +49,62 @@
     </div>
 
     @if (! $loaded)
-        <div class="flex items-center justify-center gap-2 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] py-16 text-sm text-[#6b6b6b]">
-            <flux:icon.loading class="size-4" aria-hidden="true" /> Loading your referrals...
-        </div>
+        {{-- Same blocks as the loaded page, so nothing moves when it arrives. --}}
+        <x-skeleton.region :label="__('Loading your referrals…')" class="space-y-6">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6 lg:col-span-2">
+                    <x-skeleton class="mb-4 h-6 w-32 rounded" />
+                    <div class="flex flex-col gap-6 sm:flex-row">
+                        <div class="flex-1 space-y-4">
+                            <div class="space-y-2">
+                                <x-skeleton class="h-3 w-12 rounded" />
+                                <x-skeleton class="h-7 w-40 rounded" />
+                            </div>
+                            <div class="space-y-2">
+                                <x-skeleton class="h-3 w-12 rounded" />
+                                <x-skeleton class="h-9 w-full rounded-lg" />
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <x-skeleton class="h-8 w-20 rounded-full" />
+                                <x-skeleton class="h-8 w-28 rounded-full" />
+                                <x-skeleton class="h-8 w-20 rounded-full" />
+                            </div>
+                        </div>
+                        <x-skeleton class="mx-auto h-40 w-40 shrink-0 rounded-lg" />
+                    </div>
+                </div>
+
+                <div class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6">
+                    <x-skeleton class="mb-4 h-6 w-36 rounded" />
+                    <x-skeleton class="h-9 w-32 rounded" />
+                    <x-skeleton class="mt-2 h-3 w-28 rounded" />
+                    <x-skeleton class="mt-5 h-3 w-32 rounded" />
+                    <x-skeleton class="mt-3 h-9 w-full rounded-lg" />
+                </div>
+            </div>
+
+            <div class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6">
+                <x-skeleton class="mb-4 h-6 w-36 rounded" />
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                    @for ($i = 0; $i < 6; $i++)
+                        <div class="rounded-lg border border-yellow-800/20 bg-[#111]/60 p-3">
+                            <x-skeleton class="h-3 w-14 rounded" />
+                            <x-skeleton class="mt-2 h-6 w-10 rounded" />
+                        </div>
+                    @endfor
+                </div>
+                <x-skeleton.rows :count="3" class="mt-6" />
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                @for ($i = 0; $i < 2; $i++)
+                    <div class="min-w-0 rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-4 sm:p-6">
+                        <x-skeleton class="mb-4 h-6 w-28 rounded" />
+                        <x-skeleton.rows :count="2" />
+                    </div>
+                @endfor
+            </div>
+        </x-skeleton.region>
     @elseif (! auth()->user()->linked_id)
         <div class="rounded-xl border border-yellow-800/30 bg-[#1a1a1a] p-6 text-sm text-[#6b6b6b]">
             Your account is still being set up. Please check back in a few minutes.

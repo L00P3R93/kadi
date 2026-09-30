@@ -47,6 +47,7 @@ test('the wallet shows what is still locked and caps the withdraw amount', funct
     $user = lockedWalletUser(70);
 
     Livewire::actingAs($user)->test(Index::class)
+        ->call('loadPage')
         ->assertSet('lockedBonus', 15.0)
         ->assertSee('Signup bonus: KES 15 left to play before you can withdraw it.')
         ->assertSee('max="55"', false)
@@ -58,6 +59,7 @@ test('nothing locked: no note, full balance withdrawable', function () {
     $user = lockedWalletUser(70);
 
     Livewire::actingAs($user)->test(Index::class)
+        ->call('loadPage')
         ->assertSet('lockedBonus', 0.0)
         ->assertDontSee('data-test="locked-bonus-note"', false)
         ->assertSee('max="70"', false);
@@ -71,6 +73,7 @@ test('a promotions error shows nothing locked and never breaks the wallet', func
     $user = lockedWalletUser(70);
 
     Livewire::actingAs($user)->test(Index::class)
+        ->call('loadPage')
         ->assertOk()
         ->assertSet('lockedBonus', 0.0);
 });

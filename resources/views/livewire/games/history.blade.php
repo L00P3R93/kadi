@@ -70,9 +70,9 @@
         </div>
 
         @if (! $loaded)
-            <div class="flex items-center justify-center gap-2 py-12 text-sm text-[#6b6b6b]">
-                <flux:icon.loading class="size-4" aria-hidden="true" /> Loading your games...
-            </div>
+            <x-skeleton.region :label="__('Loading your games…')">
+                <x-skeleton.rows :count="10" />
+            </x-skeleton.region>
         @elseif ($loadFailed)
             <div class="py-12 text-center">
                 <p class="text-sm text-red-400">We could not load your games right now.</p>

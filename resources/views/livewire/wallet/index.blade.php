@@ -1,4 +1,4 @@
-<div class="space-y-6" wire:poll.30s.visible="pollBalance" @if ($needsLoad) wire:init="refreshCustomer" @endif>
+<div class="space-y-6" wire:poll.30s.visible="pollBalance" wire:init="loadPage">
 
     {{-- Flash messages --}}
     @if (session('wallet_success'))
@@ -54,16 +54,27 @@
             {{-- Card 1: Main Wallet Balance --}}
             <div class="rounded-xl border border-[#f5c542]/40 bg-[#1a1a1a] p-6 shadow-[0_0_30px_rgba(245,197,66,0.08)]">
                 <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]">Vault Balance</div>
-                <div class="mb-1 text-4xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
-                    {{ $walletCurrencyLabel }} {{ \App\Support\WalletAmount::format($balance) }}
-                </div>
+                @if ($needsLoad)
+                    <x-skeleton.region :label="__('Loading your balance…')" class="mb-1 py-1">
+                        <x-skeleton class="h-8 w-40 rounded" data-test="wallet-balance-skeleton" />
+                    </x-skeleton.region>
+                @else
+                    <div class="mb-1 text-4xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
+                        {{ $walletCurrencyLabel }} {{ \App\Support\WalletAmount::format($balance) }}
+                    </div>
+                @endif
                 @if ($lockedBonus > 0)
                     <p class="mb-2 text-xs text-amber-300" data-test="locked-bonus-note">
                         {{ __('Signup bonus: KES :amount left to play before you can withdraw it.', ['amount' => number_format($lockedBonus)]) }}
                     </p>
                 @endif
                 <div class="mb-4 text-xs text-[#6b6b6b]">
-                    Account No: <span class="text-[#f5f5f0]/60 font-mono">{{ $kadiCustomer['account_no'] ?? '—' }}</span>
+                    Account No:
+                    @if ($needsLoad)
+                        <x-skeleton inline class="h-3 w-20 rounded" />
+                    @else
+                        <span class="text-[#f5f5f0]/60 font-mono">{{ $kadiCustomer['account_no'] ?? '—' }}</span>
+                    @endif
                 </div>
 
 
@@ -95,9 +106,11 @@
                         >
                             + Deposit Funds
                         </button>
+                        {{-- Disabled until loadPage() has fetched the balance and the locked bonus. --}}
                         <button
                             wire:click="openWithdraw"
-                            class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm"
+                            data-test="open-withdraw" @disabled(! $loaded)
+                            class="btn-casino-ghost flex w-full items-center justify-center gap-2 rounded-full py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             - Withdraw Funds
                         </button>
@@ -213,14 +226,20 @@
                     @endforeach
                 </div>
 
-                {{-- Loading state --}}
-                <div wire:loading wire:target="setFilter, loadTransactions" class="py-8 text-center text-[#6b6b6b] text-sm">
-                    <span class="animate-spin inline-block mr-2">⟳</span> Loading transactions...
+                {{-- Tab switch --}}
+                <div wire:loading wire:target="setFilter">
+                    <x-skeleton.region :label="__('Loading transactions…')">
+                        <x-skeleton.rows :count="6" />
+                    </x-skeleton.region>
                 </div>
 
                 {{-- Table --}}
-                <div wire:loading.remove wire:target="setFilter, loadTransactions">
-                    @if (empty($transactions))
+                <div wire:loading.remove wire:target="setFilter">
+                    @if (! $loaded)
+                        <x-skeleton.region :label="__('Loading transactions…')">
+                            <x-skeleton.rows :count="6" />
+                        </x-skeleton.region>
+                    @elseif (empty($transactions))
                         <div class="py-16 text-center">
                             <div class="mb-3 text-4xl">🪙</div>
                             <p class="text-[#6b6b6b]">No transactions yet.</p>
@@ -436,7 +455,12 @@
             <div>
                 <h3 class="text-xl font-bold text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">💸 Withdraw Funds</h3>
                 <p class="mt-1 text-sm text-[#6b6b6b]">
-                    Available: <span class="font-semibold text-[#f5c542]" data-test="withdrawable">{{ $walletCurrencyLabel }} {{ number_format(floor($this->withdrawableBalance)) }}</span>
+                    Available:
+                    @if ($loaded)
+                        <span class="font-semibold text-[#f5c542]" data-test="withdrawable">{{ $walletCurrencyLabel }} {{ number_format(floor($this->withdrawableBalance)) }}</span>
+                    @else
+                        <x-skeleton inline class="h-4 w-16 rounded" />
+                    @endif
                 </p>
                 @if ($lockedBonus > 0)
                     <p class="mt-1 text-xs text-amber-300">

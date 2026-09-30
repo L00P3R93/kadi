@@ -13,16 +13,14 @@
             class="relative flex h-10 items-center gap-2 rounded-full border border-yellow-800/30 px-4 transition hover:border-[#f5c542]/50"
             title="{{ __('Wallet balance') }}"
         >
-            {{-- Spinner: hidden by default, shown while loading --}}
+            {{-- Placeholder while a fetch is running: hidden by default --}}
             <span
                 class="hidden"
                 wire:loading.class.remove="hidden"
                 wire:target="loadBalance, refreshWallet"
             >
-                <svg class="size-5 animate-spin text-[#f5c542]" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                </svg>
+                <span class="sr-only">{{ __('Loading balance…') }}</span>
+                <x-skeleton inline class="h-4 w-14 rounded" />
             </span>
 
             {{-- Balance content: visible by default, hidden while loading --}}
@@ -38,6 +36,9 @@
                         <span class="text-xs font-normal tracking-normal text-[#f5f5f0]/40">{{ __('unavailable') }}</span>
                     @elseif ($balance !== null)
                         {{ \App\Support\WalletAmount::format($balance) }}
+                    @elseif ($needsLoad)
+                        <span class="sr-only">{{ __('Loading balance…') }}</span>
+                        <x-skeleton inline class="h-4 w-14 rounded" data-test="balance-skeleton" />
                     @else
                         <span class="font-normal text-[#f5f5f0]/30">—</span>
                     @endif
