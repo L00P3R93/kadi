@@ -34,6 +34,9 @@ class Index extends Component
 
     public bool $needsLoad = false;
 
+    /** Set by loadPage() once transactions and the locked bonus have been fetched. */
+    public bool $loaded = false;
+
     /*
      * Feature Toggles for Kadi Casino
      * Flipping any of these to true will restore Casino UI
@@ -135,14 +138,27 @@ class Index extends Component
         $this->kadiCustomer = Cache::get('kadi.customer.'.auth()->id(), []);
         $this->balance = (float) ($this->kadiCustomer['balance'] ?? 0);
 
-        // Cold cache (e.g. right after login): defer a live fetch via
-        // wire:init instead of silently showing 0.
+        // Cold cache (e.g. right after login): loadPage() fetches the profile
+        // instead of silently showing 0.
         if ($this->kadiCustomer === []) {
             $this->needsLoad = true;
+        }
+    }
+
+    /**
+     * Everything that calls KadiApi runs here, from wire:init, so the page is sent without waiting
+     * on it and shows skeletons meanwhile. Withdraw stays disabled until this has run, because the
+     * withdrawable amount needs both the balance and the locked bonus.
+     */
+    public function loadPage(): void
+    {
+        if ($this->needsLoad) {
+            $this->refreshCustomer();
         }
 
         $this->loadTransactions();
         $this->loadPromotions();
+        $this->loaded = true;
     }
 
     /**
@@ -736,6 +752,12 @@ class Index extends Component
      */
     protected function validateWithdrawAmount(): ?string
     {
+        // Withdraw is disabled until loadPage() has run; never check against a locked bonus that
+        // was not fetched yet (it would read as 0).
+        if (! $this->loaded) {
+            $this->loadPromotions();
+        }
+
         $amount = (float) $this->withdrawAmount;
         $balance = (float) ($this->kadiCustomer['balance'] ?? 0);
 

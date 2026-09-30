@@ -455,6 +455,32 @@ select:focus[data-flux-control] {
   100% { background-position:  200% 0; }
 }
 
+/* ─── Content skeleton (<x-skeleton>) ───────────────────── */
+/* Size, shape and display come from utility classes; this only paints the block. It fades in
+   after 150ms so a fast response never flashes it. */
+.kadi-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  animation: kadiSkeletonIn 0.2s ease 0.15s forwards;
+}
+.kadi-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(245, 197, 66, 0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+}
+@keyframes kadiSkeletonIn {
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kadi-skeleton { animation: none; opacity: 1; }
+  .kadi-skeleton::after { animation: none; background: none; }
+}
+
 /* ─── M-Pesa status dot (Load Wallet header) ────────────── */
 .mpesa-dot {
     display: inline-block;
