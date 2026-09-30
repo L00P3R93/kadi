@@ -55,7 +55,7 @@
             <div class="rounded-xl border border-[#f5c542]/40 bg-[#1a1a1a] p-6 shadow-[0_0_30px_rgba(245,197,66,0.08)]">
                 <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]">Vault Balance</div>
                 <div class="mb-1 text-4xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;">
-                    {{ $walletCurrencyLabel }} {{ number_format($balance) }}
+                    {{ $walletCurrencyLabel }} {{ \App\Support\WalletAmount::format($balance) }}
                 </div>
                 @if ($lockedBonus > 0)
                     <p class="mb-2 text-xs text-amber-300" data-test="locked-bonus-note">

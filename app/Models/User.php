@@ -119,11 +119,6 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             && $this->verified_reported_at === null;
     }
 
-    public function getFormattedBalanceAttribute(): string
-    {
-        return number_format($this->balance, 2);
-    }
-
     /**
      * Get the user's initials
      */

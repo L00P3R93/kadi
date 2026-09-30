@@ -150,7 +150,7 @@
                 <h2 id="referral-wallet-title" class="mb-4 text-lg font-semibold text-[#f5f5f0]">Referral wallet</h2>
 
                 @if ($wallet)
-                    <p class="text-3xl font-bold text-[#f5c542]" data-test="referral-balance">{{ $kes($wallet['balance'] ?? 0) }}</p>
+                    <p class="text-3xl font-bold text-[#f5c542]" data-test="referral-balance">KES {{ \App\Support\WalletAmount::format($wallet['balance'] ?? 0) }}</p>
                     <p class="mt-1 text-xs text-[#6b6b6b]">Total earned {{ $kes($wallet['total_earned'] ?? 0) }}</p>
 
                     @if ($confirmingWithdraw)

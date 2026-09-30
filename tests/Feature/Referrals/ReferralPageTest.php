@@ -62,7 +62,7 @@ test('the page renders the code, stats, referrals, wallet, bonuses and withdrawa
         ->assertSee('KADI2026')
         ->assertSee('https://kadi.test/register?ref=KADI2026')
         ->assertSee('data:image/svg+xml;base64,', false)
-        ->assertSee('KES 120.00')
+        ->assertSeeHtml('data-test="referral-balance">KES 120</p>')
         ->assertSee('KES 150.00')
         ->assertSeeInOrder(['Invited', '12', 'Verified', '9', 'Deposited', '6', 'Pending', '3'])
         ->assertSee('New Player')
@@ -105,7 +105,7 @@ test('one failing block does not blank the rest of the page', function () {
         ->assertSet('statsFailed', true)
         ->assertSee('We could not load your stats right now.')
         ->assertSee('New Player')
-        ->assertSee('KES 120.00');
+        ->assertSeeHtml('data-test="referral-balance">KES 120</p>');
 });
 
 test('withdraw validation never reaches KadiApi', function (string $amount, string $error) {
