@@ -56,7 +56,7 @@
         {{-- Balance card --}}
         <div class="rounded-xl border border-[#f5c542]/40 bg-[#1a1a1a] p-8 shadow-[0_0_30px_rgba(245,197,66,0.08)]">
             <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]">Your Balance</div>
-            <x-currency-amount :amount="$kadiBalance" class="mb-1 block text-5xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
+            <x-currency-amount :amount="$kadiBalance" floor class="mb-1 block text-5xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
             <div class="mb-6">
                 <span class="rounded-full border border-[#f5c542]/30 bg-[#f5c542]/10 px-3 py-1 text-xs text-[#f5c542]">
                     {{-- session('currency.code', 'KES') --}}  · Active ·

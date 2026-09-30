@@ -37,7 +37,7 @@
                     @if ($hasError)
                         <span class="text-xs font-normal tracking-normal text-[#f5f5f0]/40">{{ __('unavailable') }}</span>
                     @elseif ($balance !== null)
-                        {{ number_format($balance) }}
+                        {{ \App\Support\WalletAmount::format($balance) }}
                     @else
                         <span class="font-normal text-[#f5f5f0]/30">—</span>
                     @endif
