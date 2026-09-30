@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8" @if ($needsLoad) wire:init="loadBalance" @endif>
 
     {{-- Flash messages --}}
     @if (session('success'))
@@ -56,7 +56,18 @@
         {{-- Balance card --}}
         <div class="rounded-xl border border-[#f5c542]/40 bg-[#1a1a1a] p-8 shadow-[0_0_30px_rgba(245,197,66,0.08)]">
             <div class="mb-1 text-xs font-semibold uppercase tracking-widest text-[#6b6b6b]">Your Balance</div>
-            <x-currency-amount :amount="$kadiBalance" floor class="mb-1 block text-5xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
+            @if ($needsLoad)
+                <x-skeleton.region :label="__('Loading your balance…')" class="mb-1 py-1.5">
+                    <x-skeleton class="h-10 w-48 rounded" data-test="dashboard-balance-skeleton" />
+                </x-skeleton.region>
+            @elseif ($kadiBalance === null)
+                <div class="mb-1 py-3 text-sm text-[#f5f5f0]/50" data-test="dashboard-balance-unavailable">
+                    {{ __('Balance unavailable right now.') }}
+                    <a href="{{ route('wallet') }}" wire:navigate class="font-semibold text-[#f5c542] hover:underline">{{ __('Open wallet') }}</a>
+                </div>
+            @else
+                <x-currency-amount :amount="$kadiBalance" floor class="mb-1 block text-5xl font-black text-[#f5c542]" style="font-family: 'Cinzel', serif;" />
+            @endif
             <div class="mb-6">
                 <span class="rounded-full border border-[#f5c542]/30 bg-[#f5c542]/10 px-3 py-1 text-xs text-[#f5c542]">
                     {{-- session('currency.code', 'KES') --}}  · Active ·

@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Facades\KadiApi;
 use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\View\Factory;
@@ -31,65 +30,40 @@ class Welcome extends Component
         /** @var User|null $user */
         $user = auth()->user();
 
-        if (! $user) {
-            return;
+        // No KadiApi call here: nothing on this page uses the profile, and pages that do (wallet,
+        // dashboard, profile) fetch it themselves after first paint.
+        if ($user) {
+            $this->googleId = (string) ($user->account_no ?? '');
         }
-
-        $cacheKey = "kadi.customer.{$user->id}";
-        $profile = Cache::get($cacheKey);
-
-        if ($profile === null) {
-            $profile = $this->refreshProfile($user, $cacheKey);
-        }
-
-        $this->googleId = (string) ($user->account_no ?? '');
     }
 
+    /**
+     * Players online, from the game server. Fresh for 5 minutes, then served stale for up to 15
+     * while it refreshes after the response is sent, so no visitor waits on the game server. A
+     * failed refresh keeps the last good count instead of dropping to 0.
+     */
     public function livePlayers(): int
     {
-        return Cache::remember('kadi.live_players', now()->addMinutes(5), function () {
+        return (int) Cache::flexible('kadi.live_players', [300, 900], function () {
             try {
-                $response = Http::get('https://gameapi.kadi.online/kadi/get_user_totals.php')
+                $response = Http::timeout(3)
+                    ->get('https://gameapi.kadi.online/kadi/get_user_totals.php')
                     ->throw()
                     ->json();
 
-                return ($response['jackpots']['total'] ?? 0)
+                $total = ($response['jackpots']['total'] ?? 0)
                     + ($response['single']['total'] ?? 0)
                     + ($response['tournaments']['total'] ?? 0);
+
+                Cache::forever('kadi.live_players.last', $total);
+
+                return $total;
             } catch (ConnectionException|RequestException $e) {
                 Log::error('Welcome: Failed to fetch live players: '.$e->getMessage());
 
-                return 0;
+                return (int) Cache::get('kadi.live_players.last', 0);
             }
         });
-    }
-
-    private function refreshProfile(User $user, string $cacheKey): array
-    {
-        if (! $user->linked_id) {
-            return [];
-        }
-
-        try {
-            $response = KadiApi::getCustomer($user->linked_id);
-            $profile = $response['data'] ?? $response;
-
-            $googleId = $user->account_no ?? null;
-
-            if ($googleId !== null) {
-                $profile['google_id'] = $googleId;
-            }
-
-            Cache::put($cacheKey, $profile, now()->addHour());
-
-            return $profile;
-        } catch (RequestException|ConnectionException $e) {
-            Log::error("Welcome: KadiApi fetch failed for user {$user->id}: ".$e->getMessage());
-        } catch (\Throwable $e) {
-            Log::error("Welcome: Failed to refresh profile for user {$user->id}: ".$e->getMessage());
-        }
-
-        return [];
     }
 
     #[Computed]

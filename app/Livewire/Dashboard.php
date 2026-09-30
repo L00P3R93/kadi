@@ -3,10 +3,11 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Services\WalletBalanceFetcher;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -21,6 +22,9 @@ class Dashboard extends Component
 
     public string $playKadiUrl;
 
+    /** Both balance caches are cold: loadBalance() fetches after first paint, the card shows a skeleton. */
+    public bool $needsLoad = false;
+
     public function mount(): void
     {
         /** @var User $user */
@@ -29,6 +33,31 @@ class Dashboard extends Component
         $this->googleId = $user->account_no ?? null;
 
         $this->playKadiUrl = rtrim((string) config('services.kadi_api.play_url'), '/');
+
+        $this->needsLoad = $user->linked_id && app(WalletBalanceFetcher::class)->cached($user) === null;
+    }
+
+    /**
+     * wire:init: fetch the balance a cold cache could not show. Shares the header widget's lock, so
+     * both loading at once cost one KadiApi call; a fresh fetch tells the header to resync.
+     */
+    public function loadBalance(): void
+    {
+        $this->needsLoad = false;
+
+        /** @var User $user */
+        $user = auth()->user();
+
+        if (app(WalletBalanceFetcher::class)->fetch($user)['fresh']) {
+            $this->dispatch('wallet-refreshed');
+        }
+    }
+
+    /** Re-render from the shared cache after any balance refresh (header, wallet page, webhook). */
+    #[On('wallet-refreshed')]
+    public function syncBalance(): void
+    {
+        //
     }
 
     /**
@@ -95,13 +124,9 @@ class Dashboard extends Component
             ->take(5)
             ->get();
 
-        // Prefer the fresher dedicated balance cache so this card can't
-        // contradict the header wallet widget on the same screen.
-        $kadiBalance = (float) (
-            Cache::get("wallet_balance_{$user->id}")
-            ?? Cache::get("kadi.customer.{$user->id}")['balance']
-            ?? 0
-        );
+        // Same caches as the header widget, so this card can't contradict it. Null means unknown
+        // (still loading, or the fetch failed), never 0; an unlinked player has no wallet yet: 0.
+        $kadiBalance = app(WalletBalanceFetcher::class)->cached($user) ?? ($user->linked_id ? null : 0.0);
 
         $now = now();
         $stats = $this->liveStats($now);

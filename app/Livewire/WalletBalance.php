@@ -2,8 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Facades\KadiApi;
 use App\Models\User;
+use App\Services\WalletBalanceFetcher;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -45,24 +45,9 @@ class WalletBalance extends Component
 
         $this->userId = $user->id;
 
-        // Try dedicated balance cache first
-        $cached = Cache::get("wallet_balance_{$user->id}");
-        if ($cached !== null) {
-            $this->balance = (float) $cached;
-
-            return;
-        }
-
-        // Fall back to the customer profile cache populated by HandleLogin
-        $profile = Cache::get("kadi.customer.{$user->id}");
-        if ($profile && array_key_exists('balance', $profile)) {
-            $this->balance = (float) $profile['balance'];
-            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addSeconds(self::BALANCE_TTL_SECONDS));
-
-            return;
-        }
-
-        $this->needsLoad = true;
+        // Balance cache first, then the customer profile cache populated by HandleLogin
+        $this->balance = app(WalletBalanceFetcher::class)->cached($user);
+        $this->needsLoad = $this->balance === null;
     }
 
     public function loadBalance(): void
@@ -74,20 +59,9 @@ class WalletBalance extends Component
             return;
         }
 
-        // Check dedicated balance cache
-        $cached = Cache::get("wallet_balance_{$user->id}");
-        if ($cached !== null) {
-            $this->balance = (float) $cached;
-            $this->needsLoad = false;
-
-            return;
-        }
-
-        // Check the shared customer profile cache before hitting the API
-        $profile = Cache::get("kadi.customer.{$user->id}");
-        if ($profile && array_key_exists('balance', $profile)) {
-            $this->balance = (float) $profile['balance'];
-            Cache::put("wallet_balance_{$user->id}", $this->balance, now()->addSeconds(self::BALANCE_TTL_SECONDS));
+        // Check the caches before hitting the API
+        if (($cached = app(WalletBalanceFetcher::class)->cached($user)) !== null) {
+            $this->balance = $cached;
             $this->needsLoad = false;
 
             return;
@@ -167,53 +141,22 @@ class WalletBalance extends Component
         // Step 2 — verify kadi DB record exists (non-blocking, cached 60 min)
         $this->checkKadiDbLinkage($user);
 
-        // Step 3 — fetch balance from KadiApi (stampede-protected)
-        //
-        // Only one in-flight upstream call per user at a time: concurrent
-        // callers wait up to 5s for the lock holder to repopulate the cache,
-        // then serve from it instead of duplicating the API call.
+        // Step 3 — fetch balance from KadiApi (one in-flight call per user, shared with the
+        // dashboard and profile pages)
         $this->needsLoad = false;
 
-        $lock = Cache::lock("wallet_fetch_{$user->id}", 10);
-        $owner = false;
+        ['balance' => $balance, 'fresh' => $fresh] = app(WalletBalanceFetcher::class)->fetch($user);
 
-        try {
-            $owner = $lock->block(5);
-
-            if (! $owner) {
-                // Timed out waiting — serve the last known profile rather
-                // than stacking another call onto the API.
-                $fallback = Cache::get("kadi.customer.{$user->id}");
-
-                if ($fallback !== null && array_key_exists('balance', $fallback)) {
-                    $this->balance = (float) $fallback['balance'];
-                } else {
-                    $this->hasError = true;
-                }
-
-                return;
-            }
-
-            $response = KadiApi::getCustomer($user->linked_id);
-            $profile = $response['data'] ?? $response;
-            $balance = (float) ($profile['balance'] ?? 0);
-
-            // Refresh the shared customer cache (preserves google_id and all other fields)
-            Cache::put("kadi.customer.{$user->id}", $profile, now()->addHour());
-
-            // Balance-specific caches
-            Cache::put("wallet_balance_{$user->id}", $balance, now()->addSeconds(self::BALANCE_TTL_SECONDS));
-            Cache::put("wallet_last_checked_{$user->id}", now()->toISOString(), now()->addSeconds(self::BALANCE_TTL_SECONDS));
-
-            $this->balance = $balance;
-            $this->dispatch('wallet-refreshed');
-        } catch (\Throwable $e) {
-            Log::warning("WalletBalance: KadiApi fetch failed for user {$user->id}: ".$e->getMessage());
+        if ($balance === null) {
             $this->hasError = true;
-        } finally {
-            if ($owner) {
-                $lock->release();
-            }
+
+            return;
+        }
+
+        $this->balance = $balance;
+
+        if ($fresh) {
+            $this->dispatch('wallet-refreshed');
         }
     }
 

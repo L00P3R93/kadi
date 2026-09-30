@@ -1,4 +1,4 @@
-<div x-data="{ tab: ['info', 'security', 'connected', 'notifications'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'info' }" class="mx-auto max-w-5xl space-y-6">
+<div x-data="{ tab: ['info', 'security', 'connected', 'notifications'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'info' }" class="mx-auto max-w-5xl space-y-6" @if ($needsLoad) wire:init="loadCustomer" @endif>
 {{-- google-linked session flash --}}
 @if (session('status') === 'google-linked')
     <div class="rounded-lg border border-green-700 bg-green-900/30 p-4 text-sm text-green-400">
@@ -80,8 +80,10 @@
 
                     {{-- Avatar / JS preview --}}
                     <div class="relative flex-shrink-0">
+                        {{-- $wire keeps the avatar live inside wire:ignore (it changes once loadCustomer() runs). --}}
                         <img id="pic-preview"
-                             :src="preview || '{{ $resolvedAvatarUrl }}'"
+                             src="{{ $resolvedAvatarUrl }}"
+                             :src="preview || $wire.resolvedAvatarUrl"
                              alt="Profile picture"
                              class="h-20 w-20 rounded-full object-cover border-2 border-[#f5c542]/40" />
                         <span x-show="preview"
@@ -229,9 +231,11 @@
                     </div>
                     --}}
 
+                    {{-- Disabled until loadCustomer() has run, so nothing is saved over fields that have not loaded. --}}
                     <button
                         type="submit"
-                        class="btn-casino-primary inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm"
+                        data-test="profile-save" @disabled($needsLoad)
+                        class="btn-casino-primary inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-50"
                         wire:loading.attr="disabled"
                         wire:loading.class="opacity-50 cursor-not-allowed"
                     >
@@ -377,9 +381,15 @@
                     @endphp
                     @foreach ($stats as $stat)
                         <div class="rounded-lg border-t-2 border-[#f5c542]/40 bg-[#111111] p-3 text-center">
-                            <div class="text-base font-black text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">
-                                {{ $stat['value'] }}
-                            </div>
+                            @if ($needsLoad)
+                                <x-skeleton.region :label="__('Loading…')" class="flex justify-center py-0.5">
+                                    <x-skeleton class="h-5 w-16 rounded" data-test="profile-stat-skeleton" />
+                                </x-skeleton.region>
+                            @else
+                                <div class="text-base font-black text-[#f5f5f0]" style="font-family: 'Cinzel', serif;">
+                                    {{ $stat['value'] }}
+                                </div>
+                            @endif
                             <div class="mt-1 text-xs text-[#6b6b6b]" style="font-family: 'Outfit', sans-serif;">
                                 {{ $stat['label'] }}
                             </div>
