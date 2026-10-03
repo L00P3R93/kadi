@@ -211,6 +211,7 @@ class WalletBalance extends Component
 
         if ($cached !== null) {
             $this->balance = (float) $cached;
+            $this->hasError = false;
 
             return;
         }
@@ -219,6 +220,7 @@ class WalletBalance extends Component
 
         if ($profile && array_key_exists('balance', $profile)) {
             $this->balance = (float) $profile['balance'];
+            $this->hasError = false;
         }
     }
 

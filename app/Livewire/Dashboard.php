@@ -25,10 +25,15 @@ class Dashboard extends Component
     /** Both balance caches are cold: loadBalance() fetches after first paint, the card shows a skeleton. */
     public bool $needsLoad = false;
 
+    /** Drives the echo-private:user.{userId} listener on syncBalance() below. */
+    public int $userId = 0;
+
     public function mount(): void
     {
         /** @var User $user */
         $user = auth()->user();
+
+        $this->userId = $user->id;
 
         $this->googleId = $user->account_no ?? null;
 
@@ -53,11 +58,21 @@ class Dashboard extends Component
         }
     }
 
-    /** Re-render from the shared cache after any balance refresh (header, wallet page, webhook). */
+    /**
+     * Re-render from the shared cache after any balance refresh (header, wallet page) or wallet
+     * webhook broadcast. A webhook that lands before loadBalance() has run fills the cache, so the
+     * skeleton gives way to the balance.
+     */
     #[On('wallet-refreshed')]
+    #[On('echo-private:user.{userId},.wallet.updated')]
     public function syncBalance(): void
     {
-        //
+        /** @var User $user */
+        $user = auth()->user();
+
+        if ($this->needsLoad && app(WalletBalanceFetcher::class)->cached($user) !== null) {
+            $this->needsLoad = false;
+        }
     }
 
     /**

@@ -1,10 +1,12 @@
 <?php
 
 use App\Events\WalletBalanceUpdated;
+use App\Livewire\Dashboard;
 use App\Livewire\Wallet\Index as WalletIndex;
 use App\Livewire\WalletBalance;
 use App\Models\User;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportEvents\SupportEvents;
@@ -149,4 +151,54 @@ test('Wallet\Index registers the echo-private wallet.updated listener for the si
     $listeners = SupportEvents::getComponentListeners($component->instance());
 
     expect(array_keys($listeners))->toContain("echo-private:user.{$user->id},.wallet.updated");
+});
+
+test('Dashboard registers the echo-private wallet.updated listener for the signed-in user', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)->test(Dashboard::class);
+
+    $listeners = SupportEvents::getComponentListeners($component->instance());
+
+    expect(array_keys($listeners))->toContain("echo-private:user.{$user->id},.wallet.updated");
+});
+
+test('a wallet.updated broadcast replaces the dashboard skeleton with the webhook balance', function () {
+    $user = User::factory()->create(['linked_id' => 7272]);
+
+    $component = Livewire::actingAs($user)->test(Dashboard::class)
+        ->assertSet('needsLoad', true);
+
+    // What the webhook controller writes before it broadcasts.
+    Cache::put("wallet_balance_{$user->id}", 4321.0, now()->addSeconds(WalletBalance::BALANCE_TTL_SECONDS));
+
+    $component->dispatch("echo-private:user.{$user->id},.wallet.updated")
+        ->assertSet('needsLoad', false)
+        ->assertSee('4,321');
+});
+
+test('a wallet.updated broadcast clears an "unavailable" header balance', function () {
+    $user = User::factory()->create(['linked_id' => 7373]);
+
+    $component = Livewire::actingAs($user)->test(WalletBalance::class)
+        ->set('hasError', true);
+
+    Cache::put("wallet_balance_{$user->id}", 150.0, now()->addSeconds(WalletBalance::BALANCE_TTL_SECONDS));
+
+    $component->dispatch("echo-private:user.{$user->id},.wallet.updated")
+        ->assertSet('hasError', false)
+        ->assertSet('balance', 150.0);
+});
+
+test('Wallet\Index syncCustomer treats a profile without a balance as 0', function () {
+    $user = User::factory()->create(['linked_id' => 7474]);
+    Cache::put("kadi.customer.{$user->id}", ['id' => 7474, 'balance' => 80], now()->addHour());
+
+    $component = Livewire::actingAs($user)->test(WalletIndex::class)
+        ->assertSet('balance', 80.0);
+
+    Cache::put("kadi.customer.{$user->id}", ['id' => 7474], now()->addHour());
+
+    $component->dispatch("echo-private:user.{$user->id},.wallet.updated")
+        ->assertSet('balance', 0.0);
 });
