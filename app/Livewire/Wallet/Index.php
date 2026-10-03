@@ -173,7 +173,7 @@ class Index extends Component
         $profile = Cache::get('kadi.customer.'.auth()->id());
         if ($profile) {
             $this->kadiCustomer = $profile;
-            $this->balance = (float) $profile['balance'] ?? 0;
+            $this->balance = (float) ($profile['balance'] ?? 0);
         }
     }
 
